@@ -1,10 +1,9 @@
 package usecasedomain
 
-import (
-	sqldomain "rbac/domain/infra/sql"
-)
-
 type ObjectUsecase interface {
-	LinkPermission()
-	ListPermissionsOnObject(namespace string, name string, relation string) ([]sqldomain.RelationTuple, error)
+	LinkPermission(objnamespace, objname, relation, subjnamespace, subjname, subjrelation string) error
+	ListWhoHasRelationOnObject(namespace string, name string, relation string) ([]string, error)
+	ListRolesHasRelationOnObject(namespace string, name string, relation string) ([]string, error)
+	ListWhoOrRoleHasRelationOnObject(namespace string, name string, relation string) ([]string, []string, error)
+	ListAllPermissions(namespace, name string) ([]string, error)
 }
