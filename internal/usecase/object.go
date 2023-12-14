@@ -55,15 +55,6 @@ func (ou *ObjectUsecase) ListWhoHasRelationOnObject(namespace string, name strin
 				return nil, err
 			}
 
-			// if filter.ObjNS == "role" {
-			// 	// get all members of role
-			// 	members, err := ou.RoleUsecase.GetRoleMembers(filter.ObjName)
-			// 	if err != nil {
-			// 		return nil, err
-			// 	}
-			// 	users = append(users, members...)
-			// }
-
 			if filter.ObjNS == "user" {
 				users.Add(filter.ObjName)
 			}

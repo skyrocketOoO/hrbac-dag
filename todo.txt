@@ -1,2 +1,3 @@
 
 - restrict the max search depth
+- each function should do atomic operation

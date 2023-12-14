@@ -13,10 +13,6 @@ func NewPermissionUsecase(relationTupleRepo sqldomain.RelationTupleRepository) *
 }
 
 func (pu *PermissionUsecase) CheckPermission(sqldomain.RelationTuple) (bool, error) {
-	
-	return false, nil
-}
-func (pu *PermissionUsecase) ListPermissionOnObject(namespace string, name string, relation string) ([]sqldomain.RelationTuple, error) {
 
-	return nil, nil
+	return false, nil
 }

@@ -1,9 +1,10 @@
 # rbac (in processing...)
 
 
-## How to use?
+## Scenario
 ### Reserved words
 @ # () :
+"member", "parent", "role", "user"
 
 ### Add user to a group
 group:B#members@(user:1)

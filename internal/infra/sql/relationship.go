@@ -45,3 +45,12 @@ func (r *RelationTupleRepository) GetNamespaces() ([]string, error) {
 	}
 	return namespaces, nil
 }
+
+func (r *RelationTupleRepository) QueryExactMatchTuples(tuple sqldomain.RelationTuple) ([]sqldomain.RelationTuple, error) {
+	var matchingTuples []sqldomain.RelationTuple
+	if err := r.DB.Where(&tuple).Find(&matchingTuples).Error; err != nil {
+		return nil, err
+	}
+
+	return matchingTuples, nil
+}
