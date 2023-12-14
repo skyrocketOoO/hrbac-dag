@@ -31,7 +31,7 @@ func (ou *ObjectUsecase) LinkPermission(objnamespace, objname, relation, subjnam
 	return ou.RelationTupleRepo.CreateTuple(tuple)
 }
 
-func (ou *ObjectUsecase) ListWhoHasRelationOnObject(namespace string, name string, relation string) ([]string, error) {
+func (ou *ObjectUsecase) ListWhoHasPermissionOnObject(namespace string, name string, relation string) ([]string, error) {
 	users := utils.NewSet[string]()
 
 	initFilter := sqldomain.RelationTuple{
@@ -115,7 +115,7 @@ func (ou *ObjectUsecase) ListRolesHasWhatPermissonOnObject(namespace string, nam
 	return roles.ToSlice(), nil
 }
 
-func (ou *ObjectUsecase) ListWhoOrRoleHasWhatPermissionOnObject(namespace string, name string, relation string) ([]string, []string, error) {
+func (ou *ObjectUsecase) ListWhoOrRoleHasPermissionOnObject(namespace string, name string, relation string) ([]string, []string, error) {
 	roles := utils.NewSet[string]()
 	users := utils.NewSet[string]()
 
