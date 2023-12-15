@@ -1,0 +1,40 @@
+- user: Jimmy, Tasha, Ivy, Heidi, Elaine
+- role: 
+  - Admin: Jimmy(Boss)
+  - RD-director: Tasha
+  - RD: Ivy
+  - Sales: Heidi
+- Sales-data: s1, s2, s3
+- Source-code: project1, project2, project3
+- Profile: profile-elaine
+
+HRBAC Scenario:
+- Basic permission
+  - Admin:
+    - all access to all files
+  - RD-director:
+    - all access to all Source-code.
+    - read access to all Sales-data.
+  - RD:
+    - create, read and write access to all Source-code.
+  - Sales:
+    - create, read and write access to all Sales-data.
+    - read access to all Source-code.
+  - User:
+    - read access to their respective Profile.
+  - file
+    - all files has create, read, write, delete permission
+  
+- Hierarchy 
+  - Access Inheritance
+    - RD-director inherits all permissions from the RD role.
+  - Children role access control
+    - Admin has full access to modify permission of all roles(without admin)
+    - RD-director has full access to modify RD permissions
+- Access link:
+  - Write access implies read access
+  - Owner access implies all access
+- Zero trust
+  - Default is no access
+- Fine grained
+  - RD has access to write sales-data s1
