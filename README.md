@@ -1,3 +1,4 @@
+# HRBAC-zanzibar
 
 ## Feature
 
@@ -8,3 +9,4 @@
 - [x] Children role access control
 - [x] Zero trust
 - [x] Fine grained
+- [x] Multiple role
