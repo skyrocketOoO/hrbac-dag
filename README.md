@@ -10,3 +10,4 @@
 - [x] Zero trust
 - [x] Fine grained
 - [x] Multiple role
+- [ ] Regex

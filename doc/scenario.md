@@ -22,9 +22,10 @@
 - Ivy has read access to her profile
 - Heidi has read access to her profile
 - RD-Director has full access to all source code
-- RD has write access to source code
-- RD-Director has read access to sales data
+- RD has write access to all source code
+- RD-Director has read access to all sales data
 - Sales has full access to all sales data
+- RD has write access to sales-data:1
 
 ## Link
 

@@ -25,6 +25,7 @@ source-code:*#*@role:rd-director
 sales-data:*#read@role:rd-director
 source-code:*#write@role:rd
 sales-data:*#*@role:sales
+sales-data:1#write@role:rd
 
 ## Link
 
