@@ -16,19 +16,28 @@ func NewUserUsecase(relationTupleRepo sqldomain.RelationTupleRepository) *UserUs
 	}
 }
 
-func (uu *UserUsecase) AddUserToRole(username, rolename string) error {
-	tuple := sqldomain.RelationTuple{
-		ObjNS:    "role",
-		ObjName:  rolename,
-		Relation: "member",
-		SubNS:    "user",
-		SubName:  username,
+func (u *UserUsecase) ListUsers() ([]string, error) {
+	filter := sqldomain.RelationTuple{
+		SubNS: "user",
 	}
 
-	return uu.RelationTupleRepo.CreateTuple(tuple)
+	tuples, err := h.RelationTupleRepo.QueryTuples(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	users := utils.NewSet[string]()
+	for _, tuple := range tuples {
+		users.Add(tuple.SubName)
+	}
+
+	return users.ToSlice(), nil
 }
 
-func (uu *UserUsecase) RemoveUserFromRole(username, rolename string) error {
+func (u *UserUsecase) GetUser(name string) (string, error)
+func (u *UserUsecase) DeleteUser(name string) error
+
+func (u *UserUsecase) AddRole(username, rolename string) error {
 	tuple := sqldomain.RelationTuple{
 		ObjNS:    "role",
 		ObjName:  rolename,
@@ -37,7 +46,19 @@ func (uu *UserUsecase) RemoveUserFromRole(username, rolename string) error {
 		SubName:  username,
 	}
 
-	matchedTuples, err := uu.RelationTupleRepo.QueryExactMatchTuples(tuple)
+	return h.RelationTupleRepo.CreateTuple(tuple)
+}
+
+func (u *UserUsecase) RemoveRole(username, rolename string) error {
+	tuple := sqldomain.RelationTuple{
+		ObjNS:    "role",
+		ObjName:  rolename,
+		Relation: "member",
+		SubNS:    "user",
+		SubName:  username,
+	}
+
+	matchedTuples, err := h.RelationTupleRepo.QueryExactMatchTuples(tuple)
 	if err != nil {
 		return err
 	}
@@ -45,7 +66,7 @@ func (uu *UserUsecase) RemoveUserFromRole(username, rolename string) error {
 		return errors.New("the matched tuples is 0")
 	}
 	for _, tuple := range matchedTuples {
-		if err := uu.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
+		if err := h.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
 			return err
 		}
 	}
@@ -53,7 +74,7 @@ func (uu *UserUsecase) RemoveUserFromRole(username, rolename string) error {
 	return nil
 }
 
-func (uu *UserUsecase) ListUserPermissions(username string) ([]string, error) {
+func (u *UserUsecase) ListRelations(username string) ([]string, error) {
 	permissions := utils.NewSet[string]()
 
 	initFilter := sqldomain.RelationTuple{
@@ -71,7 +92,7 @@ func (uu *UserUsecase) ListUserPermissions(username string) ([]string, error) {
 				return nil, err
 			}
 
-			tuples, err := uu.RelationTupleRepo.QueryTuples(filter)
+			tuples, err := h.RelationTupleRepo.QueryTuples(filter)
 			if err != nil {
 				return nil, err
 			}
@@ -96,7 +117,7 @@ func (uu *UserUsecase) ListUserPermissions(username string) ([]string, error) {
 	return permissions.ToSlice(), nil
 }
 
-func (uu *UserUsecase) AddPermissionToUser(username, relation, objectnamespace, objectname string) error {
+func (u *UserUsecase) AddRelation(username, relation, objectnamespace, objectname string) error {
 	tuple := sqldomain.RelationTuple{
 		ObjNS:    objectnamespace,
 		ObjName:  objectname,
@@ -105,23 +126,9 @@ func (uu *UserUsecase) AddPermissionToUser(username, relation, objectnamespace, 
 		SubName:  username,
 	}
 
-	return uu.RelationTupleRepo.CreateTuple(tuple)
+	return h.RelationTupleRepo.CreateTuple(tuple)
 }
 
-func (uu *UserUsecase) ListUsers() ([]string, error) {
-	filter := sqldomain.RelationTuple{
-		SubNS: "user",
-	}
+func (u *UserUsecase) RemoveRelation(username, relation, objectnamespace, objectname string) error
 
-	tuples, err := uu.RelationTupleRepo.QueryTuples(filter)
-	if err != nil {
-		return nil, err
-	}
-
-	users := utils.NewSet[string]()
-	for _, tuple := range tuples {
-		users.Add(tuple.SubName)
-	}
-
-	return users.ToSlice(), nil
-}
+func (u *UserUsecase) Check(username, relation, objectnamespace, objectname string) (bool, error)

@@ -18,20 +18,7 @@ func NewObjectUsecase(relationTupleRepo sqldomain.RelationTupleRepository, roleU
 	}
 }
 
-func (ou *ObjectUsecase) LinkPermission(objnamespace, objname, relation, subjnamespace, subjname, subjrelation string) error {
-	tuple := sqldomain.RelationTuple{
-		ObjNS:          objnamespace,
-		ObjName:        objname,
-		Relation:       relation,
-		SubSetObjNS:    subjnamespace,
-		SubSetObjName:  subjname,
-		SubSetRelation: subjrelation,
-	}
-
-	return ou.RelationTupleRepo.CreateTuple(tuple)
-}
-
-func (ou *ObjectUsecase) ListWhoHasPermissionOnObject(namespace string, name string, relation string) ([]string, error) {
+func (ou *ObjectUsecase) ListUserHasRelationOnObject(namespace string, name string, relation string) ([]string, error) {
 	users := utils.NewSet[string]()
 
 	initFilter := sqldomain.RelationTuple{
@@ -73,7 +60,7 @@ func (ou *ObjectUsecase) ListWhoHasPermissionOnObject(namespace string, name str
 	return users.ToSlice(), nil
 }
 
-func (ou *ObjectUsecase) ListRolesHasWhatPermissonOnObject(namespace string, name string, relation string) ([]string, error) {
+func (ou *ObjectUsecase) ListRoleHasWhatRelationOnObject(namespace string, name string, relation string) ([]string, error) {
 	roles := utils.NewSet[string]()
 
 	initFilter := sqldomain.RelationTuple{
@@ -115,7 +102,7 @@ func (ou *ObjectUsecase) ListRolesHasWhatPermissonOnObject(namespace string, nam
 	return roles.ToSlice(), nil
 }
 
-func (ou *ObjectUsecase) ListWhoOrRoleHasPermissionOnObject(namespace string, name string, relation string) ([]string, []string, error) {
+func (ou *ObjectUsecase) ListUserOrRoleHasRelationOnObject(namespace string, name string, relation string) ([]string, []string, error) {
 	roles := utils.NewSet[string]()
 	users := utils.NewSet[string]()
 
@@ -161,7 +148,7 @@ func (ou *ObjectUsecase) ListWhoOrRoleHasPermissionOnObject(namespace string, na
 	return roles.ToSlice(), users.ToSlice(), nil
 }
 
-func (ou *ObjectUsecase) ListAllPermissions(namespace, name string) ([]string, error) {
+func (ou *ObjectUsecase) ListRelations(namespace, name string) ([]string, error) {
 	permissions := utils.NewSet[string]()
 
 	filter := sqldomain.RelationTuple{

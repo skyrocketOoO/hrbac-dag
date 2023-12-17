@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	"rbac/utils"
 )
@@ -13,7 +14,22 @@ func NewPermissionUsecase(relationTupleRepo sqldomain.RelationTupleRepository) *
 	return &PermissionUsecase{RelationTupleRepo: relationTupleRepo}
 }
 
-func (pu *PermissionUsecase) CheckUserPermission(objNS, objName, Permission, username string) (bool, error) {
+func (pu *PermissionUsecase) ListRelations() ([]string, error)
+
+func (ou *ObjectUsecase) Link(objnamespace, objname, relation, subjnamespace, subjname, subjrelation string) error {
+	tuple := sqldomain.RelationTuple{
+		ObjNS:          objnamespace,
+		ObjName:        objname,
+		Relation:       relation,
+		SubSetObjNS:    subjnamespace,
+		SubSetObjName:  subjname,
+		SubSetRelation: subjrelation,
+	}
+
+	return ou.RelationTupleRepo.CreateTuple(tuple)
+}
+
+func (pu *PermissionUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
 	query := sqldomain.RelationTuple{
 		SubNS:   "user",
 		SubName: username,
@@ -46,3 +62,5 @@ func (pu *PermissionUsecase) CheckUserPermission(objNS, objName, Permission, use
 
 	return false, nil
 }
+
+func (pu *PermissionUsecase) Path(relationTuple domain.RelationTuple) ([]string, error)
