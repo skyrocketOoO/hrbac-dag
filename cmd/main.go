@@ -34,31 +34,44 @@ func main() {
 
 	handlerRepo := delivery.NewHandlerRepository(usecaseRepo)
 
-	roleApp := app.Group("/role")
-	roleApp.Post("/add-permission", handlerRepo.RoleHandler.AddPermissionToRole)
-	roleApp.Post("/add-parent-role", handlerRepo.RoleHandler.AssignRoleUpRole)
-	roleApp.Get("/list-child-roles", handlerRepo.RoleHandler.ListChildRoles)
-	roleApp.Get("/list-role-permissions", handlerRepo.RoleHandler.ListRolePermissions)
-	roleApp.Get("/list-roles", handlerRepo.RoleHandler.ListRoles)
-	roleApp.Get("/get-role-members", handlerRepo.RoleHandler.GetRoleMembers)
-	roleApp.Delete("/delete-role", handlerRepo.RoleHandler.DeleteRole)
-
 	userApp := app.Group("/user")
-	userApp.Post("/add-role", handlerRepo.UserHandler.AddUserToRole)
-	userApp.Post("/remove-from-role", handlerRepo.UserHandler.RemoveUserFromRole)
-	userApp.Get("/list-permissions", handlerRepo.UserHandler.ListUserPermissions)
-	userApp.Post("/add-permission", handlerRepo.UserHandler.AddPermissionToUser)
-	userApp.Get("/list-users", handlerRepo.UserHandler.ListUsers)
+	userHandler := handlerRepo.UserHandler
+	userApp.Get("/", userHandler.ListUsers)
+	userApp.Get("/:name", userHandler.GetUser)
+	userApp.Delete("/:name", userHandler.DeleteUser)
+	userApp.Post("/add-role", userHandler.AddRole)
+	userApp.Post("/remove-role", userHandler.RemoveRole)
+	userApp.Post("/list-relation", userHandler.ListRelations)
+	userApp.Post("/add-relation", userHandler.AddRelation)
+	userApp.Post("/remove-relation", userHandler.RemoveRelation)
+	userApp.Post("/check", userHandler.Check)
+
+	roleApp := app.Group("/role")
+	roleHandler := handlerRepo.RoleHandler
+	roleApp.Get("/", roleHandler.ListRoles)
+	roleApp.Get("/:name", roleHandler.GetRole)
+	roleApp.Delete("/:name", roleHandler.DeleteRole)
+	roleApp.Post("/add-relation", roleHandler.AddRelation)
+	roleApp.Post("/remove-relation", roleHandler.RemoveRelation)
+	roleApp.Post("/add-parent", roleHandler.AddParent)
+	roleApp.Post("/remove-parent", roleHandler.RemoveParent)
+	// roleApp.Get("/list-child-roles", roleHandler.ListChildRoles)
+	roleApp.Get("/list-relation", roleHandler.ListRelations)
+	roleApp.Get("/get-members", roleHandler.GetMembers)
+	roleApp.Post("/check", roleHandler.Check)
 
 	objectApp := app.Group("/object")
-	objectApp.Get("/list-who-has-permission", handlerRepo.ObjectHandler.ListWhoHasPermissionOnObject)
-	objectApp.Get("/list-roles-has-permission", handlerRepo.ObjectHandler.ListRolesHasWhatPermissionOnObject)
-	objectApp.Get("/list-who-or-role-has-permission", handlerRepo.ObjectHandler.ListWhoOrRoleHasPermissionOnObject)
-	objectApp.Get("/list-all-permissions", handlerRepo.ObjectHandler.ListAllPermissions)
+	objectApp.Get("/list-user-has-relation", handlerRepo.ObjectHandler.ListUserHasRelationOnObject)
+	objectApp.Get("/list-role-has-relation", handlerRepo.ObjectHandler.ListRoleHasWhatRelationOnObject)
+	objectApp.Get("/list-user-or-role-has-relation", handlerRepo.ObjectHandler.ListUserOrRoleHasRelationOnObject)
+	objectApp.Get("/list-relations", handlerRepo.ObjectHandler.ListRelations)
 
-	permissionApp := app.Group("/permission")
-	permissionApp.Post("/link", handlerRepo.ObjectHandler.LinkPermission)
-	permissionApp.Post("/check-user-permission", handlerRepo.PermissionHandler.CheckUserPermission)
+	relationApp := app.Group("/relation")
+	relationHandler := handlerRepo.RelationHandler
+	relationApp.Get("/", relationHandler.ListRelations)
+	relationApp.Post("/link", relationHandler.Link)
+	relationApp.Post("/check", relationHandler.Check)
+	relationApp.Post("/path", relationHandler.Path) // to check how the subject obtain the relation on subject
 
 	app.Listen(":3000")
 }

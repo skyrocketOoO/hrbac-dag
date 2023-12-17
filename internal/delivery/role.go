@@ -17,7 +17,32 @@ func NewRoleHandler(roleUsecase usecasedomain.RoleUsecase) *RoleHandler {
 	}
 }
 
-func (rh *RoleHandler) AddPermissionToRole(c *fiber.Ctx) error {
+func (rh *RoleHandler) ListRoles(c *fiber.Ctx) error {
+	// Call the usecase method to list all roles
+	roles, err := rh.RoleUsecase.ListRoles()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"roles": roles})
+}
+
+func (rh *RoleHandler) GetRole(c *fiber.Ctx) error
+
+func (rh *RoleHandler) DeleteRole(c *fiber.Ctx) error {
+	// Extract data from the request
+	roleName := c.FormValue("rolename")
+
+	// Call the usecase method to delete the role
+	err := rh.RoleUsecase.DeleteRole(roleName)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"message": "Role deleted successfully"})
+}
+
+func (rh *RoleHandler) AddRelation(c *fiber.Ctx) error {
 	// Extract data from the request
 	objNamespace := c.FormValue("objnamespace")
 	objName := c.FormValue("objname")
@@ -33,7 +58,9 @@ func (rh *RoleHandler) AddPermissionToRole(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "Permission added to role successfully"})
 }
 
-func (rh *RoleHandler) AssignRoleUpRole(c *fiber.Ctx) error {
+func (rh *RoleHandler) RemoveRelation(c *fiber.Ctx) error
+
+func (rh *RoleHandler) AddParent(c *fiber.Ctx) error {
 	// Extract data from the request
 	childRoleName := c.FormValue("child_rolename")
 	parentRoleName := c.FormValue("parent_rolename")
@@ -47,20 +74,22 @@ func (rh *RoleHandler) AssignRoleUpRole(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "Role assigned to role successfully"})
 }
 
-func (rh *RoleHandler) ListChildRoles(c *fiber.Ctx) error {
-	// Extract data from the request
-	roleName := c.Query("rolename")
+func (rh *RoleHandler) RemoveParent(c *fiber.Ctx) error
 
-	// Call the usecase method to list child roles
-	childRoles, err := rh.RoleUsecase.ListChildRoles(roleName)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
+// func (rh *RoleHandler) ListChildRoles(c *fiber.Ctx) error {
+// 	// Extract data from the request
+// 	roleName := c.Query("rolename")
 
-	return c.JSON(fiber.Map{"child_roles": childRoles})
-}
+// 	// Call the usecase method to list child roles
+// 	childRoles, err := rh.RoleUsecase.ListChildRoles(roleName)
+// 	if err != nil {
+// 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+// 	}
 
-func (rh *RoleHandler) ListRolePermissions(c *fiber.Ctx) error {
+// 	return c.JSON(fiber.Map{"child_roles": childRoles})
+// }
+
+func (rh *RoleHandler) ListRelations(c *fiber.Ctx) error {
 	// Extract data from the request
 	roleName := c.Query("rolename")
 
@@ -73,17 +102,7 @@ func (rh *RoleHandler) ListRolePermissions(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"permissions": permissions})
 }
 
-func (rh *RoleHandler) ListRoles(c *fiber.Ctx) error {
-	// Call the usecase method to list all roles
-	roles, err := rh.RoleUsecase.ListRoles()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"roles": roles})
-}
-
-func (rh *RoleHandler) GetRoleMembers(c *fiber.Ctx) error {
+func (rh *RoleHandler) GetMembers(c *fiber.Ctx) error {
 	// Extract data from the request
 	roleName := c.Query("rolename")
 
@@ -96,15 +115,4 @@ func (rh *RoleHandler) GetRoleMembers(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"members": members})
 }
 
-func (rh *RoleHandler) DeleteRole(c *fiber.Ctx) error {
-	// Extract data from the request
-	roleName := c.FormValue("rolename")
-
-	// Call the usecase method to delete the role
-	err := rh.RoleUsecase.DeleteRole(roleName)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"message": "Role deleted successfully"})
-}
+func (rh *RoleHandler) Check(c *fiber.Ctx) error

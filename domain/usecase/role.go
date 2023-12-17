@@ -1,11 +1,16 @@
 package usecasedomain
 
 type RoleUsecase interface {
-	AddPermissionToRole(objnamespace, objname, relation, rolename string) error
-	AssignRoleUpRole(childRolename, parentRolename string) error
-	ListChildRoles(rolename string) ([]string, error)
-	ListRolePermissions(rolename string) ([]string, error)
 	ListRoles() ([]string, error)
-	GetRoleMembers(rolename string) ([]string, error)
-	DeleteRole(rolename string) error
+	GetRole(name string) (string, error)
+	DeleteRole(name string) error
+
+	AddRelation(objnamespace, objname, relation, rolename string) error
+	RemoveRelation(objnamespace, objname, relation, rolename string) error
+	AddParent(childRolename, parentRolename string) error
+	RemoveParent(childRolename, parentRolename string) error
+	// ListChildRoles(rolename string) ([]string, error)
+	ListRelations(name string) ([]string, error)
+	GetMembers(name string) ([]string, error)
+	Check(objnamespace, objname, relation, rolename string) (bool, error)
 }
