@@ -161,7 +161,7 @@ func (u *UserUsecase) AddRelation(username, relation, objectnamespace, objectnam
 		SubjectName:      username,
 	}
 
-	return u.RelationTupleRepo.CreateTuple(tuple)
+	return u.RelationUsecaseRepo.Create(tuple)
 }
 
 func (u *UserUsecase) RemoveRelation(username, relation, objectnamespace, objectname string) error {

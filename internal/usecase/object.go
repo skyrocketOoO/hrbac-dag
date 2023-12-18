@@ -24,7 +24,7 @@ func (ou *ObjectUsecase) ListUserHasRelationOnObject(namespace string, name stri
 
 	initquery := domain.RelationTuple{
 		ObjectNamespace: namespace,
-		ObjectName:         name,
+		ObjectName:      name,
 		Relation:        relation,
 	}
 
@@ -48,12 +48,12 @@ func (ou *ObjectUsecase) ListUserHasRelationOnObject(namespace string, name stri
 			}
 
 			for _, tuple := range tuples {
-				reversedTuple := domain.RelationTuple{
+				nextQuery := domain.RelationTuple{
 					ObjectNamespace: tuple.SubjectSetObjectNamespace,
-					ObjectName:         tuple.SubjectSetObjectName,
+					ObjectName:      tuple.SubjectSetObjectName,
 					Relation:        tuple.SubjectSetRelation,
 				}
-				q.Push(reversedTuple)
+				q.Push(nextQuery)
 			}
 		}
 	}
@@ -66,7 +66,7 @@ func (ou *ObjectUsecase) ListRoleHasWhatRelationOnObject(namespace string, name 
 
 	initquery := domain.RelationTuple{
 		ObjectNamespace: namespace,
-		ObjectName:         name,
+		ObjectName:      name,
 		Relation:        relation,
 	}
 
@@ -90,12 +90,12 @@ func (ou *ObjectUsecase) ListRoleHasWhatRelationOnObject(namespace string, name 
 			}
 
 			for _, tuple := range tuples {
-				reversedTuple := domain.RelationTuple{
+				nextQuery := domain.RelationTuple{
 					ObjectNamespace: tuple.SubjectSetObjectNamespace,
-					ObjectName:         tuple.SubjectSetObjectName,
+					ObjectName:      tuple.SubjectSetObjectName,
 					Relation:        tuple.SubjectSetRelation,
 				}
-				q.Push(reversedTuple)
+				q.Push(nextQuery)
 			}
 		}
 	}
@@ -109,7 +109,7 @@ func (ou *ObjectUsecase) ListUserOrRoleHasRelationOnObject(namespace string, nam
 
 	initquery := domain.RelationTuple{
 		ObjectNamespace: namespace,
-		ObjectName:         name,
+		ObjectName:      name,
 		Relation:        relation,
 	}
 
@@ -136,12 +136,12 @@ func (ou *ObjectUsecase) ListUserOrRoleHasRelationOnObject(namespace string, nam
 			}
 
 			for _, tuple := range tuples {
-				reversedTuple := domain.RelationTuple{
+				nextQuery := domain.RelationTuple{
 					ObjectNamespace: tuple.SubjectSetObjectNamespace,
-					ObjectName:         tuple.SubjectSetObjectName,
+					ObjectName:      tuple.SubjectSetObjectName,
 					Relation:        tuple.SubjectSetRelation,
 				}
-				q.Push(reversedTuple)
+				q.Push(nextQuery)
 			}
 		}
 	}
@@ -154,7 +154,7 @@ func (ou *ObjectUsecase) ListRelations(namespace, name string) ([]string, error)
 
 	query := domain.RelationTuple{
 		ObjectNamespace: namespace,
-		ObjectName:         name,
+		ObjectName:      name,
 	}
 
 	tuples, err := ou.RelationTupleRepo.QueryTuples(query)

@@ -11,4 +11,6 @@ type RelationUsecase interface {
 	Check(relationTuple domain.RelationTuple) (bool, error)
 	Path(relationTuple domain.RelationTuple) ([]string, error)
 	ListRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error)
+	Create(relationTuple domain.RelationTuple) error
+	SafeCreate(relationTuple domain.RelationTuple) error
 }

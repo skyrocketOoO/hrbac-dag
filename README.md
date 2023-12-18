@@ -10,4 +10,5 @@
 - [x] Zero trust
 - [x] Fine grained
 - [x] Multiple role
+- [x] Object *(all object | all operations) support
 - [ ] Regex

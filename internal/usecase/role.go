@@ -112,7 +112,7 @@ func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 		SubjectSetObjectName:      parentRolename,
 	}
 
-	return u.RelationTupleRepo.CreateTuple(tuple)
+	return u.RelationUsecaseRepo.Create(tuple)
 }
 
 func (u *RoleUsecase) RemoveParent(childRolename, parentRolename string) error {

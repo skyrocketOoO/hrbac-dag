@@ -6,19 +6,20 @@ import (
 )
 
 type UsecaseRepository struct {
-	ObjectUsecase     ucdomain.ObjectUsecase
-	PermissionUsecase ucdomain.PermissionUsecase
-	RoleUsecase       ucdomain.RoleUsecase
-	UserUsecase       ucdomain.UserUsecase
+	ObjectUsecase   ucdomain.ObjectUsecase
+	RelationUsecase ucdomain.RelationUsecase
+	RoleUsecase     ucdomain.RoleUsecase
+	UserUsecase     ucdomain.UserUsecase
 }
 
 func NewUsecaseRepository(sqlRepo *sql.OrmRepository) *UsecaseRepository {
-	roleUsecase := NewRoleUsecase(&sqlRepo.RelationshipRepo)
+	relationUsecase := NewRelationUsecase(&sqlRepo.RelationshipRepo)
+	roleUsecase := NewRoleUsecase(&sqlRepo.RelationshipRepo, relationUsecase)
 
 	return &UsecaseRepository{
-		ObjectUsecase:     NewObjectUsecase(&sqlRepo.RelationshipRepo, roleUsecase),
-		PermissionUsecase: NewPermissionUsecase(&sqlRepo.RelationshipRepo),
-		RoleUsecase: roleUsecase,
-		UserUsecase: NewUserUsecase(&sqlRepo.RelationshipRepo),
+		ObjectUsecase:   NewObjectUsecase(&sqlRepo.RelationshipRepo, roleUsecase),
+		RelationUsecase: relationUsecase,
+		RoleUsecase:     roleUsecase,
+		UserUsecase:     NewUserUsecase(&sqlRepo.RelationshipRepo, relationUsecase),
 	}
 }

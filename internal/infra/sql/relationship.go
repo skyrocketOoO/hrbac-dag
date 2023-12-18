@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 
 	"gorm.io/gorm"
@@ -14,7 +15,7 @@ func NewRelationTupleRepository(db *gorm.DB) *RelationTupleRepository {
 	return &RelationTupleRepository{DB: db}
 }
 
-func (r *RelationTupleRepository) CreateTuple(tuple sqldomain.RelationTuple) error {
+func (r *RelationTupleRepository) CreateTuple(tuple domain.RelationTuple) error {
 	return r.DB.Create(&tuple).Error
 }
 
@@ -30,7 +31,7 @@ func (r *RelationTupleRepository) GetTuples() ([]sqldomain.RelationTuple, error)
 	return tuples, nil
 }
 
-func (r *RelationTupleRepository) QueryTuples(filter sqldomain.RelationTuple) ([]sqldomain.RelationTuple, error) {
+func (r *RelationTupleRepository) QueryTuples(filter domain.RelationTuple) ([]sqldomain.RelationTuple, error) {
 	var tuples []sqldomain.RelationTuple
 	if err := r.DB.Where(&filter).Find(&tuples).Error; err != nil {
 		return nil, err
@@ -46,7 +47,7 @@ func (r *RelationTupleRepository) GetNamespaces() ([]string, error) {
 	return namespaces, nil
 }
 
-func (r *RelationTupleRepository) QueryExactMatchTuples(tuple sqldomain.RelationTuple) ([]sqldomain.RelationTuple, error) {
+func (r *RelationTupleRepository) QueryExactMatchTuples(tuple domain.RelationTuple) ([]sqldomain.RelationTuple, error) {
 	var matchingTuples []sqldomain.RelationTuple
 	if err := r.DB.Where(&tuple).Find(&matchingTuples).Error; err != nil {
 		return nil, err
