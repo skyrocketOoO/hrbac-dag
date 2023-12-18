@@ -1,24 +1,28 @@
 package sqldomain
 
-import "gorm.io/gorm"
+import (
+	"rbac/domain"
+
+	"gorm.io/gorm"
+)
 
 type RelationTuple struct {
 	gorm.Model
-	ObjNS          string `gorm:"uniqueIndex:tuple"`
-	ObjName        string `gorm:"uniqueIndex:tuple"`
-	Relation       string `gorm:"uniqueIndex:tuple"`
-	SubNS          string `gorm:"uniqueIndex:tuple"`
-	SubName        string `gorm:"uniqueIndex:tuple"`
-	SubSetObjNS    string `gorm:"uniqueIndex:tuple"`
-	SubSetObjName  string `gorm:"uniqueIndex:tuple"`
-	SubSetRelation string `gorm:"uniqueIndex:tuple"`
+	ObjectNamespace           string `gorm:"uniqueIndex:tuple"`
+	ObjectName                string `gorm:"uniqueIndex:tuple"`
+	Relation                  string `gorm:"uniqueIndex:tuple"`
+	SubjectNamespace          string `gorm:"uniqueIndex:tuple"`
+	SubjectName               string `gorm:"uniqueIndex:tuple"`
+	SubjectSetObjectNamespace string `gorm:"uniqueIndex:tuple"`
+	SubjectSetObjectName      string `gorm:"uniqueIndex:tuple"`
+	SubjectSetRelation        string `gorm:"uniqueIndex:tuple"`
 }
 
 type RelationTupleRepository interface {
-	CreateTuple(tuple RelationTuple) error
+	CreateTuple(tuple domain.RelationTuple) error
 	DeleteTuple(id uint) error
 	GetTuples() ([]RelationTuple, error)
-	QueryExactMatchTuples(tuple RelationTuple) ([]RelationTuple, error)
-	QueryTuples(filter RelationTuple) ([]RelationTuple, error)
+	QueryExactMatchTuples(tuple domain.RelationTuple) ([]RelationTuple, error)
+	QueryTuples(query domain.RelationTuple) ([]RelationTuple, error)
 	GetNamespaces() ([]string, error)
 }

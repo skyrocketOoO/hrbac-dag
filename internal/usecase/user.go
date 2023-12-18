@@ -2,63 +2,96 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
+	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
+	ucdomain "rbac/domain/usecase"
 	"rbac/utils"
 )
 
 type UserUsecase struct {
-	RelationTupleRepo sqldomain.RelationTupleRepository
+	RelationTupleRepo   sqldomain.RelationTupleRepository
+	RelationUsecaseRepo ucdomain.RelationUsecase
 }
 
-func NewUserUsecase(relationTupleRepo sqldomain.RelationTupleRepository) *UserUsecase {
+func NewUserUsecase(relationTupleRepo sqldomain.RelationTupleRepository, relationUsecaseRepo ucdomain.RelationUsecase) *UserUsecase {
 	return &UserUsecase{
-		RelationTupleRepo: relationTupleRepo,
+		RelationTupleRepo:   relationTupleRepo,
+		RelationUsecaseRepo: relationUsecaseRepo,
 	}
 }
 
 func (u *UserUsecase) ListUsers() ([]string, error) {
-	filter := sqldomain.RelationTuple{
-		SubNS: "user",
-	}
-
-	tuples, err := h.RelationTupleRepo.QueryTuples(filter)
+	tuples, err := u.RelationUsecaseRepo.ListRelationTuples("user", "")
 	if err != nil {
 		return nil, err
 	}
 
 	users := utils.NewSet[string]()
 	for _, tuple := range tuples {
-		users.Add(tuple.SubName)
+		if tuple.ObjectNamespace == "user" {
+			users.Add(tuple.ObjectName)
+		}
+		if tuple.SubjectNamespace == "user" {
+			users.Add(tuple.SubjectName)
+		}
+		if tuple.SubjectSetObjectNamespace == "user" {
+			users.Add(tuple.SubjectSetObjectName)
+		}
 	}
 
 	return users.ToSlice(), nil
 }
 
-func (u *UserUsecase) GetUser(name string) (string, error)
-func (u *UserUsecase) DeleteUser(name string) error
-
-func (u *UserUsecase) AddRole(username, rolename string) error {
-	tuple := sqldomain.RelationTuple{
-		ObjNS:    "role",
-		ObjName:  rolename,
-		Relation: "member",
-		SubNS:    "user",
-		SubName:  username,
+// TODO: this method will check existence after list all relation tuples, but we can optimize to first find
+func (u *UserUsecase) GetUser(name string) (string, error) {
+	tuples, err := u.RelationUsecaseRepo.ListRelationTuples("user", name)
+	if err != nil {
+		return "", err
 	}
 
-	return h.RelationTupleRepo.CreateTuple(tuple)
+	if len(tuples) > 0 {
+		return name, nil
+	}
+	return "", fmt.Errorf("user %s not found", name)
+}
+
+func (u *UserUsecase) DeleteUser(name string) error {
+	tuples, err := u.RelationUsecaseRepo.ListRelationTuples("user", name)
+	if err != nil {
+		return err
+	}
+
+	for _, tuple := range tuples {
+		if err := u.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (u *UserUsecase) AddRole(username, rolename string) error {
+	tuple := domain.RelationTuple{
+		ObjectNamespace:  "role",
+		ObjectName:       rolename,
+		Relation:         "member",
+		SubjectNamespace: "user",
+		SubjectName:      username,
+	}
+
+	return u.RelationTupleRepo.CreateTuple(tuple)
 }
 
 func (u *UserUsecase) RemoveRole(username, rolename string) error {
-	tuple := sqldomain.RelationTuple{
-		ObjNS:    "role",
-		ObjName:  rolename,
-		Relation: "member",
-		SubNS:    "user",
-		SubName:  username,
+	tuple := domain.RelationTuple{
+		ObjectNamespace:  "role",
+		ObjectName:       rolename,
+		Relation:         "member",
+		SubjectNamespace: "user",
+		SubjectName:      username,
 	}
 
-	matchedTuples, err := h.RelationTupleRepo.QueryExactMatchTuples(tuple)
+	matchedTuples, err := u.RelationTupleRepo.QueryExactMatchTuples(tuple)
 	if err != nil {
 		return err
 	}
@@ -66,7 +99,7 @@ func (u *UserUsecase) RemoveRole(username, rolename string) error {
 		return errors.New("the matched tuples is 0")
 	}
 	for _, tuple := range matchedTuples {
-		if err := h.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
+		if err := u.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
 			return err
 		}
 	}
@@ -75,60 +108,127 @@ func (u *UserUsecase) RemoveRole(username, rolename string) error {
 }
 
 func (u *UserUsecase) ListRelations(username string) ([]string, error) {
-	permissions := utils.NewSet[string]()
+	relations := utils.NewSet[string]()
 
-	initFilter := sqldomain.RelationTuple{
-		SubNS:   "user",
-		SubName: username,
+	firstQuery := domain.RelationTuple{
+		SubjectNamespace: "user",
+		SubjectName:      username,
 	}
 
-	q := utils.NewQueue[sqldomain.RelationTuple]()
-	q.Push(initFilter)
+	q := utils.NewQueue[domain.RelationTuple]()
+	q.Push(firstQuery)
 	for !q.IsEmpty() {
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
-			filter, err := q.Pop()
+			query, err := q.Pop()
 			if err != nil {
 				return nil, err
 			}
 
-			tuples, err := h.RelationTupleRepo.QueryTuples(filter)
+			tuples, err := u.RelationTupleRepo.QueryTuples(query)
 			if err != nil {
 				return nil, err
-			}
-
-			if len(tuples) == 0 && filter.SubNS != "role" {
-				// this means it is a leaf object
-				permission := filter.SubSetObjNS + ":" + filter.SubSetObjName + "#" + filter.SubSetRelation
-				permissions.Add(permission)
 			}
 
 			for _, tuple := range tuples {
-				reversedTuple := sqldomain.RelationTuple{
-					SubSetObjNS:    tuple.ObjNS,
-					SubSetObjName:  tuple.ObjName,
-					SubSetRelation: tuple.Relation,
+				relations.Add(query.ObjectNamespace + ":" + query.ObjectName + "#" + query.Relation)
+				if tuple.ObjectNamespace == "role" {
+					// use role to search
+					nextQuery := domain.RelationTuple{
+						SubjectNamespace: "role",
+						SubjectName:      tuple.ObjectName,
+					}
+					q.Push(nextQuery)
 				}
-				q.Push(reversedTuple)
+				nextQuery := domain.RelationTuple{
+					SubjectSetObjectNamespace: tuple.ObjectNamespace,
+					SubjectSetObjectName:      tuple.ObjectName,
+					SubjectSetRelation:        tuple.Relation,
+				}
+				q.Push(nextQuery)
 			}
 		}
 	}
-
-	return permissions.ToSlice(), nil
+	return relations.ToSlice(), nil
 }
 
 func (u *UserUsecase) AddRelation(username, relation, objectnamespace, objectname string) error {
-	tuple := sqldomain.RelationTuple{
-		ObjNS:    objectnamespace,
-		ObjName:  objectname,
-		Relation: relation,
-		SubNS:    "user",
-		SubName:  username,
+	tuple := domain.RelationTuple{
+		ObjectNamespace:  objectnamespace,
+		ObjectName:       objectname,
+		Relation:         relation,
+		SubjectNamespace: "user",
+		SubjectName:      username,
 	}
 
-	return h.RelationTupleRepo.CreateTuple(tuple)
+	return u.RelationTupleRepo.CreateTuple(tuple)
 }
 
-func (u *UserUsecase) RemoveRelation(username, relation, objectnamespace, objectname string) error
+func (u *UserUsecase) RemoveRelation(username, relation, objectnamespace, objectname string) error {
+	tuple := domain.RelationTuple{
+		ObjectNamespace:  objectnamespace,
+		ObjectName:       objectname,
+		Relation:         relation,
+		SubjectNamespace: "user",
+		SubjectName:      username,
+	}
 
-func (u *UserUsecase) Check(username, relation, objectnamespace, objectname string) (bool, error)
+	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(tuple)
+	if err != nil {
+		return err
+	}
+
+	for _, tuple := range tuples {
+		if err := u.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (u *UserUsecase) Check(userName, relation, objectNamespace, objectName string) (ok bool, err error) {
+	firstQuery := domain.RelationTuple{
+		SubjectNamespace: "user",
+		SubjectName:      userName,
+	}
+
+	q := utils.NewQueue[domain.RelationTuple]()
+	q.Push(firstQuery)
+	for !q.IsEmpty() {
+		qLen := q.Len()
+		for i := 0; i < qLen; i++ {
+			query, err := q.Pop()
+			if err != nil {
+				return false, err
+			}
+
+			tuples, err := u.RelationTupleRepo.QueryTuples(query)
+			if err != nil {
+				return false, err
+			}
+
+			for _, tuple := range tuples {
+				if tuple.ObjectName == objectName && tuple.ObjectNamespace == objectNamespace && tuple.Relation == relation {
+					return true, nil
+				}
+
+				if tuple.ObjectNamespace == "role" {
+					// use role to search
+					nextQuery := domain.RelationTuple{
+						SubjectNamespace: "role",
+						SubjectName:      tuple.ObjectName,
+					}
+					q.Push(nextQuery)
+				}
+
+				nextQuery := domain.RelationTuple{
+					SubjectSetObjectNamespace: tuple.ObjectNamespace,
+					SubjectSetObjectName:      tuple.ObjectName,
+					SubjectSetRelation:        tuple.Relation,
+				}
+				q.Push(nextQuery)
+			}
+		}
+	}
+	return false, nil
+}

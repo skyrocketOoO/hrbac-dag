@@ -6,54 +6,54 @@ import (
 	"rbac/utils"
 )
 
-type PermissionUsecase struct {
+type RelationUsecase struct {
 	RelationTupleRepo sqldomain.RelationTupleRepository
 }
 
-func NewPermissionUsecase(relationTupleRepo sqldomain.RelationTupleRepository) *PermissionUsecase {
-	return &PermissionUsecase{RelationTupleRepo: relationTupleRepo}
+func NewRelationUsecase(relationTupleRepo sqldomain.RelationTupleRepository) *RelationUsecase {
+	return &RelationUsecase{RelationTupleRepo: relationTupleRepo}
 }
 
-func (pu *PermissionUsecase) ListRelations() ([]string, error)
+func (u *RelationUsecase) ListRelations() ([]string, error)
 
-func (ou *ObjectUsecase) Link(objnamespace, objname, relation, subjnamespace, subjname, subjrelation string) error {
-	tuple := sqldomain.RelationTuple{
-		ObjNS:          objnamespace,
-		ObjName:        objname,
-		Relation:       relation,
-		SubSetObjNS:    subjnamespace,
-		SubSetObjName:  subjname,
-		SubSetRelation: subjrelation,
+func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace, subjname, subjrelation string) error {
+	tuple := domain.RelationTuple{
+		ObjectNamespace:           objnamespace,
+		ObjectName:                ObjectName,
+		Relation:                  relation,
+		SubjectSetObjectNamespace: subjnamespace,
+		SubjectSetObjectName:      subjname,
+		SubjectSetRelation:        subjrelation,
 	}
 
-	return ou.RelationTupleRepo.CreateTuple(tuple)
+	return u.RelationTupleRepo.CreateTuple(tuple)
 }
 
-func (pu *PermissionUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
-	query := sqldomain.RelationTuple{
-		SubNS:   "user",
-		SubName: username,
+func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
+	firstQuery := domain.RelationTuple{
+		SubjectNamespace: "user",
+		SubjectName:      relationTuple.SubjectName,
 	}
 
-	q := utils.NewQueue[sqldomain.RelationTuple]()
-	q.Push(query)
+	q := utils.NewQueue[domain.RelationTuple]()
+	q.Push(firstQuery)
 	for !q.IsEmpty() {
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
-			tuples, err := pu.RelationTupleRepo.QueryTuples(query)
+			tuples, err := u.RelationTupleRepo.QueryTuples(query)
 			if err != nil {
 				return false, err
 			}
 
 			for _, tuple := range tuples {
-				if tuple.ObjNS == objNS && tuple.ObjName == objName && tuple.Relation == Permission {
+				if tuple.ObjectNamespace == relationTuple.ObjectNamespace && tuple.ObjectName == relationTuple.ObjectName && tuple.Relation == relationTuple.Relation {
 					return true, nil
 				}
 
-				newQuery := sqldomain.RelationTuple{
-					SubSetObjNS:    tuple.ObjNS,
-					SubSetObjName:  tuple.ObjName,
-					SubSetRelation: tuple.Relation,
+				newQuery := domain.RelationTuple{
+					SubjectSetObjectNamespace: tuple.ObjectNamespace,
+					SubjectSetObjectName:      tuple.ObjectName,
+					SubjectSetRelation:        tuple.Relation,
 				}
 				q.Push(newQuery)
 			}
@@ -63,4 +63,82 @@ func (pu *PermissionUsecase) Check(relationTuple domain.RelationTuple) (bool, er
 	return false, nil
 }
 
-func (pu *PermissionUsecase) Path(relationTuple domain.RelationTuple) ([]string, error)
+func (u *RelationUsecase) Path(relationTuple domain.RelationTuple) ([]string, error)
+
+// use to get all relations based on given attr
+func (u *RelationUsecase) ListRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error) {
+	res := utils.NewSet[sqldomain.RelationTuple]()
+
+	if name == "" {
+		query := domain.RelationTuple{
+			ObjectNamespace: namespace,
+		}
+		tuples, err := u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+
+		query = domain.RelationTuple{
+			SubjectSetObjectNamespace: namespace,
+		}
+		tuples, err = u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+
+		query = domain.RelationTuple{
+			SubjectNamespace: namespace,
+		}
+		tuples, err = u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+	} else {
+		query := domain.RelationTuple{
+			ObjectNamespace: namespace,
+			ObjectName:      name,
+		}
+		tuples, err := u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+
+		query = domain.RelationTuple{
+			SubjectSetObjectNamespace: namespace,
+			SubjectSetObjectName:      name,
+		}
+		tuples, err = u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+
+		query = domain.RelationTuple{
+			SubjectNamespace: namespace,
+			SubjectName:      name,
+		}
+		tuples, err = u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+	}
+
+	return res.ToSlice(), nil
+}

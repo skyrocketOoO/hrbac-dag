@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	usecasedomain "rbac/domain/usecase"
 	"rbac/utils"
@@ -21,36 +22,36 @@ func NewObjectUsecase(relationTupleRepo sqldomain.RelationTupleRepository, roleU
 func (ou *ObjectUsecase) ListUserHasRelationOnObject(namespace string, name string, relation string) ([]string, error) {
 	users := utils.NewSet[string]()
 
-	initFilter := sqldomain.RelationTuple{
-		ObjNS:    namespace,
-		ObjName:  name,
-		Relation: relation,
+	initquery := domain.RelationTuple{
+		ObjectNamespace: namespace,
+		ObjectName:         name,
+		Relation:        relation,
 	}
 
-	q := utils.NewQueue[sqldomain.RelationTuple]()
-	q.Push(initFilter)
+	q := utils.NewQueue[domain.RelationTuple]()
+	q.Push(initquery)
 	for !q.IsEmpty() {
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
-			filter, err := q.Pop()
+			query, err := q.Pop()
 			if err != nil {
 				return nil, err
 			}
 
-			tuples, err := ou.RelationTupleRepo.QueryTuples(filter)
+			tuples, err := ou.RelationTupleRepo.QueryTuples(query)
 			if err != nil {
 				return nil, err
 			}
 
-			if filter.ObjNS == "user" {
-				users.Add(filter.ObjName)
+			if query.ObjectNamespace == "user" {
+				users.Add(query.ObjectName)
 			}
 
 			for _, tuple := range tuples {
-				reversedTuple := sqldomain.RelationTuple{
-					ObjNS:    tuple.SubSetObjNS,
-					ObjName:  tuple.SubSetObjName,
-					Relation: tuple.SubSetRelation,
+				reversedTuple := domain.RelationTuple{
+					ObjectNamespace: tuple.SubjectSetObjectNamespace,
+					ObjectName:         tuple.SubjectSetObjectName,
+					Relation:        tuple.SubjectSetRelation,
 				}
 				q.Push(reversedTuple)
 			}
@@ -63,36 +64,36 @@ func (ou *ObjectUsecase) ListUserHasRelationOnObject(namespace string, name stri
 func (ou *ObjectUsecase) ListRoleHasWhatRelationOnObject(namespace string, name string, relation string) ([]string, error) {
 	roles := utils.NewSet[string]()
 
-	initFilter := sqldomain.RelationTuple{
-		ObjNS:    namespace,
-		ObjName:  name,
-		Relation: relation,
+	initquery := domain.RelationTuple{
+		ObjectNamespace: namespace,
+		ObjectName:         name,
+		Relation:        relation,
 	}
 
-	q := utils.NewQueue[sqldomain.RelationTuple]()
-	q.Push(initFilter)
+	q := utils.NewQueue[domain.RelationTuple]()
+	q.Push(initquery)
 	for !q.IsEmpty() {
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
-			filter, err := q.Pop()
+			query, err := q.Pop()
 			if err != nil {
 				return nil, err
 			}
 
-			tuples, err := ou.RelationTupleRepo.QueryTuples(filter)
+			tuples, err := ou.RelationTupleRepo.QueryTuples(query)
 			if err != nil {
 				return nil, err
 			}
 
-			if filter.ObjNS == "role" {
-				roles.Add(filter.ObjName)
+			if query.ObjectNamespace == "role" {
+				roles.Add(query.ObjectName)
 			}
 
 			for _, tuple := range tuples {
-				reversedTuple := sqldomain.RelationTuple{
-					ObjNS:    tuple.SubSetObjNS,
-					ObjName:  tuple.SubSetObjName,
-					Relation: tuple.SubSetRelation,
+				reversedTuple := domain.RelationTuple{
+					ObjectNamespace: tuple.SubjectSetObjectNamespace,
+					ObjectName:         tuple.SubjectSetObjectName,
+					Relation:        tuple.SubjectSetRelation,
 				}
 				q.Push(reversedTuple)
 			}
@@ -106,39 +107,39 @@ func (ou *ObjectUsecase) ListUserOrRoleHasRelationOnObject(namespace string, nam
 	roles := utils.NewSet[string]()
 	users := utils.NewSet[string]()
 
-	initFilter := sqldomain.RelationTuple{
-		ObjNS:    namespace,
-		ObjName:  name,
-		Relation: relation,
+	initquery := domain.RelationTuple{
+		ObjectNamespace: namespace,
+		ObjectName:         name,
+		Relation:        relation,
 	}
 
-	q := utils.NewQueue[sqldomain.RelationTuple]()
-	q.Push(initFilter)
+	q := utils.NewQueue[domain.RelationTuple]()
+	q.Push(initquery)
 	for !q.IsEmpty() {
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
-			filter, err := q.Pop()
+			query, err := q.Pop()
 			if err != nil {
 				return nil, nil, err
 			}
 
-			tuples, err := ou.RelationTupleRepo.QueryTuples(filter)
+			tuples, err := ou.RelationTupleRepo.QueryTuples(query)
 			if err != nil {
 				return nil, nil, err
 			}
 
-			if filter.ObjNS == "role" {
-				roles.Add(filter.ObjName)
+			if query.ObjectNamespace == "role" {
+				roles.Add(query.ObjectName)
 			}
-			if filter.ObjNS == "user" {
-				users.Add(filter.ObjName)
+			if query.ObjectNamespace == "user" {
+				users.Add(query.ObjectName)
 			}
 
 			for _, tuple := range tuples {
-				reversedTuple := sqldomain.RelationTuple{
-					ObjNS:    tuple.SubSetObjNS,
-					ObjName:  tuple.SubSetObjName,
-					Relation: tuple.SubSetRelation,
+				reversedTuple := domain.RelationTuple{
+					ObjectNamespace: tuple.SubjectSetObjectNamespace,
+					ObjectName:         tuple.SubjectSetObjectName,
+					Relation:        tuple.SubjectSetRelation,
 				}
 				q.Push(reversedTuple)
 			}
@@ -151,12 +152,12 @@ func (ou *ObjectUsecase) ListUserOrRoleHasRelationOnObject(namespace string, nam
 func (ou *ObjectUsecase) ListRelations(namespace, name string) ([]string, error) {
 	permissions := utils.NewSet[string]()
 
-	filter := sqldomain.RelationTuple{
-		ObjNS:   namespace,
-		ObjName: name,
+	query := domain.RelationTuple{
+		ObjectNamespace: namespace,
+		ObjectName:         name,
 	}
 
-	tuples, err := ou.RelationTupleRepo.QueryTuples(filter)
+	tuples, err := ou.RelationTupleRepo.QueryTuples(query)
 	if err != nil {
 		return nil, err
 	}
