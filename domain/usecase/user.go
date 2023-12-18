@@ -7,7 +7,7 @@ type UserUsecase interface {
 
 	AddRole(username, rolename string) error
 	RemoveRole(username, rolename string) error
-	ListRelations(username string) ([]string, error)
+	ListRelations(name string) ([]string, error)
 	AddRelation(username, relation, objectnamespace, objectname string) error
 	RemoveRelation(username, relation, objectnamespace, objectname string) error
 	Check(username, relation, objectnamespace, objectname string) (bool, error)

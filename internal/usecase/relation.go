@@ -139,9 +139,14 @@ func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace
 }
 
 func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
-	firstQuery := domain.RelationTuple{
-		SubjectNamespace: "user",
-		SubjectName:      relationTuple.SubjectName,
+	var firstQuery domain.RelationTuple
+	if relationTuple.SubjectNamespace != "" {
+		firstQuery.SubjectNamespace = relationTuple.SubjectNamespace
+		firstQuery.SubjectName = relationTuple.SubjectName
+	} else {
+		firstQuery.SubjectSetObjectNamespace = relationTuple.SubjectSetObjectNamespace
+		firstQuery.SubjectSetObjectName = relationTuple.SubjectSetObjectName
+		firstQuery.SubjectSetRelation = relationTuple.SubjectSetRelation
 	}
 
 	q := utils.NewQueue[domain.RelationTuple]()

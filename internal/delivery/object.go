@@ -23,7 +23,7 @@ func (oh *ObjectHandler) ListUserHasRelationOnObject(c *fiber.Ctx) error {
 	relation := c.Query("relation")
 
 	// Call the usecase method to list users with permission
-	users, err := oh.ObjectUsecase.ListWhoHasRelationOnObject(objNamespace, objName, relation)
+	users, err := oh.ObjectUsecase.ListUserHasRelationOnObject(objNamespace, objName, relation)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -38,7 +38,7 @@ func (oh *ObjectHandler) ListRoleHasWhatRelationOnObject(c *fiber.Ctx) error {
 	relation := c.Query("relation")
 
 	// Call the usecase method to list roles with permission
-	roles, err := oh.ObjectUsecase.ListRolesHasWhatPermissonOnObject(objNamespace, objName, relation)
+	roles, err := oh.ObjectUsecase.ListRoleHasWhatRelationOnObject(objNamespace, objName, relation)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -53,7 +53,7 @@ func (oh *ObjectHandler) ListUserOrRoleHasRelationOnObject(c *fiber.Ctx) error {
 	relation := c.Query("relation")
 
 	// Call the usecase method to list both roles and users with permission
-	roles, users, err := oh.ObjectUsecase.ListWhoOrRoleHasRelationOnObject(objNamespace, objName, relation)
+	roles, users, err := oh.ObjectUsecase.ListUserOrRoleHasRelationOnObject(objNamespace, objName, relation)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -67,7 +67,7 @@ func (oh *ObjectHandler) ListRelations(c *fiber.Ctx) error {
 	objName := c.Query("objname")
 
 	// Call the usecase method to list all permissions
-	permissions, err := oh.ObjectUsecase.ListAllRelations(objNamespace, objName)
+	permissions, err := oh.ObjectUsecase.ListRelations(objNamespace, objName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

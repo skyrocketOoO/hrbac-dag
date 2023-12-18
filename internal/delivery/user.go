@@ -36,11 +36,11 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 
 func (h *UserHandler) AddRole(c *fiber.Ctx) error {
 	// Extract data from the request
-	username := c.FormValue("username")
-	rolename := c.FormValue("rolename")
+	username := c.FormValue("user_name")
+	rolename := c.FormValue("role_name")
 
 	// Call the usecase method to add user to role
-	err := h.UserUsecase.AddUserToRole(username, rolename)
+	err := h.UserUsecase.AddRole(username, rolename)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -54,7 +54,7 @@ func (h *UserHandler) RemoveRole(c *fiber.Ctx) error {
 	rolename := c.FormValue("rolename")
 
 	// Call the usecase method to remove user from role
-	err := h.UserUsecase.RemoveUserFromRole(username, rolename)
+	err := h.UserUsecase.RemoveRole(username, rolename)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -67,7 +67,7 @@ func (h *UserHandler) ListRelations(c *fiber.Ctx) error {
 	username := c.Query("username")
 
 	// Call the usecase method to list user permissions
-	permissions, err := h.UserUsecase.ListUserPermissions(username)
+	permissions, err := h.UserUsecase.ListRelations(username)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -77,13 +77,13 @@ func (h *UserHandler) ListRelations(c *fiber.Ctx) error {
 
 func (h *UserHandler) AddRelation(c *fiber.Ctx) error {
 	// Extract data from the request
-	username := c.FormValue("username")
+	username := c.FormValue("user_name")
 	relation := c.FormValue("relation")
-	objectNamespace := c.FormValue("objectnamespace")
-	objectName := c.FormValue("objectname")
+	objectNamespace := c.FormValue("object_namespace")
+	objectName := c.FormValue("object_name")
 
 	// Call the usecase method to add permission to user
-	err := h.UserUsecase.AddPermissionToUser(username, relation, objectNamespace, objectName)
+	err := h.UserUsecase.AddRelation(username, relation, objectNamespace, objectName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
