@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	ucdomain "rbac/domain/usecase"
@@ -51,7 +50,7 @@ func (u *RoleUsecase) GetRole(name string) (string, error) {
 		return name, nil
 	}
 
-	return "", fmt.Errorf("role %s not found", name)
+	return "", nil
 }
 
 func (u *RoleUsecase) DeleteRole(name string) error {

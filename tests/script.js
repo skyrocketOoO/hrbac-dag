@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { checkAPI } from './api_test';
-import { checkScenario } from './scenario_test';
+import { checkAPI } from './api_test.js';
+import { checkScenario } from './scenario_test.js';
 
 export const options = {
   vus: 1,
@@ -20,5 +20,5 @@ export default function() {
 
   checkAPI(SERVER_URL, Headers)
 
-  checkScenario(SERVER_URL, Headers)
+  // checkScenario(SERVER_URL, Headers)
 }

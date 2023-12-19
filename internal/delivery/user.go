@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"fmt"
 	usecase "rbac/domain/usecase"
 
 	"github.com/gofiber/fiber/v2"
@@ -32,9 +33,13 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 	if !ok {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "parames fault"})
 	}
-	_, err := h.UserUsecase.GetUser(roleName)
+	name, err := h.UserUsecase.GetUser(roleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	if name == "" {
+		err := fmt.Errorf("user %s not found", roleName)
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
 	}
 	return nil
 }

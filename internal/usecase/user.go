@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	ucdomain "rbac/domain/usecase"
@@ -53,7 +52,7 @@ func (u *UserUsecase) GetUser(name string) (string, error) {
 	if len(tuples) > 0 {
 		return name, nil
 	}
-	return "", fmt.Errorf("user %s not found", name)
+	return "", nil
 }
 
 func (u *UserUsecase) DeleteUser(name string) error {

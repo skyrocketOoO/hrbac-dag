@@ -72,7 +72,7 @@ func (h *RelationHandler) Check(c *fiber.Ctx) error {
 		SubjectSetRelation:        reqBody.SubjectSetRelation,
 	})
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	if ok {
 		return nil
@@ -108,7 +108,7 @@ func (h *RelationHandler) Path(c *fiber.Ctx) error {
 		SubjectSetRelation:        reqBody.SubjectSetRelation,
 	})
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	if len(path) > 0 {
 		return c.JSON(path)

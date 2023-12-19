@@ -12,7 +12,9 @@ var Db *gorm.DB
 
 func InitDb() (*gorm.DB, error) {
 	return gorm.Open(
-		sqlite.Open("gorm.db"), &gorm.Config{},
+		sqlite.Open("gorm.db"), &gorm.Config{
+			Logger: nil,
+		},
 		// postgres.Open(dsn), &gorm.Config{
 		// logger all sql
 		//Logger: logger.Default.LogMode(logger.Info),

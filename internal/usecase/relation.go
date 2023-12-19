@@ -189,11 +189,10 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 
 // TODO: use bfs to return shortest path or return all paths
 func (u *RelationUsecase) Path(relationTuple domain.RelationTuple) ([]string, error) {
-	paths := []string{}
 
-	var dfs func(relationTuple domain.RelationTuple, curPath []string) error
-	dfs = func(relationTuple domain.RelationTuple, curPath []string) error {
-		if len(paths) > 0 {
+	var dfs func(relationTuple domain.RelationTuple, curPath []string, finalPath *[]string) error
+	dfs = func(relationTuple domain.RelationTuple, curPath []string, finalPath *[]string) error {
+		if len(*finalPath) > 0 {
 			return nil
 		}
 
@@ -216,8 +215,8 @@ func (u *RelationUsecase) Path(relationTuple domain.RelationTuple) ([]string, er
 			if tuple.ObjectName == relationTuple.ObjectName &&
 				tuple.ObjectNamespace == relationTuple.ObjectNamespace &&
 				tuple.Relation == relationTuple.Relation {
-				paths = append(paths, curPath...)
-				paths = append(paths, utils.RelationTupleToString(relationTuple))
+				*finalPath = append(*finalPath, curPath...)
+				*finalPath = append(*finalPath, utils.RelationTupleToString(relationTuple))
 				return nil
 			}
 			curPath = append(curPath, utils.RelationTupleToString(utils.ConvertRelationTuple(tuple)))
@@ -230,7 +229,7 @@ func (u *RelationUsecase) Path(relationTuple domain.RelationTuple) ([]string, er
 					SubjectSetObjectNamespace: "role",
 					SubjectSetObjectName:      tuple.ObjectName,
 				}
-				if err := dfs(nextQuery, curPath); err != nil {
+				if err := dfs(nextQuery, curPath, finalPath); err != nil {
 					return err
 				}
 			}
@@ -242,7 +241,7 @@ func (u *RelationUsecase) Path(relationTuple domain.RelationTuple) ([]string, er
 				SubjectSetObjectName:      tuple.ObjectName,
 				SubjectSetRelation:        tuple.Relation,
 			}
-			if err := dfs(nextQuery, curPath); err != nil {
+			if err := dfs(nextQuery, curPath, finalPath); err != nil {
 				return err
 			}
 
@@ -251,8 +250,9 @@ func (u *RelationUsecase) Path(relationTuple domain.RelationTuple) ([]string, er
 		return nil
 	}
 
+	paths := []string{}
 	emptyPath := []string{}
-	if err := dfs(relationTuple, emptyPath); err != nil {
+	if err := dfs(relationTuple, emptyPath, &paths); err != nil {
 		return nil, err
 	}
 	if len(paths) > 0 {

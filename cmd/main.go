@@ -5,18 +5,41 @@ import (
 	"rbac/internal/delivery"
 	"rbac/internal/infra/sql"
 	"rbac/internal/usecase"
+	"strconv"
 
+	"github.com/fatih/color"
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
 	app := fiber.New()
 
+	app.Use(func(c *fiber.Ctx) error {
+		// Continue processing the request
+		err := c.Next()
+
+		// Log the result and final status code
+		blue := color.New(color.FgBlue).SprintFunc()
+		yellow := color.New(color.FgYellow).SprintFunc()
+		green := color.New(color.FgGreen).SprintFunc()
+		status_code := blue(strconv.Itoa(c.Response().StatusCode()))
+		method := yellow(c.Method())
+		path := green(c.OriginalURL())
+		fmt.Printf("%s %s %s %s\n", method, path, c.Response().Body(), status_code)
+		if err != nil {
+			// If there was an error processing the request, log the error
+			fmt.Printf("Error processing request: %v\n", err)
+			fmt.Println()
+			return err
+		}
+		// Return nil to indicate that the middleware has completed processing
+		return nil
+	})
+
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
 	app.Get("/healthy", func(c *fiber.Ctx) error {
-		fmt.Printf("Received request: %s %s\n", c.Method(), c.OriginalURL())
 		return nil
 	})
 
@@ -56,15 +79,15 @@ func main() {
 	roleApp.Post("/add-parent", roleHandler.AddParent)
 	roleApp.Post("/remove-parent", roleHandler.RemoveParent)
 	// roleApp.Get("/list-child-roles", roleHandler.ListChildRoles)
-	roleApp.Get("/list-relation", roleHandler.ListRelations)
-	roleApp.Get("/get-members", roleHandler.GetMembers)
+	roleApp.Post("/list-relation", roleHandler.ListRelations)
+	roleApp.Post("/get-members", roleHandler.GetMembers)
 	roleApp.Post("/check", roleHandler.Check)
 
 	objectApp := app.Group("/object")
-	objectApp.Get("/list-user-has-relation", handlerRepo.ObjectHandler.ListUserHasRelationOnObject)
-	objectApp.Get("/list-role-has-relation", handlerRepo.ObjectHandler.ListRoleHasWhatRelationOnObject)
-	objectApp.Get("/list-user-or-role-has-relation", handlerRepo.ObjectHandler.ListUserOrRoleHasRelationOnObject)
-	objectApp.Get("/list-relations", handlerRepo.ObjectHandler.ListRelations)
+	objectApp.Post("/list-user-has-relation", handlerRepo.ObjectHandler.ListUserHasRelationOnObject)
+	objectApp.Post("/list-role-has-relation", handlerRepo.ObjectHandler.ListRoleHasWhatRelationOnObject)
+	objectApp.Post("/list-user-or-role-has-relation", handlerRepo.ObjectHandler.ListUserOrRoleHasRelationOnObject)
+	objectApp.Post("/list-relations", handlerRepo.ObjectHandler.ListRelations)
 
 	relationApp := app.Group("/relation")
 	relationHandler := handlerRepo.RelationHandler
