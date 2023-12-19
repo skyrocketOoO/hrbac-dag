@@ -463,4 +463,6 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 	return false, nil
 }
 
-func (u *RelationUsecase) ReversedSearch() error
+func (u *RelationUsecase) ReversedSearch() error {
+	return nil
+}
