@@ -70,11 +70,11 @@ func (u *RoleUsecase) DeleteRole(name string) error {
 
 func (u *RoleUsecase) AddRelation(objnamespace, ObjectName, relation, rolename string) error {
 	tuple := domain.RelationTuple{
-		ObjectNamespace:           objnamespace,
-		ObjectName:                ObjectName,
-		Relation:                  relation,
-		SubjectSetObjectNamespace: "role",
-		SubjectSetObjectName:      rolename,
+		ObjectNamespace:  objnamespace,
+		ObjectName:       ObjectName,
+		Relation:         relation,
+		SubjectNamespace: "role",
+		SubjectName:      rolename,
 	}
 
 	return u.RelationTupleRepo.CreateTuple(tuple)
@@ -82,11 +82,11 @@ func (u *RoleUsecase) AddRelation(objnamespace, ObjectName, relation, rolename s
 
 func (u *RoleUsecase) RemoveRelation(objnamespace, ObjectName, relation, rolename string) error {
 	query := domain.RelationTuple{
-		ObjectNamespace:           objnamespace,
-		ObjectName:                ObjectName,
-		Relation:                  relation,
-		SubjectSetObjectNamespace: "role",
-		SubjectSetObjectName:      rolename,
+		ObjectNamespace:  objnamespace,
+		ObjectName:       ObjectName,
+		Relation:         relation,
+		SubjectNamespace: "role",
+		SubjectName:      rolename,
 	}
 
 	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(query)
@@ -104,11 +104,11 @@ func (u *RoleUsecase) RemoveRelation(objnamespace, ObjectName, relation, rolenam
 
 func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 	tuple := domain.RelationTuple{
-		ObjectNamespace:           "role",
-		ObjectName:                childRolename,
-		Relation:                  "parent",
-		SubjectSetObjectNamespace: "role",
-		SubjectSetObjectName:      parentRolename,
+		ObjectNamespace:  "role",
+		ObjectName:       childRolename,
+		Relation:         "parent",
+		SubjectNamespace: "role",
+		SubjectName:      parentRolename,
 	}
 
 	return u.RelationUsecaseRepo.Create(tuple)
@@ -116,11 +116,11 @@ func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 
 func (u *RoleUsecase) RemoveParent(childRolename, parentRolename string) error {
 	query := domain.RelationTuple{
-		ObjectNamespace:           "role",
-		ObjectName:                childRolename,
-		Relation:                  "parent",
-		SubjectSetObjectNamespace: "role",
-		SubjectSetObjectName:      parentRolename,
+		ObjectNamespace:  "role",
+		ObjectName:       childRolename,
+		Relation:         "parent",
+		SubjectNamespace: "role",
+		SubjectName:      parentRolename,
 	}
 
 	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(query)

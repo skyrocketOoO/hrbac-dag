@@ -114,8 +114,8 @@ func (h *UserHandler) ListRelations(c *fiber.Ctx) error {
 
 func (h *UserHandler) AddRelation(c *fiber.Ctx) error {
 	type reqBody struct {
-		ObjectNamespace string `json:"objectNamespace"`
-		ObjectName      string `json:"objectName"`
+		ObjectNamespace string `json:"object_namespace"`
+		ObjectName      string `json:"object_name"`
 		Relation        string `json:"relation"`
 		UserName        string `json:"user_name"`
 	}
@@ -135,8 +135,8 @@ func (h *UserHandler) AddRelation(c *fiber.Ctx) error {
 
 func (h *UserHandler) RemoveRelation(c *fiber.Ctx) error {
 	type reqBody struct {
-		ObjectNamespace string `json:"objectNamespace"`
-		ObjectName      string `json:"objectName"`
+		ObjectNamespace string `json:"object_namespace"`
+		ObjectName      string `json:"object_name"`
 		Relation        string `json:"relation"`
 		UserName        string `json:"user_name"`
 	}
@@ -156,8 +156,8 @@ func (h *UserHandler) RemoveRelation(c *fiber.Ctx) error {
 
 func (h *UserHandler) Check(c *fiber.Ctx) error {
 	type reqBody struct {
-		ObjectNamespace string `json:"objectNamespace"`
-		ObjectName      string `json:"objectName"`
+		ObjectNamespace string `json:"object_namespace"`
+		ObjectName      string `json:"object_name"`
 		Relation        string `json:"relation"`
 		UserName        string `json:"user_name"`
 	}

@@ -64,8 +64,8 @@ func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
 
 func (h *RoleHandler) AddRelation(c *fiber.Ctx) error {
 	type reqBody struct {
-		ObjectNamespace string `json:"objectNamespace"`
-		ObjectName      string `json:"objectName"`
+		ObjectNamespace string `json:"object_namespace"`
+		ObjectName      string `json:"object_name"`
 		Relation        string `json:"relation"`
 		RoleName        string `json:"role_name"`
 	}
@@ -84,8 +84,8 @@ func (h *RoleHandler) AddRelation(c *fiber.Ctx) error {
 
 func (h *RoleHandler) RemoveRelation(c *fiber.Ctx) error {
 	type reqBody struct {
-		ObjectNamespace string `json:"objectNamespace"`
-		ObjectName      string `json:"objectName"`
+		ObjectNamespace string `json:"object_namespace"`
+		ObjectName      string `json:"object_name"`
 		Relation        string `json:"relation"`
 		RoleName        string `json:"role_name"`
 	}
@@ -186,8 +186,8 @@ func (h *RoleHandler) GetMembers(c *fiber.Ctx) error {
 
 func (h *RoleHandler) Check(c *fiber.Ctx) error {
 	type reqBody struct {
-		ObjectNamespace string `json:"objectNamespace"`
-		ObjectName      string `json:"objectName"`
+		ObjectNamespace string `json:"object_namespace"`
+		ObjectName      string `json:"object_name"`
 		Relation        string `json:"relation"`
 		RoleName        string `json:"role_name"`
 	}

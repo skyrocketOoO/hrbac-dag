@@ -18,7 +18,7 @@ export default function() {
   let res = http.get(`${SERVER_URL}/healthy`);
   check(res, { 'Server is healthy': (r) => r.status == 200 });
 
-  checkAPI(SERVER_URL, Headers)
+  // checkAPI(SERVER_URL, Headers)
 
-  // checkScenario(SERVER_URL, Headers)
+  checkScenario(SERVER_URL, Headers)
 }

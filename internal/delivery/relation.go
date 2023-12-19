@@ -55,9 +55,9 @@ func (h *RelationHandler) Check(c *fiber.Ctx) error {
 		Relation            string `json:"relation"`
 		SubjectNamespace    string `json:"subject_namespace"`
 		SubjectName         string `json:"subject_name"`
-		SubjectSetNamespace string `json:"subjectset_namespace"`
-		SubjectSetName      string `json:"subjectset_name"`
-		SubjectSetRelation  string `json:"subjectset_relation"`
+		SubjectSetNamespace string `json:"subject_set_namespace"`
+		SubjectSetName      string `json:"subject_set_name"`
+		SubjectSetRelation  string `json:"subject_set_relation"`
 	}
 	reqBody := CheckUserRelationReq{}
 
@@ -91,9 +91,9 @@ func (h *RelationHandler) Path(c *fiber.Ctx) error {
 		Relation            string `json:"relation"`
 		SubjectNamespace    string `json:"subject_namespace"`
 		SubjectName         string `json:"subject_name"`
-		SubjectSetNamespace string `json:"subjectset_namespace"`
-		SubjectSetName      string `json:"subjectset_name"`
-		SubjectSetRelation  string `json:"subjectset_relation"`
+		SubjectSetNamespace string `json:"subject_set_namespace"`
+		SubjectSetName      string `json:"subject_set_name"`
+		SubjectSetRelation  string `json:"subject_set_relation"`
 	}
 	reqBody := CheckUserRelationReq{}
 

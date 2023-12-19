@@ -25,8 +25,8 @@ export function checkScenario(serverUrl, headers){
   check(res, { '(Add Relation) Ivy is a member of Sales': (r) => r.status == 200 });
 
   payload = {
-    child_rolename: "rd",
-    parent_rolename: "rd-director",
+    child_role_name: "rd",
+    parent_role_name: "rd-director",
   };
   res = http.post(`${serverUrl}/role/add-parent`, JSON.stringify(payload), {headers:headers});
   check(res, { '(Add Relation) RD-Director is a parent of RD': (r) => r.status == 200 });
@@ -100,9 +100,9 @@ export function checkScenario(serverUrl, headers){
     object_namespace: "role",
     object_name: "rd",
     relation: "modify-relation",
-    subjectset_namespace: "role",
-    subjectset_name: "rd",
-    subjectset_relation: "parent",
+    subject_set_namespace: "role",
+    subject_set_name: "rd",
+    subject_set_relation: "parent",
   };
   res = http.post(`${serverUrl}/relation/link`, JSON.stringify(payload), {headers:headers});
   check(res, { '(Add Link Relation) RD-Director can modify permissions of RD': (r) => r.status == 200 });
@@ -111,9 +111,9 @@ export function checkScenario(serverUrl, headers){
     object_namespace: "source-code",
     object_name: "*",
     relation: "read",
-    subjectset_namespace: "source-code",
-    subjectset_name: "*",
-    subjectset_relation: "write",
+    subject_set_namespace: "source-code",
+    subject_set_name: "*",
+    subject_set_relation: "write",
   };
   res = http.post(`${serverUrl}/relation/link`, JSON.stringify(payload), {headers:headers});
   check(res, { '(Add Link Relation) Source Code read access implies write access': (r) => r.status == 200 });

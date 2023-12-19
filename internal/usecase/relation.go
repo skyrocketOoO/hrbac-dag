@@ -32,6 +32,7 @@ func (u *RelationUsecase) ListRelations() ([]string, error) {
 }
 
 func (u *RelationUsecase) Create(relationTuple domain.RelationTuple) error {
+	// fmt.Printf("Person: %+v\n", relationTuple)
 	if relationTuple.ObjectNamespace != "role" && relationTuple.ObjectNamespace != "user" {
 		// object case: use <ns>:<name>#<relation> as instance
 		if relationTuple.ObjectName != "*" && relationTuple.Relation != "*" {
