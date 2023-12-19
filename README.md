@@ -3,6 +3,7 @@
 ## Feature
 
 - [ ] Admin
+- [x] User Permission
 - [x] RBAC
 - [x] HRBAC
 - [x] Access link

@@ -344,13 +344,155 @@ func (u *RelationUsecase) ClearAllRelations() error {
 	return u.RelationTupleRepo.DeleteAllTuples()
 }
 
-func (u *RelationUsecase) Search() error {
+func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) (ok bool, err error) {
 	// usecase
 	// (u *RoleUsecase) ListRelations(namespace, name string) ([]string, error)
 	// (u *RoleUsecase) Check(objectNamespace, objectName, relation, rolename string) (bool, error)
 	// Path(relationTuple domain.RelationTuple) ([]string, error)
 
-	return nil
+	var firstQuery domain.RelationTuple
+	if from.SubjectNamespace != "" {
+		firstQuery.SubjectNamespace = from.SubjectNamespace
+		firstQuery.SubjectName = from.SubjectName
+	} else if from.SubjectSetNamespace != "" {
+		firstQuery.SubjectSetObjectNamespace = from.SubjectSetNamespace
+		firstQuery.SubjectSetObjectName = from.SubjectSetName
+		firstQuery.SubjectSetRelation = from.SubjectSetRelation
+	} else {
+		return false, errors.New("subject error")
+	}
+	firstQuery.ObjectNamespace = to.ObjectNamespace
+	firstQuery.ObjectName = to.ObjectName
+	firstQuery.Relation = to.Relation
+
+	q := utils.NewQueue[domain.RelationTuple]()
+	q.Push(firstQuery)
+	for !q.IsEmpty() {
+		qLen := q.Len()
+		for i := 0; i < qLen; i++ {
+			query, _ := q.Pop()
+			tuples, err := u.RelationTupleRepo.QueryTuples(query)
+			if err != nil {
+				return false, err
+			}
+
+			for _, tuple := range tuples {
+				if tuple.ObjectNamespace == to.ObjectNamespace && tuple.ObjectName == to.ObjectName && tuple.Relation == to.Relation {
+					return true, nil
+				}
+				// object case
+				// TODO: the <ns> <*> <*> query will direct find the next layer object, so can directly jump to next
+				if tuple.ObjectNamespace != "role" && tuple.ObjectNamespace != "user" {
+					if tuple.ObjectName == "*" && tuple.Relation == "*" {
+						if tuple.ObjectNamespace == to.ObjectNamespace {
+							return true, nil
+						}
+						// add abstract link
+						nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
+							SubjectSetObjectNamespace: tuple.ObjectNamespace,
+							SubjectSetObjectName:      "*",
+						})
+						if err != nil {
+							return false, err
+						}
+						set := utils.NewSet[string]()
+						for _, nq := range nextQueries {
+							set.Add(nq.SubjectSetRelation)
+						}
+						for _, rel := range set.ToSlice() {
+							q.Push(domain.RelationTuple{
+								SubjectSetObjectNamespace: tuple.ObjectNamespace,
+								SubjectSetObjectName:      "*",
+								SubjectSetRelation:        rel,
+							})
+						}
+
+						nextQueries, err = u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
+							SubjectSetObjectNamespace: tuple.ObjectNamespace,
+							SubjectSetRelation:        "*",
+						})
+						if err != nil {
+							return false, err
+						}
+						set = utils.NewSet[string]()
+						for _, nq := range nextQueries {
+							set.Add(nq.SubjectSetObjectName)
+						}
+						for _, name := range set.ToSlice() {
+							q.Push(domain.RelationTuple{
+								SubjectSetObjectNamespace: tuple.ObjectNamespace,
+								SubjectSetObjectName:      name,
+								SubjectSetRelation:        "*",
+							})
+						}
+					} else if tuple.ObjectName == "*" {
+						if tuple.ObjectNamespace == to.ObjectNamespace && tuple.Relation == to.Relation {
+							return true, nil
+						}
+						// abstract link
+						nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
+							SubjectSetObjectNamespace: tuple.ObjectNamespace,
+							SubjectSetRelation:        tuple.Relation,
+						})
+						if err != nil {
+							return false, err
+						}
+						set := utils.NewSet[string]()
+						for _, nq := range nextQueries {
+							set.Add(nq.ObjectName)
+						}
+						for _, name := range set.ToSlice() {
+							q.Push(domain.RelationTuple{
+								SubjectSetObjectNamespace: tuple.ObjectNamespace,
+								SubjectSetObjectName:      name,
+								SubjectSetRelation:        tuple.Relation,
+							})
+						}
+					} else if tuple.Relation == "*" {
+						if tuple.ObjectNamespace == to.ObjectNamespace && tuple.ObjectName == to.ObjectName {
+							return true, nil
+						}
+						// abstract link
+						nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
+							SubjectSetObjectNamespace: tuple.ObjectNamespace,
+							SubjectSetObjectName:      tuple.ObjectName,
+						})
+						if err != nil {
+							return false, err
+						}
+						set := utils.NewSet[string]()
+						for _, nq := range nextQueries {
+							set.Add(nq.Relation)
+						}
+						for _, rel := range set.ToSlice() {
+							q.Push(domain.RelationTuple{
+								SubjectSetObjectNamespace: tuple.ObjectNamespace,
+								SubjectSetObjectName:      tuple.ObjectName,
+								SubjectSetRelation:        rel,
+							})
+						}
+					}
+				}
+
+				if tuple.ObjectNamespace == "role" {
+					nextQuery := domain.RelationTuple{
+						SubjectSetObjectNamespace: "role",
+						SubjectSetObjectName:      tuple.ObjectName,
+					}
+					q.Push(nextQuery)
+				}
+				// push itself
+				nextQuery := domain.RelationTuple{
+					SubjectSetObjectNamespace: tuple.ObjectNamespace,
+					SubjectSetObjectName:      tuple.ObjectName,
+					SubjectSetRelation:        tuple.Relation,
+				}
+				q.Push(nextQuery)
+			}
+		}
+	}
+
+	return false, nil
 }
 
 func (u *RelationUsecase) ReversedSearch() error
