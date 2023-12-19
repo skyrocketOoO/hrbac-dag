@@ -27,16 +27,20 @@ func (h *RelationHandler) ListRelations(c *fiber.Ctx) error {
 }
 
 func (h *RelationHandler) Link(c *fiber.Ctx) error {
-	// Extract data from the request
-	objNamespace := c.FormValue("objnamespace")
-	objName := c.FormValue("objname")
-	relation := c.FormValue("relation")
-	subjNamespace := c.FormValue("subject_namespace")
-	subjName := c.FormValue("subject_name")
-	subjRelation := c.FormValue("subject_relation")
+	type reqBody struct {
+		ObjectNamespace     string `json:"object_namespace"`
+		ObjectName          string `json:"object_name"`
+		Relation            string `json:"relation"`
+		SubjectSetNamespace string `json:"subject_set_namespace"`
+		SubjectSetName      string `json:"subject_set_name"`
+		SubjectSetRelation  string `json:"subject_set_relation"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	// Call the usecase method to link permission
-	err := h.RelationUsecase.Link(objNamespace, objName, relation, subjNamespace, subjName, subjRelation)
+	err := h.RelationUsecase.Link(rb.ObjectNamespace, rb.ObjectName, rb.Relation, rb.SubjectSetNamespace, rb.SubjectSetName, rb.SubjectSetRelation)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

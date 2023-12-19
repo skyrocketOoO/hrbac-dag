@@ -34,7 +34,7 @@ export function checkAPI(serverUrl, headers){
     check(res, { 'user remove role': (r) => r.status == 200 });
     
     payload = {
-        user_name: "Jimmy",
+        name: "Jimmy",
     };
     res = http.post(`${userUrl}/list-relation`, JSON.stringify(payload), {headers:headers});
     check(res, { 'user list relation': (r) => r.status == 200 });
@@ -123,11 +123,15 @@ export function checkAPI(serverUrl, headers){
     res = http.post(`${roleUrl}/remove-parent`, JSON.stringify(payload), {headers:headers});
     check(res, { 'remove-parent': (r) => r.status == 200 });
 
-    payload = {};
+    payload = {
+        name: "rd",
+    };
     res = http.post(`${roleUrl}/list-relation`, JSON.stringify(payload), {headers:headers});
     check(res, { 'list-relation': (r) => r.status == 200 });
 
-    payload = {};
+    payload = {
+        name: "rd",
+    };
     res = http.post(`${roleUrl}/get-members`, JSON.stringify(payload), {headers:headers});
     check(res, { 'get-role-members': (r) => r.status == 200 });
 
@@ -159,9 +163,9 @@ export function checkAPI(serverUrl, headers){
         object_namespace: "test_file",
         object_name: "1",
         relation: "read",
-        subject_namespace: "test_file",
-        subject_name: "1",
-        subject_relation: "write",
+        subject_set_namespace: "test_file",
+        subject_set_name: "1",
+        subject_set_relation: "write",
     };
     res = http.post(`${relationUrl}/link`, JSON.stringify(payload), {headers:headers});
     check(res, { 'link relation': (r) => r.status == 200 });
@@ -170,12 +174,12 @@ export function checkAPI(serverUrl, headers){
         object_namespace: "test_file",
         object_name: "1",
         relation: "read",
-        subject_namespace: "test_file",
-        subject_name: "1",
-        subject_relation: "write", 
+        subject_set_namespace: "test_file",
+        subject_set_name: "1",
+        subject_set_relation: "write",
     };
     res = http.post(`${relationUrl}/check`, JSON.stringify(payload), {headers:headers});
-    check(res, { 'relation check': (r) => r.status ==  403 });
+    check(res, { 'relation check': (r) => r.status ==  200 });
 
     payload = {
         object_namespace: "test_file",

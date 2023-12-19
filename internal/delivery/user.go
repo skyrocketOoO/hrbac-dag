@@ -18,7 +18,6 @@ func NewUserHandler(userUsecase usecase.UserUsecase) *UserHandler {
 }
 
 func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
-	// Call the usecase method to list all users
 	users, err := h.UserUsecase.ListUsers()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -58,12 +57,17 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) AddRole(c *fiber.Ctx) error {
-	// Extract data from the request
-	username := c.FormValue("user_name")
-	rolename := c.FormValue("role_name")
+	type reqBody struct {
+		UserName string `json:"user_name"`
+		RoleName string `json:"role_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
 	// Call the usecase method to add user to role
-	err := h.UserUsecase.AddRole(username, rolename)
+	err := h.UserUsecase.AddRole(rb.UserName, rb.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -72,12 +76,17 @@ func (h *UserHandler) AddRole(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) RemoveRole(c *fiber.Ctx) error {
-	// Extract data from the request
-	username := c.FormValue("user_name")
-	rolename := c.FormValue("role_name")
+	type reqBody struct {
+		UserName string `json:"user_name"`
+		RoleName string `json:"role_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
 	// Call the usecase method to remove user from role
-	err := h.UserUsecase.RemoveRole(username, rolename)
+	err := h.UserUsecase.RemoveRole(rb.UserName, rb.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -87,10 +96,15 @@ func (h *UserHandler) RemoveRole(c *fiber.Ctx) error {
 
 func (h *UserHandler) ListRelations(c *fiber.Ctx) error {
 	// Extract data from the request
-	username := c.Query("name")
+	type reqBody struct {
+		Name string `json:"name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	// Call the usecase method to list user relations
-	relations, err := h.UserUsecase.ListRelations(username)
+	relations, err := h.UserUsecase.ListRelations(rb.Name)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -99,14 +113,19 @@ func (h *UserHandler) ListRelations(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) AddRelation(c *fiber.Ctx) error {
-	// Extract data from the request
-	username := c.FormValue("user_name")
-	relation := c.FormValue("relation")
-	objectNamespace := c.FormValue("object_namespace")
-	objectName := c.FormValue("object_name")
+	type reqBody struct {
+		ObjectNamespace string `json:"objectNamespace"`
+		ObjectName      string `json:"objectName"`
+		Relation        string `json:"relation"`
+		UserName        string `json:"user_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
 	// Call the usecase method to add permission to user
-	err := h.UserUsecase.AddRelation(username, relation, objectNamespace, objectName)
+	err := h.UserUsecase.AddRelation(rb.UserName, rb.Relation, rb.ObjectNamespace, rb.ObjectName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -115,14 +134,19 @@ func (h *UserHandler) AddRelation(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) RemoveRelation(c *fiber.Ctx) error {
-	// Extract data from the request
-	username := c.FormValue("user_name")
-	relation := c.FormValue("relation")
-	objectNamespace := c.FormValue("object_namespace")
-	objectName := c.FormValue("object_name")
+	type reqBody struct {
+		ObjectNamespace string `json:"objectNamespace"`
+		ObjectName      string `json:"objectName"`
+		Relation        string `json:"relation"`
+		UserName        string `json:"user_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
 	// Call the usecase method to add permission to user
-	err := h.UserUsecase.RemoveRelation(username, relation, objectNamespace, objectName)
+	err := h.UserUsecase.RemoveRelation(rb.UserName, rb.Relation, rb.ObjectNamespace, rb.ObjectName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -131,12 +155,18 @@ func (h *UserHandler) RemoveRelation(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) Check(c *fiber.Ctx) error {
-	objNs := c.FormValue("object_namespace")
-	objName := c.FormValue("object_name")
-	relation := c.FormValue("relation")
-	roleName := c.FormValue("user_name")
+	type reqBody struct {
+		ObjectNamespace string `json:"objectNamespace"`
+		ObjectName      string `json:"objectName"`
+		Relation        string `json:"relation"`
+		UserName        string `json:"user_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	ok, err := h.UserUsecase.Check(objNs, objName, relation, roleName)
+	ok, err := h.UserUsecase.Check(rb.UserName, rb.Relation, rb.ObjectNamespace, rb.ObjectName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

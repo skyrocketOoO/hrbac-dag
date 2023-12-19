@@ -63,14 +63,18 @@ func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
 }
 
 func (h *RoleHandler) AddRelation(c *fiber.Ctx) error {
-	// Extract data from the request
-	objNamespace := c.FormValue("object_namespace")
-	objName := c.FormValue("object_name")
-	relation := c.FormValue("relation")
-	roleName := c.FormValue("role_name")
+	type reqBody struct {
+		ObjectNamespace string `json:"objectNamespace"`
+		ObjectName      string `json:"objectName"`
+		Relation        string `json:"relation"`
+		RoleName        string `json:"role_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	// Call the usecase method to add permission to role
-	err := h.RoleUsecase.AddRelation(objNamespace, objName, relation, roleName)
+	err := h.RoleUsecase.AddRelation(rb.ObjectNamespace, rb.ObjectName, rb.Relation, rb.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -79,14 +83,18 @@ func (h *RoleHandler) AddRelation(c *fiber.Ctx) error {
 }
 
 func (h *RoleHandler) RemoveRelation(c *fiber.Ctx) error {
-	// Extract data from the request
-	objNamespace := c.FormValue("object_namespace")
-	objName := c.FormValue("object_name")
-	relation := c.FormValue("relation")
-	roleName := c.FormValue("role_name")
+	type reqBody struct {
+		ObjectNamespace string `json:"objectNamespace"`
+		ObjectName      string `json:"objectName"`
+		Relation        string `json:"relation"`
+		RoleName        string `json:"role_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	// Call the usecase method to add permission to role
-	err := h.RoleUsecase.RemoveRelation(objNamespace, objName, relation, roleName)
+	err := h.RoleUsecase.RemoveRelation(rb.ObjectNamespace, rb.ObjectName, rb.Relation, rb.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -95,12 +103,16 @@ func (h *RoleHandler) RemoveRelation(c *fiber.Ctx) error {
 }
 
 func (h *RoleHandler) AddParent(c *fiber.Ctx) error {
-	// Extract data from the request
-	childRoleName := c.FormValue("child_role_name")
-	parentRoleName := c.FormValue("parent_role_name")
+	type reqBody struct {
+		ChildRoleName  string `json:"child_role_name"`
+		ParentRoleName string `json:"parent_role_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	// Call the usecase method to assign role to role
-	err := h.RoleUsecase.AddParent(childRoleName, parentRoleName)
+	err := h.RoleUsecase.AddParent(rb.ChildRoleName, rb.ParentRoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -109,12 +121,16 @@ func (h *RoleHandler) AddParent(c *fiber.Ctx) error {
 }
 
 func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
-	// Extract data from the request
-	childRoleName := c.FormValue("child_role_name")
-	parentRoleName := c.FormValue("parent_role_name")
+	type reqBody struct {
+		ChildRoleName  string `json:"child_role_name"`
+		ParentRoleName string `json:"parent_role_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	// Call the usecase method to assign role to role
-	err := h.RoleUsecase.RemoveParent(childRoleName, parentRoleName)
+	err := h.RoleUsecase.RemoveParent(rb.ChildRoleName, rb.ParentRoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -136,11 +152,14 @@ func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
 // }
 
 func (h *RoleHandler) ListRelations(c *fiber.Ctx) error {
-	// Extract data from the request
-	roleName := c.Query("name")
-
-	// Call the usecase method to list role relations
-	relations, err := h.RoleUsecase.ListRelations(roleName)
+	type reqBody struct {
+		RoleName string `json:"name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
+	relations, err := h.RoleUsecase.ListRelations(rb.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -149,11 +168,15 @@ func (h *RoleHandler) ListRelations(c *fiber.Ctx) error {
 }
 
 func (h *RoleHandler) GetMembers(c *fiber.Ctx) error {
-	// Extract data from the request
-	roleName := c.Query("name")
+	type reqBody struct {
+		RoleName string `json:"name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	// Call the usecase method to list role members
-	members, err := h.RoleUsecase.GetMembers(roleName)
+	members, err := h.RoleUsecase.GetMembers(rb.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -162,12 +185,18 @@ func (h *RoleHandler) GetMembers(c *fiber.Ctx) error {
 }
 
 func (h *RoleHandler) Check(c *fiber.Ctx) error {
-	objNs := c.FormValue("object_namespace")
-	objName := c.FormValue("object_name")
-	relation := c.FormValue("relation")
-	roleName := c.FormValue("role_name")
+	type reqBody struct {
+		ObjectNamespace string `json:"objectNamespace"`
+		ObjectName      string `json:"objectName"`
+		Relation        string `json:"relation"`
+		RoleName        string `json:"role_name"`
+	}
+	rb := reqBody{}
+	if err := c.BodyParser(&rb); err != nil {
+		return fiber.NewError(400, "body error")
+	}
 
-	ok, err := h.RoleUsecase.Check(objNs, objName, relation, roleName)
+	ok, err := h.RoleUsecase.Check(rb.ObjectNamespace, rb.ObjectName, rb.Relation, rb.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
