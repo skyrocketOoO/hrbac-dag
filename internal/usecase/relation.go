@@ -140,52 +140,20 @@ func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace
 }
 
 func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
-	var firstQuery domain.RelationTuple
-	if relationTuple.SubjectNamespace != "" {
-		firstQuery.SubjectNamespace = relationTuple.SubjectNamespace
-		firstQuery.SubjectName = relationTuple.SubjectName
-	} else {
-		firstQuery.SubjectSetObjectNamespace = relationTuple.SubjectSetObjectNamespace
-		firstQuery.SubjectSetObjectName = relationTuple.SubjectSetObjectName
-		firstQuery.SubjectSetRelation = relationTuple.SubjectSetRelation
-	}
-
-	q := utils.NewQueue[domain.RelationTuple]()
-	q.Push(firstQuery)
-	for !q.IsEmpty() {
-		qLen := q.Len()
-		for i := 0; i < qLen; i++ {
-			query, err := q.Pop()
-			if err != nil {
-				return false, err
-			}
-			tuples, err := u.RelationTupleRepo.QueryTuples(query)
-			if err != nil {
-				return false, err
-			}
-
-			for _, tuple := range tuples {
-				if tuple.ObjectNamespace == relationTuple.ObjectNamespace && tuple.ObjectName == relationTuple.ObjectName && tuple.Relation == relationTuple.Relation {
-					return true, nil
-				}
-				if tuple.ObjectNamespace == "role" {
-					nextQuery := domain.RelationTuple{
-						SubjectSetObjectNamespace: "role",
-						SubjectSetObjectName:      tuple.ObjectName,
-					}
-					q.Push(nextQuery)
-				}
-				nextQuery := domain.RelationTuple{
-					SubjectSetObjectNamespace: tuple.ObjectNamespace,
-					SubjectSetObjectName:      tuple.ObjectName,
-					SubjectSetRelation:        tuple.Relation,
-				}
-				q.Push(nextQuery)
-			}
-		}
-	}
-
-	return false, nil
+	return u.searchTemplate(
+		domain.Subject{
+			SubjectNamespace:    relationTuple.SubjectNamespace,
+			SubjectName:         relationTuple.SubjectName,
+			SubjectSetNamespace: relationTuple.SubjectSetObjectNamespace,
+			SubjectSetName:      relationTuple.SubjectSetObjectName,
+			SubjectSetRelation:  relationTuple.SubjectSetRelation,
+		},
+		domain.Object{
+			ObjectNamespace: relationTuple.ObjectNamespace,
+			ObjectName:      relationTuple.ObjectName,
+			Relation:        relationTuple.Relation,
+		},
+	)
 }
 
 // TODO: use bfs to return shortest path or return all paths

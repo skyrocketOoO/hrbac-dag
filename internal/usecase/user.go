@@ -186,48 +186,11 @@ func (u *UserUsecase) RemoveRelation(username, relation, objectnamespace, object
 }
 
 func (u *UserUsecase) Check(userName, relation, objectNamespace, objectName string) (ok bool, err error) {
-	firstQuery := domain.RelationTuple{
+	return u.RelationUsecaseRepo.Check(domain.RelationTuple{
+		ObjectNamespace:  objectNamespace,
+		ObjectName:       objectName,
+		Relation:         relation,
 		SubjectNamespace: "user",
 		SubjectName:      userName,
-	}
-
-	q := utils.NewQueue[domain.RelationTuple]()
-	q.Push(firstQuery)
-	for !q.IsEmpty() {
-		qLen := q.Len()
-		for i := 0; i < qLen; i++ {
-			query, err := q.Pop()
-			if err != nil {
-				return false, err
-			}
-
-			tuples, err := u.RelationTupleRepo.QueryTuples(query)
-			if err != nil {
-				return false, err
-			}
-
-			for _, tuple := range tuples {
-				if tuple.ObjectName == objectName && tuple.ObjectNamespace == objectNamespace && tuple.Relation == relation {
-					return true, nil
-				}
-
-				if tuple.ObjectNamespace == "role" {
-					// use role to search
-					nextQuery := domain.RelationTuple{
-						SubjectNamespace: "role",
-						SubjectName:      tuple.ObjectName,
-					}
-					q.Push(nextQuery)
-				}
-
-				nextQuery := domain.RelationTuple{
-					SubjectSetObjectNamespace: tuple.ObjectNamespace,
-					SubjectSetObjectName:      tuple.ObjectName,
-					SubjectSetRelation:        tuple.Relation,
-				}
-				q.Push(nextQuery)
-			}
-		}
-	}
-	return false, nil
+	})
 }
