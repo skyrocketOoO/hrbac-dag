@@ -119,3 +119,11 @@ func (h *RelationHandler) Path(c *fiber.Ctx) error {
 	}
 	return c.SendStatus(403)
 }
+
+func (h *RelationHandler) ClearAllRelations(c *fiber.Ctx) error {
+	err := h.RelationUsecase.ClearAllRelations()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	return nil
+}

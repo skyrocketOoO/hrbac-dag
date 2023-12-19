@@ -25,4 +25,5 @@ type RelationTupleRepository interface {
 	QueryExactMatchTuples(tuple domain.RelationTuple) ([]RelationTuple, error)
 	QueryTuples(query domain.RelationTuple) ([]RelationTuple, error)
 	GetNamespaces() ([]string, error)
+	DeleteAllTuples() error
 }

@@ -339,3 +339,18 @@ func (u *RelationUsecase) ListRelationTuples(namespace, name string) ([]sqldomai
 
 	return res.ToSlice(), nil
 }
+
+func (u *RelationUsecase) ClearAllRelations() error {
+	return u.RelationTupleRepo.DeleteAllTuples()
+}
+
+func (u *RelationUsecase) Search() error {
+	// usecase
+	// (u *RoleUsecase) ListRelations(namespace, name string) ([]string, error)
+	// (u *RoleUsecase) Check(objectNamespace, objectName, relation, rolename string) (bool, error)
+	// Path(relationTuple domain.RelationTuple) ([]string, error)
+
+	return nil
+}
+
+func (u *RelationUsecase) ReversedSearch() error

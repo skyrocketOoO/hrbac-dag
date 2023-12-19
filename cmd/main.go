@@ -36,9 +36,6 @@ func main() {
 		return nil
 	})
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
 	app.Get("/healthy", func(c *fiber.Ctx) error {
 		return nil
 	})
@@ -95,6 +92,7 @@ func main() {
 	relationApp.Post("/link", relationHandler.Link)
 	relationApp.Post("/check", relationHandler.Check)
 	relationApp.Post("/path", relationHandler.Path) // to check how the subject obtain the relation on subject
+	relationApp.Delete("/", relationHandler.ClearAllRelations)
 
 	app.Listen(":3000")
 }

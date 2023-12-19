@@ -13,4 +13,6 @@ type RelationUsecase interface {
 	ListRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error)
 	Create(relationTuple domain.RelationTuple) error
 	SafeCreate(relationTuple domain.RelationTuple) error
+	ClearAllRelations() error
+	
 }
