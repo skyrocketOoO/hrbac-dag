@@ -1,4 +1,5 @@
 # HRBAC-zanzibar
+HRBAC implement using Google Zanzibar algorithm
 
 ## Feature
 
@@ -16,7 +17,9 @@
 - [ ] List who has access to object
 - [ ] Regex
 
-## Reserved words
+## Restriction
+
+### Reserved words
 
 - All: @ # ( ) :
 - Relatoion: "member" "parent"

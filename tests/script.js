@@ -1,7 +1,7 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { checkAPI } from './api_test.js';
-import { checkScenario } from './scenario_test.js';
+import { check, group, sleep } from 'k6';
+import { checkAPI } from './api/api_test.js';
+import { checkScenario } from './scenario/scenario_test.js';
 
 export const options = {
   vus: 1,
@@ -18,7 +18,11 @@ export default function() {
   let res = http.get(`${SERVER_URL}/healthy`);
   check(res, { 'Server is healthy': (r) => r.status == 200 });
 
-  // checkAPI(SERVER_URL, Headers)
+  group("api", () => {
+    checkAPI(SERVER_URL, Headers)
+  })
 
-  checkScenario(SERVER_URL, Headers)
+  group("scenario", () => {
+    checkScenario(SERVER_URL, Headers)
+  })
 }

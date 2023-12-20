@@ -1,5 +1,8 @@
 
 - restrict the max search depth
 - each function should do atomic operation
-- Regex permission
+- Regex
 - object usecase not implemented
+- Add batch processing to reduce detect cycle performance
+- Add logging mechanism
+- use cmd to start server, test flag to use sqlite, other postgres
