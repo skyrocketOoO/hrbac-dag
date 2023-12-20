@@ -5,6 +5,7 @@ import (
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	"rbac/utils"
+	"time"
 )
 
 type RelationUsecase struct {
@@ -329,9 +330,6 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 	} else {
 		return false, errors.New("subject error")
 	}
-	firstQuery.ObjectNamespace = to.ObjectNamespace
-	firstQuery.ObjectName = to.ObjectName
-	firstQuery.Relation = to.Relation
 
 	q := utils.NewQueue[domain.RelationTuple]()
 	q.Push(firstQuery)
@@ -339,113 +337,132 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
 			query, _ := q.Pop()
+			// fmt.Println("========================query============================")
+			// fmt.Printf("%+v\n", query)
+			// fmt.Println("=========================================================")
 			tuples, err := u.RelationTupleRepo.QueryTuples(query)
 			if err != nil {
 				return false, err
 			}
 
 			for _, tuple := range tuples {
+				// fmt.Printf("%+v\n", tuple)
+				time.Sleep(time.Second * 3)
+				// fmt.Printf("%s : %s # %s\n", tuple.ObjectNamespace, tuple.ObjectName, tuple.Relation)
+				if tuple.ObjectNamespace == to.ObjectNamespace {
+					if tuple.ObjectName == "*" && tuple.Relation == "*" {
+						return true, nil
+					} else if tuple.ObjectName == "*" && tuple.Relation != "*" {
+						if tuple.Relation == to.Relation {
+							return true, nil
+						}
+					} else if tuple.ObjectName != "*" && tuple.Relation == "*" {
+						if tuple.ObjectName == to.ObjectName {
+							return true, nil
+						}
+					}
+				}
 				if tuple.ObjectNamespace == to.ObjectNamespace && tuple.ObjectName == to.ObjectName && tuple.Relation == to.Relation {
 					return true, nil
 				}
 				// object case
 				// TODO: the <ns> <*> <*> query will direct find the next layer object, so can directly jump to next
-				if tuple.ObjectNamespace != "role" && tuple.ObjectNamespace != "user" {
-					if tuple.ObjectName == "*" && tuple.Relation == "*" {
-						if tuple.ObjectNamespace == to.ObjectNamespace {
-							return true, nil
-						}
-						// add abstract link
-						nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
-							SubjectSetObjectNamespace: tuple.ObjectNamespace,
-							SubjectSetObjectName:      "*",
-						})
-						if err != nil {
-							return false, err
-						}
-						set := utils.NewSet[string]()
-						for _, nq := range nextQueries {
-							set.Add(nq.SubjectSetRelation)
-						}
-						for _, rel := range set.ToSlice() {
-							q.Push(domain.RelationTuple{
-								SubjectSetObjectNamespace: tuple.ObjectNamespace,
-								SubjectSetObjectName:      "*",
-								SubjectSetRelation:        rel,
-							})
-						}
+				// if tuple.ObjectNamespace != "role" && tuple.ObjectNamespace != "user" {
+				// 	if tuple.ObjectName == "*" && tuple.Relation == "*" {
+				// 		if tuple.ObjectNamespace == to.ObjectNamespace {
+				// 			return true, nil
+				// 		}
+				// 		// add abstract link
+				// 		nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
+				// 			SubjectSetObjectNamespace: tuple.ObjectNamespace,
+				// 			SubjectSetObjectName:      "*",
+				// 		})
+				// 		if err != nil {
+				// 			return false, err
+				// 		}
+				// 		set := utils.NewSet[string]()
+				// 		for _, nq := range nextQueries {
+				// 			set.Add(nq.SubjectSetRelation)
+				// 		}
+				// 		for _, rel := range set.ToSlice() {
+				// 			q.Push(domain.RelationTuple{
+				// 				SubjectSetObjectNamespace: tuple.ObjectNamespace,
+				// 				SubjectSetObjectName:      "*",
+				// 				SubjectSetRelation:        rel,
+				// 			})
+				// 		}
 
-						nextQueries, err = u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
-							SubjectSetObjectNamespace: tuple.ObjectNamespace,
-							SubjectSetRelation:        "*",
-						})
-						if err != nil {
-							return false, err
-						}
-						set = utils.NewSet[string]()
-						for _, nq := range nextQueries {
-							set.Add(nq.SubjectSetObjectName)
-						}
-						for _, name := range set.ToSlice() {
-							q.Push(domain.RelationTuple{
-								SubjectSetObjectNamespace: tuple.ObjectNamespace,
-								SubjectSetObjectName:      name,
-								SubjectSetRelation:        "*",
-							})
-						}
-					} else if tuple.ObjectName == "*" {
-						if tuple.ObjectNamespace == to.ObjectNamespace && tuple.Relation == to.Relation {
-							return true, nil
-						}
-						// abstract link
-						nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
-							SubjectSetObjectNamespace: tuple.ObjectNamespace,
-							SubjectSetRelation:        tuple.Relation,
-						})
-						if err != nil {
-							return false, err
-						}
-						set := utils.NewSet[string]()
-						for _, nq := range nextQueries {
-							set.Add(nq.ObjectName)
-						}
-						for _, name := range set.ToSlice() {
-							q.Push(domain.RelationTuple{
-								SubjectSetObjectNamespace: tuple.ObjectNamespace,
-								SubjectSetObjectName:      name,
-								SubjectSetRelation:        tuple.Relation,
-							})
-						}
-					} else if tuple.Relation == "*" {
-						if tuple.ObjectNamespace == to.ObjectNamespace && tuple.ObjectName == to.ObjectName {
-							return true, nil
-						}
-						// abstract link
-						nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
-							SubjectSetObjectNamespace: tuple.ObjectNamespace,
-							SubjectSetObjectName:      tuple.ObjectName,
-						})
-						if err != nil {
-							return false, err
-						}
-						set := utils.NewSet[string]()
-						for _, nq := range nextQueries {
-							set.Add(nq.Relation)
-						}
-						for _, rel := range set.ToSlice() {
-							q.Push(domain.RelationTuple{
-								SubjectSetObjectNamespace: tuple.ObjectNamespace,
-								SubjectSetObjectName:      tuple.ObjectName,
-								SubjectSetRelation:        rel,
-							})
-						}
-					}
-				}
+				// 		nextQueries, err = u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
+				// 			SubjectSetObjectNamespace: tuple.ObjectNamespace,
+				// 			SubjectSetRelation:        "*",
+				// 		})
+				// 		if err != nil {
+				// 			return false, err
+				// 		}
+				// 		set = utils.NewSet[string]()
+				// 		for _, nq := range nextQueries {
+				// 			set.Add(nq.SubjectSetObjectName)
+				// 		}
+				// 		for _, name := range set.ToSlice() {
+				// 			q.Push(domain.RelationTuple{
+				// 				SubjectSetObjectNamespace: tuple.ObjectNamespace,
+				// 				SubjectSetObjectName:      name,
+				// 				SubjectSetRelation:        "*",
+				// 			})
+				// 		}
+				// 	} else if tuple.ObjectName == "*" {
+				// 		if tuple.ObjectNamespace == to.ObjectNamespace && tuple.Relation == to.Relation {
+				// 			return true, nil
+				// 		}
+				// 		// abstract link
+				// 		nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
+				// 			SubjectSetObjectNamespace: tuple.ObjectNamespace,
+				// 			SubjectSetRelation:        tuple.Relation,
+				// 		})
+				// 		if err != nil {
+				// 			return false, err
+				// 		}
+				// 		set := utils.NewSet[string]()
+				// 		for _, nq := range nextQueries {
+				// 			set.Add(nq.ObjectName)
+				// 		}
+				// 		for _, name := range set.ToSlice() {
+				// 			q.Push(domain.RelationTuple{
+				// 				SubjectSetObjectNamespace: tuple.ObjectNamespace,
+				// 				SubjectSetObjectName:      name,
+				// 				SubjectSetRelation:        tuple.Relation,
+				// 			})
+				// 		}
+				// 	} else if tuple.Relation == "*" {
+				// 		if tuple.ObjectNamespace == to.ObjectNamespace && tuple.ObjectName == to.ObjectName {
+				// 			return true, nil
+				// 		}
+				// 		// abstract link
+				// 		nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
+				// 			SubjectSetObjectNamespace: tuple.ObjectNamespace,
+				// 			SubjectSetObjectName:      tuple.ObjectName,
+				// 		})
+				// 		if err != nil {
+				// 			return false, err
+				// 		}
+				// 		set := utils.NewSet[string]()
+				// 		for _, nq := range nextQueries {
+				// 			set.Add(nq.Relation)
+				// 		}
+				// 		for _, rel := range set.ToSlice() {
+				// 			q.Push(domain.RelationTuple{
+				// 				SubjectSetObjectNamespace: tuple.ObjectNamespace,
+				// 				SubjectSetObjectName:      tuple.ObjectName,
+				// 				SubjectSetRelation:        rel,
+				// 			})
+				// 		}
+				// 	}
+				// }
 
 				if tuple.ObjectNamespace == "role" {
 					nextQuery := domain.RelationTuple{
-						SubjectSetObjectNamespace: "role",
-						SubjectSetObjectName:      tuple.ObjectName,
+						SubjectNamespace: "role",
+						SubjectName:      tuple.ObjectName,
 					}
 					q.Push(nextQuery)
 				}

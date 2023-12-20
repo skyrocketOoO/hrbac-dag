@@ -3,3 +3,27 @@
 - each function should do atomic operation
 - Regex permission
 - object usecase not implemented
+
+
+[
+  "role:rd-director#member@user:Jimmy",
+  "role:rd#member@user:Tasha",
+  "role:sales#member@user:Ivy",
+  "role:rd#parent@role:rd-director",
+  "profile:Ivy#read@(profile:*#read)",
+  "profile:Ivy#read@(profile:Ivy#*)",
+  "profile:*#read@(profile:*#*)",
+  "profile:Ivy#*@(profile:*#*)",
+  "profile:Ivy#read@user:Ivy",
+  "profile:Heidi#read@(profile:*#read)",
+  "profile:Heidi#read@(profile:Heidi#*)",
+  "profile:Heidi#*@(profile:*#*)",
+  "profile:Heidi#read@user:Heidi",
+  "source-code:*#*@role:rd-director",
+  "source-code:*#write@role:rd",
+  "sales-data:*#read@role:rd-director",
+  "sales-data:*#*@role:sales",
+  "sales-data:1#write@role:rd",
+  "role:rd#modify-relation@(role:rd#parent)",
+  "source-code:*#read@(source-code:*#write)"
+]

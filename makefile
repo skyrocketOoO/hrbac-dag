@@ -1,7 +1,12 @@
+clear-db:
+	if [ -e "./gorm.db" ]; then \
+		rm "./gorm.db"; \
+		echo "Database file ./gorm.db deleted."; \
+	else \
+		echo "Database file ./gorm.db does not exist. Nothing to delete."; \
+	fi
+
 run:
 	go run cmd/main.go
-
-clear-db:
-	rm ./gorm.db
 
 test-run: clear-db run
