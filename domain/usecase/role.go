@@ -10,7 +10,7 @@ type RoleUsecase interface {
 	AddParent(childRolename, parentRolename string) error
 	RemoveParent(childRolename, parentRolename string) error
 	// ListChildRoles(rolename string) ([]string, error)
-	ListRelations(name string) ([]string, error)
+	FindAllObjectRelations(name string) ([]string, error)
 	GetMembers(name string) ([]string, error)
 	Check(objnamespace, objname, relation, rolename string) (bool, error)
 }

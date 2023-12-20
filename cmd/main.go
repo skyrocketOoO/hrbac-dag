@@ -61,7 +61,7 @@ func main() {
 	userApp.Delete("/:name", userHandler.DeleteUser)
 	userApp.Post("/add-role", userHandler.AddRole)
 	userApp.Post("/remove-role", userHandler.RemoveRole)
-	userApp.Post("/list-relation", userHandler.ListRelations)
+	userApp.Post("/find-all-object-relations", userHandler.FindAllObjectRelations)
 	userApp.Post("/add-relation", userHandler.AddRelation)
 	userApp.Post("/remove-relation", userHandler.RemoveRelation)
 	userApp.Post("/check", userHandler.Check)
@@ -76,7 +76,7 @@ func main() {
 	roleApp.Post("/add-parent", roleHandler.AddParent)
 	roleApp.Post("/remove-parent", roleHandler.RemoveParent)
 	// roleApp.Get("/list-child-roles", roleHandler.ListChildRoles)
-	roleApp.Post("/list-relation", roleHandler.ListRelations)
+	roleApp.Post("/find-all-object-relations", roleHandler.FindAllObjectRelations)
 	roleApp.Post("/get-members", roleHandler.GetMembers)
 	roleApp.Post("/check", roleHandler.Check)
 
@@ -88,7 +88,7 @@ func main() {
 
 	relationApp := app.Group("/relation")
 	relationHandler := handlerRepo.RelationHandler
-	relationApp.Get("/", relationHandler.ListRelations)
+	relationApp.Get("/", relationHandler.GetAllRelations)
 	relationApp.Post("/link", relationHandler.Link)
 	relationApp.Post("/check", relationHandler.Check)
 	relationApp.Post("/path", relationHandler.Path) // to check how the subject obtain the relation on subject

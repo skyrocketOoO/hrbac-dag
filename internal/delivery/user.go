@@ -94,7 +94,7 @@ func (h *UserHandler) RemoveRole(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "User removed from role successfully"})
 }
 
-func (h *UserHandler) ListRelations(c *fiber.Ctx) error {
+func (h *UserHandler) FindAllObjectRelations(c *fiber.Ctx) error {
 	// Extract data from the request
 	type reqBody struct {
 		Name string `json:"name"`
@@ -104,7 +104,7 @@ func (h *UserHandler) ListRelations(c *fiber.Ctx) error {
 		return fiber.NewError(400, "body error")
 	}
 
-	relations, err := h.UserUsecase.ListRelations(rb.Name)
+	relations, err := h.UserUsecase.FindAllObjectRelations(rb.Name)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

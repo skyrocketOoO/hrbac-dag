@@ -17,8 +17,8 @@ func NewRelationHandler(permissionUsecase usecasedomain.RelationUsecase) *Relati
 	}
 }
 
-func (h *RelationHandler) ListRelations(c *fiber.Ctx) error {
-	relations, err := h.RelationUsecase.ListRelations()
+func (h *RelationHandler) GetAllRelations(c *fiber.Ctx) error {
+	relations, err := h.RelationUsecase.GetAllRelations()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
@@ -101,7 +101,7 @@ func (h *RelationHandler) Path(c *fiber.Ctx) error {
 		return fiber.NewError(400, "body error")
 	}
 
-	path, err := h.RelationUsecase.Path(domain.RelationTuple{
+	path, err := h.RelationUsecase.GetShortestPath(domain.RelationTuple{
 		ObjectNamespace:           reqBody.ObjectNamespace,
 		ObjectName:                reqBody.ObjectName,
 		Relation:                  reqBody.Relation,

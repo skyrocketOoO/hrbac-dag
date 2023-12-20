@@ -151,7 +151,7 @@ func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
 // 	return c.JSON(fiber.Map{"child_roles": childRoles})
 // }
 
-func (h *RoleHandler) ListRelations(c *fiber.Ctx) error {
+func (h *RoleHandler) FindAllObjectRelations(c *fiber.Ctx) error {
 	type reqBody struct {
 		RoleName string `json:"name"`
 	}
@@ -159,7 +159,7 @@ func (h *RoleHandler) ListRelations(c *fiber.Ctx) error {
 	if err := c.BodyParser(&rb); err != nil {
 		return fiber.NewError(400, "body error")
 	}
-	relations, err := h.RoleUsecase.ListRelations(rb.RoleName)
+	relations, err := h.RoleUsecase.FindAllObjectRelations(rb.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

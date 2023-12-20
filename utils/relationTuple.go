@@ -6,10 +6,12 @@ import (
 )
 
 func RelationTupleToString(tuple domain.RelationTuple) string {
-	res := tuple.ObjectNamespace + ":" + tuple.ObjectName + "#" + tuple.Relation + "@"
+	res := tuple.ObjectNamespace + ":" + tuple.ObjectName + "#" + tuple.Relation
 	if tuple.SubjectNamespace != "" {
+		res += "@"
 		res += tuple.SubjectNamespace + ":" + tuple.SubjectName
-	} else {
+	} else if tuple.SubjectSetObjectNamespace != "" {
+		res += "@"
 		res += "(" + tuple.SubjectSetObjectNamespace + ":" + tuple.SubjectSetObjectName
 		res += "#" + tuple.SubjectSetRelation + ")"
 	}

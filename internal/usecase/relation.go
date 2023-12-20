@@ -17,7 +17,7 @@ func NewRelationUsecase(relationTupleRepo sqldomain.RelationTupleRepository) *Re
 	}
 }
 
-func (u *RelationUsecase) ListRelations() ([]string, error) {
+func (u *RelationUsecase) GetAllRelations() ([]string, error) {
 	tuples, err := u.RelationTupleRepo.GetTuples()
 	if err != nil {
 		return nil, err
@@ -156,82 +156,16 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 	)
 }
 
-// TODO: use bfs to return shortest path or return all paths
-func (u *RelationUsecase) Path(relationTuple domain.RelationTuple) ([]string, error) {
+func (u *RelationUsecase) GetAllPaths(relationTuple domain.RelationTuple) ([]string, error) {
+	return nil, errors.New("not implemented")
+}
 
-	var dfs func(relationTuple domain.RelationTuple, curPath []string, finalPath *[]string) error
-	dfs = func(relationTuple domain.RelationTuple, curPath []string, finalPath *[]string) error {
-		if len(*finalPath) > 0 {
-			return nil
-		}
-
-		query := domain.RelationTuple{}
-		if relationTuple.SubjectNamespace != "" {
-			query.SubjectNamespace = relationTuple.SubjectNamespace
-			query.SubjectName = relationTuple.SubjectName
-		} else {
-			query.SubjectSetObjectNamespace = relationTuple.SubjectSetObjectNamespace
-			query.SubjectSetObjectName = relationTuple.SubjectSetObjectName
-			query.SubjectSetRelation = relationTuple.SubjectSetRelation
-		}
-
-		tuples, err := u.RelationTupleRepo.QueryTuples(query)
-		if err != nil {
-			return err
-		}
-
-		for _, tuple := range tuples {
-			if tuple.ObjectName == relationTuple.ObjectName &&
-				tuple.ObjectNamespace == relationTuple.ObjectNamespace &&
-				tuple.Relation == relationTuple.Relation {
-				*finalPath = append(*finalPath, curPath...)
-				*finalPath = append(*finalPath, utils.RelationTupleToString(relationTuple))
-				return nil
-			}
-			curPath = append(curPath, utils.RelationTupleToString(utils.ConvertRelationTuple(tuple)))
-
-			if tuple.ObjectNamespace == "role" {
-				nextQuery := domain.RelationTuple{
-					ObjectNamespace:           relationTuple.ObjectNamespace,
-					ObjectName:                relationTuple.ObjectName,
-					Relation:                  relationTuple.Relation,
-					SubjectSetObjectNamespace: "role",
-					SubjectSetObjectName:      tuple.ObjectName,
-				}
-				if err := dfs(nextQuery, curPath, finalPath); err != nil {
-					return err
-				}
-			}
-			nextQuery := domain.RelationTuple{
-				ObjectNamespace:           relationTuple.ObjectNamespace,
-				ObjectName:                relationTuple.ObjectName,
-				Relation:                  relationTuple.Relation,
-				SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				SubjectSetObjectName:      tuple.ObjectName,
-				SubjectSetRelation:        tuple.Relation,
-			}
-			if err := dfs(nextQuery, curPath, finalPath); err != nil {
-				return err
-			}
-
-			curPath = curPath[:len(curPath)-1]
-		}
-		return nil
-	}
-
-	paths := []string{}
-	emptyPath := []string{}
-	if err := dfs(relationTuple, emptyPath, &paths); err != nil {
-		return nil, err
-	}
-	if len(paths) > 0 {
-		return paths, nil
-	}
-	return nil, errors.New("paths not exist")
+func (u *RelationUsecase) GetShortestPath(relationTuple domain.RelationTuple) ([]string, error) {
+	return nil, errors.New("not implemented")
 }
 
 // use to get all relations based on given attr
-func (u *RelationUsecase) ListRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error) {
+func (u *RelationUsecase) QueryExistedRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error) {
 	res := utils.NewSet[sqldomain.RelationTuple]()
 
 	if name == "" {
@@ -483,5 +417,96 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 }
 
 func (u *RelationUsecase) ReversedSearch() error {
-	return nil
+	return errors.New("not implemented")
+}
+
+func (u *RelationUsecase) detectCycle(node int, visited, recursionStack map[int]bool, graph map[int][]int) bool {
+	visited[node] = true
+	recursionStack[node] = true
+
+	for _, neighbor := range graph[node] {
+		if !visited[neighbor] {
+			if u.detectCycle(neighbor, visited, recursionStack, graph) {
+				return true
+			}
+		} else if recursionStack[neighbor] {
+			return true
+		}
+	}
+
+	recursionStack[node] = false
+	return false
+}
+
+func (u *RelationUsecase) hasCycle(graph map[int][]int) bool {
+	visited := make(map[int]bool)
+	recursionStack := make(map[int]bool)
+
+	for node := range graph {
+		if !visited[node] {
+			if u.detectCycle(node, visited, recursionStack, graph) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string, error) {
+	if from.SubjectNamespace == "role" && from.SubjectName == "admin" {
+		return nil, nil
+	}
+	objectRelations := utils.NewSet[string]()
+
+	var firstQuery domain.RelationTuple
+	if from.SubjectNamespace != "" {
+		firstQuery.SubjectNamespace = from.SubjectNamespace
+		firstQuery.SubjectName = from.SubjectName
+	} else if from.SubjectSetNamespace != "" {
+		firstQuery.SubjectSetObjectNamespace = from.SubjectSetNamespace
+		firstQuery.SubjectSetObjectName = from.SubjectSetName
+		firstQuery.SubjectSetRelation = from.SubjectSetRelation
+	} else {
+		return nil, errors.New("subject error")
+	}
+
+	q := utils.NewQueue[domain.RelationTuple]()
+	q.Push(firstQuery)
+	for !q.IsEmpty() {
+		qLen := q.Len()
+		for i := 0; i < qLen; i++ {
+			query, _ := q.Pop()
+			tuples, err := u.RelationTupleRepo.QueryTuples(query)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, tuple := range tuples {
+				if tuple.ObjectNamespace != "role" && tuple.ObjectNamespace != "user" {
+					relationStr := utils.RelationTupleToString(utils.ConvertRelationTuple(sqldomain.RelationTuple{
+						ObjectNamespace: tuple.ObjectNamespace,
+						ObjectName:      tuple.ObjectName,
+						Relation:        tuple.Relation,
+					}))
+					objectRelations.Add(relationStr)
+				}
+				if tuple.ObjectNamespace == "role" {
+					nextQuery := domain.RelationTuple{
+						SubjectNamespace: "role",
+						SubjectName:      tuple.ObjectName,
+					}
+					q.Push(nextQuery)
+				}
+				nextQuery := domain.RelationTuple{
+					SubjectSetObjectNamespace: tuple.ObjectNamespace,
+					SubjectSetObjectName:      tuple.ObjectName,
+					SubjectSetRelation:        tuple.Relation,
+				}
+				q.Push(nextQuery)
+			}
+		}
+	}
+
+	return objectRelations.ToSlice(), nil
 }

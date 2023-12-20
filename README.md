@@ -2,7 +2,7 @@
 
 ## Feature
 
-- [x] Admin(all permission)
+- [x] Admin(all permission, only implement for check, no path or list)
 - [x] User Permission
 - [x] RBAC
 - [x] HRBAC

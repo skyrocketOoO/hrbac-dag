@@ -20,7 +20,7 @@ func NewRoleUsecase(relationTupleRepo sqldomain.RelationTupleRepository, relatio
 }
 
 func (u *RoleUsecase) ListRoles() ([]string, error) {
-	tuples, err := u.RelationUsecaseRepo.ListRelationTuples("role", "")
+	tuples, err := u.RelationUsecaseRepo.QueryExistedRelationTuples("role", "")
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (u *RoleUsecase) ListRoles() ([]string, error) {
 }
 
 func (u *RoleUsecase) GetRole(name string) (string, error) {
-	tuples, err := u.RelationUsecaseRepo.ListRelationTuples("role", name)
+	tuples, err := u.RelationUsecaseRepo.QueryExistedRelationTuples("role", name)
 	if err != nil {
 		return "", err
 	}
@@ -54,7 +54,7 @@ func (u *RoleUsecase) GetRole(name string) (string, error) {
 }
 
 func (u *RoleUsecase) DeleteRole(name string) error {
-	tuples, err := u.RelationUsecaseRepo.ListRelationTuples("role", name)
+	tuples, err := u.RelationUsecaseRepo.QueryExistedRelationTuples("role", name)
 	if err != nil {
 		return err
 	}
@@ -136,50 +136,13 @@ func (u *RoleUsecase) RemoveParent(childRolename, parentRolename string) error {
 	return nil
 }
 
-func (u *RoleUsecase) ListRelations(name string) ([]string, error) {
-	initquery := domain.RelationTuple{
-		SubjectSetObjectNamespace: "role",
-		SubjectSetObjectName:      name,
-		SubjectSetRelation:        "member",
-	}
-
-	q := utils.NewQueue[domain.RelationTuple]()
-	q.Push(initquery)
-	relations := utils.NewSet[string]()
-
-	for !q.IsEmpty() {
-		qLen := q.Len()
-		for i := 0; i < qLen; i++ {
-			query, err := q.Pop()
-			if err != nil {
-				return nil, err
-			}
-
-			tuples, err := u.RelationTupleRepo.QueryTuples(query)
-			if err != nil {
-				return nil, err
-			}
-
-			for _, tuple := range tuples {
-				relations.Add(tuple.ObjectNamespace + ":" + tuple.ObjectName + "#" + tuple.Relation)
-				if tuple.ObjectNamespace == "role" {
-					nextQuery := domain.RelationTuple{
-						SubjectSetObjectNamespace: "role",
-						SubjectSetObjectName:      tuple.ObjectName,
-					}
-					q.Push(nextQuery)
-				}
-				nextQuery := domain.RelationTuple{
-					SubjectSetObjectNamespace: tuple.ObjectNamespace,
-					SubjectSetObjectName:      tuple.ObjectName,
-					SubjectSetRelation:        tuple.Relation,
-				}
-				q.Push(nextQuery)
-			}
-		}
-	}
-
-	return relations.ToSlice(), nil
+func (u *RoleUsecase) FindAllObjectRelations(name string) ([]string, error) {
+	return u.RelationUsecaseRepo.FindAllObjectRelations(
+		domain.Subject{
+			SubjectNamespace: "role",
+			SubjectName:      name,
+		},
+	)
 }
 
 func (u *RoleUsecase) GetMembers(name string) ([]string, error) {
