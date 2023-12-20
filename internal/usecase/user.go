@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"errors"
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	ucdomain "rbac/domain/usecase"
@@ -78,7 +77,7 @@ func (u *UserUsecase) AddRole(username, rolename string) error {
 		SubjectName:      username,
 	}
 
-	return u.RelationTupleRepo.CreateTuple(tuple)
+	return u.RelationUsecaseRepo.Create(tuple)
 }
 
 func (u *UserUsecase) RemoveRole(username, rolename string) error {
@@ -89,21 +88,7 @@ func (u *UserUsecase) RemoveRole(username, rolename string) error {
 		SubjectNamespace: "user",
 		SubjectName:      username,
 	}
-
-	matchedTuples, err := u.RelationTupleRepo.QueryExactMatchTuples(tuple)
-	if err != nil {
-		return err
-	}
-	if len(matchedTuples) == 0 {
-		return errors.New("the matched tuples is 0")
-	}
-	for _, tuple := range matchedTuples {
-		if err := u.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return u.RelationUsecaseRepo.Delete(tuple)
 }
 
 func (u *UserUsecase) FindAllObjectRelations(name string) ([]string, error) {
@@ -136,17 +121,7 @@ func (u *UserUsecase) RemoveRelation(username, relation, objectnamespace, object
 		SubjectName:      username,
 	}
 
-	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(tuple)
-	if err != nil {
-		return err
-	}
-
-	for _, tuple := range tuples {
-		if err := u.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
-			return err
-		}
-	}
-	return nil
+	return u.RelationUsecaseRepo.Delete(tuple)
 }
 
 func (u *UserUsecase) Check(userName, relation, objectNamespace, objectName string) (ok bool, err error) {

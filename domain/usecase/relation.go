@@ -11,7 +11,7 @@ type RelationUsecase interface {
 	Check(relationTuple domain.RelationTuple) (bool, error)
 	QueryExistedRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error)
 	Create(relationTuple domain.RelationTuple) error
-	SafeCreate(relationTuple domain.RelationTuple) error
+	Delete(relationTuple domain.RelationTuple) error
 	ClearAllRelations() error
 	FindAllObjectRelations(from domain.Subject) ([]string, error)
 	GetShortestPath(relationTuple domain.RelationTuple) ([]string, error)

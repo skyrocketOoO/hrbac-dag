@@ -6,7 +6,7 @@
 - [x] User Permission
 - [x] RBAC
 - [x] HRBAC
-- [x] Access link
+- [x] Access link (same object namespace, role, no user)
 - [x] Access Inheritance
 - [x] Children role access control
 - [x] Zero trust

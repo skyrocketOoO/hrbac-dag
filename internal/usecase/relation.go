@@ -32,89 +32,6 @@ func (u *RelationUsecase) GetAllRelations() ([]string, error) {
 }
 
 func (u *RelationUsecase) Create(relationTuple domain.RelationTuple) error {
-	// fmt.Printf("Person: %+v\n", relationTuple)
-	if relationTuple.ObjectNamespace != "role" && relationTuple.ObjectNamespace != "user" {
-		// object case: use <ns>:<name>#<relation> as instance
-		if relationTuple.ObjectName != "*" && relationTuple.Relation != "*" {
-			parentTuple := domain.RelationTuple{
-				ObjectNamespace:           relationTuple.ObjectNamespace,
-				ObjectName:                relationTuple.ObjectName,
-				Relation:                  relationTuple.Relation,
-				SubjectSetObjectNamespace: relationTuple.ObjectNamespace,
-				SubjectSetObjectName:      "*",
-				SubjectSetRelation:        relationTuple.Relation,
-			}
-			if err := u.SafeCreate(parentTuple); err != nil {
-				return err
-			}
-
-			parentTuple = domain.RelationTuple{
-				ObjectNamespace:           relationTuple.ObjectNamespace,
-				ObjectName:                relationTuple.ObjectName,
-				Relation:                  relationTuple.Relation,
-				SubjectSetObjectNamespace: relationTuple.ObjectNamespace,
-				SubjectSetObjectName:      relationTuple.ObjectName,
-				SubjectSetRelation:        "*",
-			}
-			if err := u.SafeCreate(parentTuple); err != nil {
-				return err
-			}
-
-			parentTuple = domain.RelationTuple{
-				ObjectNamespace:           relationTuple.ObjectNamespace,
-				ObjectName:                "*",
-				Relation:                  relationTuple.Relation,
-				SubjectSetObjectNamespace: relationTuple.ObjectNamespace,
-				SubjectSetObjectName:      "*",
-				SubjectSetRelation:        "*",
-			}
-			if err := u.SafeCreate(parentTuple); err != nil {
-				return err
-			}
-
-			parentTuple = domain.RelationTuple{
-				ObjectNamespace:           relationTuple.ObjectNamespace,
-				ObjectName:                relationTuple.ObjectName,
-				Relation:                  "*",
-				SubjectSetObjectNamespace: relationTuple.ObjectNamespace,
-				SubjectSetObjectName:      "*",
-				SubjectSetRelation:        "*",
-			}
-			if err := u.SafeCreate(parentTuple); err != nil {
-				return err
-			}
-
-		} else if relationTuple.ObjectName != "*" {
-			parentTuple := domain.RelationTuple{
-				ObjectNamespace:           relationTuple.ObjectNamespace,
-				ObjectName:                "*",
-				Relation:                  relationTuple.Relation,
-				SubjectSetObjectNamespace: relationTuple.ObjectNamespace,
-				SubjectSetObjectName:      "*",
-				SubjectSetRelation:        "*",
-			}
-			if err := u.SafeCreate(parentTuple); err != nil {
-				return err
-			}
-		} else if relationTuple.Relation != "*" {
-			parentTuple := domain.RelationTuple{
-				ObjectNamespace:           relationTuple.ObjectNamespace,
-				ObjectName:                relationTuple.ObjectName,
-				Relation:                  "*",
-				SubjectSetObjectNamespace: relationTuple.ObjectNamespace,
-				SubjectSetObjectName:      "*",
-				SubjectSetRelation:        "*",
-			}
-			if err := u.SafeCreate(parentTuple); err != nil {
-				return err
-			}
-		}
-	}
-
-	return u.SafeCreate(relationTuple)
-}
-
-func (u *RelationUsecase) SafeCreate(relationTuple domain.RelationTuple) error {
 	// if tuple exist, return
 	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(relationTuple)
 	if err != nil {
@@ -123,7 +40,32 @@ func (u *RelationUsecase) SafeCreate(relationTuple domain.RelationTuple) error {
 	if len(tuples) > 0 {
 		return nil
 	}
-	return u.RelationTupleRepo.CreateTuple(relationTuple)
+
+	if err := u.RelationTupleRepo.CreateTuple(relationTuple); err != nil {
+		return err
+	}
+	ok, err := u.hasCycle()
+	if err != nil {
+		return err
+	}
+	if ok {
+		if err := u.Delete(relationTuple); err != nil {
+			return err
+		}
+		return errors.New("create cycle detected")
+	}
+	return nil
+}
+
+func (u *RelationUsecase) Delete(relationTuple domain.RelationTuple) error {
+	matchTuples, err := u.RelationTupleRepo.QueryExactMatchTuples(relationTuple)
+	if err != nil {
+		return err
+	}
+	if len(matchTuples) > 1 {
+		return errors.New("match tuples > 1")
+	}
+	return u.RelationTupleRepo.DeleteTuple(matchTuples[0].ID)
 }
 
 func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace, subjname, subjrelation string) error {
@@ -247,10 +189,6 @@ func (u *RelationUsecase) ClearAllRelations() error {
 }
 
 func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) (ok bool, err error) {
-	// usecase
-	// (u *RoleUsecase) ListRelations(namespace, name string) ([]string, error)
-	// (u *RoleUsecase) Check(objectNamespace, objectName, relation, rolename string) (bool, error)
-	// Path(relationTuple domain.RelationTuple) ([]string, error)
 	if from.SubjectNamespace == "role" && from.SubjectName == "admin" {
 		return true, nil
 	}
@@ -420,37 +358,81 @@ func (u *RelationUsecase) ReversedSearch() error {
 	return errors.New("not implemented")
 }
 
-func (u *RelationUsecase) detectCycle(node int, visited, recursionStack map[int]bool, graph map[int][]int) bool {
-	visited[node] = true
-	recursionStack[node] = true
+func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[domain.Object], recursionStack *utils.Set[domain.Object]) (bool, error) {
+	visited.Add(node)
+	recursionStack.Add(node)
 
-	for _, neighbor := range graph[node] {
-		if !visited[neighbor] {
-			if u.detectCycle(neighbor, visited, recursionStack, graph) {
-				return true
+	query := domain.RelationTuple{}
+	if node.Relation != "" {
+		query.SubjectSetObjectNamespace = node.ObjectNamespace
+		query.SubjectSetObjectName = node.ObjectName
+		query.SubjectSetRelation = node.Relation
+	} else {
+		query.SubjectNamespace = node.ObjectNamespace
+		query.SubjectName = node.ObjectName
+	}
+	neighbors, err := u.RelationTupleRepo.QueryTuples(query)
+	if err != nil {
+		return false, err
+	}
+	for _, neighbor := range neighbors {
+		var object domain.Object
+		if neighbor.SubjectNamespace != "" {
+			object.ObjectNamespace = neighbor.SubjectNamespace
+			object.ObjectName = neighbor.SubjectName
+		} else {
+			object.ObjectNamespace = neighbor.SubjectSetObjectNamespace
+			object.ObjectName = neighbor.SubjectSetObjectName
+			object.Relation = neighbor.SubjectSetRelation
+		}
+		if !visited.Exist(object) {
+			ok, err := u.detectCycle(object, visited, recursionStack)
+			if err != nil {
+				return false, err
 			}
-		} else if recursionStack[neighbor] {
-			return true
+			if ok {
+				return true, nil
+			}
+		} else if recursionStack.Exist(object) {
+			return true, nil
 		}
 	}
 
-	recursionStack[node] = false
-	return false
+	recursionStack.Remove(node)
+	return false, nil
 }
 
-func (u *RelationUsecase) hasCycle(graph map[int][]int) bool {
-	visited := make(map[int]bool)
-	recursionStack := make(map[int]bool)
+func (u *RelationUsecase) hasCycle() (bool, error) {
+	visited := utils.NewSet[domain.Object]()
+	recursionStack := utils.NewSet[domain.Object]()
 
-	for node := range graph {
-		if !visited[node] {
-			if u.detectCycle(node, visited, recursionStack, graph) {
-				return true
+	allTuples, err := u.RelationTupleRepo.GetTuples()
+	if err != nil {
+		return false, err
+	}
+
+	for _, tuple := range allTuples {
+		var object domain.Object
+		if tuple.SubjectNamespace != "" {
+			object.ObjectNamespace = tuple.SubjectNamespace
+			object.ObjectName = tuple.SubjectName
+		} else {
+			object.ObjectNamespace = tuple.SubjectSetObjectNamespace
+			object.ObjectName = tuple.SubjectSetObjectName
+			object.Relation = tuple.SubjectSetRelation
+		}
+
+		if !visited.Exist(object) {
+			ok, err := u.detectCycle(object, &visited, &recursionStack)
+			if err != nil {
+				return false, err
+			}
+			if ok {
+				return true, nil
 			}
 		}
 	}
-
-	return false
+	return false, nil
 }
 
 func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string, error) {

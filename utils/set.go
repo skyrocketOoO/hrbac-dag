@@ -18,6 +18,13 @@ func (s *Set[T]) Remove(element T) {
 	delete(s.data, element)
 }
 
+func (s *Set[T]) Exist(element T) bool {
+	if _, ok := s.data[element]; ok {
+		return true
+	}
+	return false
+}
+
 func (s *Set[T]) ToSlice() []T {
 	eles := []T{}
 	for key := range s.data {

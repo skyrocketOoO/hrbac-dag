@@ -77,7 +77,7 @@ func (u *RoleUsecase) AddRelation(objnamespace, ObjectName, relation, rolename s
 		SubjectName:      rolename,
 	}
 
-	return u.RelationTupleRepo.CreateTuple(tuple)
+	return u.RelationUsecaseRepo.Create(tuple)
 }
 
 func (u *RoleUsecase) RemoveRelation(objnamespace, ObjectName, relation, rolename string) error {
@@ -89,17 +89,7 @@ func (u *RoleUsecase) RemoveRelation(objnamespace, ObjectName, relation, rolenam
 		SubjectName:      rolename,
 	}
 
-	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(query)
-	if err != nil {
-		return err
-	}
-
-	for _, tuple := range tuples {
-		if err := u.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
-			return err
-		}
-	}
-	return nil
+	return u.RelationUsecaseRepo.Delete(query)
 }
 
 func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
@@ -123,17 +113,7 @@ func (u *RoleUsecase) RemoveParent(childRolename, parentRolename string) error {
 		SubjectName:      parentRolename,
 	}
 
-	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(query)
-	if err != nil {
-		return err
-	}
-
-	for _, tuple := range tuples {
-		if err := u.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
-			return err
-		}
-	}
-	return nil
+	return u.RelationUsecaseRepo.Delete(query)
 }
 
 func (u *RoleUsecase) FindAllObjectRelations(name string) ([]string, error) {
