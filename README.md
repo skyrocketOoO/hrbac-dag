@@ -2,7 +2,7 @@
 
 ## Feature
 
-- [ ] Admin
+- [x] Admin(all permission)
 - [x] User Permission
 - [x] RBAC
 - [x] HRBAC
@@ -12,5 +12,13 @@
 - [x] Zero trust
 - [x] Fine grained
 - [x] Multiple role
-- [ ] Object *(all object | all operations) support
+- [x] Object *(all object | all operations) support (unsupport distinct object namespace link)
 - [ ] Regex
+
+## Reserved words
+
+- All: @ # ( ) :
+- Relatoion: "member" "parent"
+- Namespace: "role", "user"
+- Name: "admin"
+  

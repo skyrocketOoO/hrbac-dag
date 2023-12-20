@@ -5,7 +5,6 @@ import (
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	"rbac/utils"
-	"time"
 )
 
 type RelationUsecase struct {
@@ -318,6 +317,9 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 	// (u *RoleUsecase) ListRelations(namespace, name string) ([]string, error)
 	// (u *RoleUsecase) Check(objectNamespace, objectName, relation, rolename string) (bool, error)
 	// Path(relationTuple domain.RelationTuple) ([]string, error)
+	if from.SubjectNamespace == "role" && from.SubjectName == "admin" {
+		return true, nil
+	}
 
 	var firstQuery domain.RelationTuple
 	if from.SubjectNamespace != "" {
@@ -347,7 +349,6 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 
 			for _, tuple := range tuples {
 				// fmt.Printf("%+v\n", tuple)
-				time.Sleep(time.Second * 3)
 				// fmt.Printf("%s : %s # %s\n", tuple.ObjectNamespace, tuple.ObjectName, tuple.Relation)
 				if tuple.ObjectNamespace == to.ObjectNamespace {
 					if tuple.ObjectName == "*" && tuple.Relation == "*" {
@@ -365,6 +366,7 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 				if tuple.ObjectNamespace == to.ObjectNamespace && tuple.ObjectName == to.ObjectName && tuple.Relation == to.Relation {
 					return true, nil
 				}
+				// WARNING: This method is used for distinct namespace link scenario
 				// object case
 				// TODO: the <ns> <*> <*> query will direct find the next layer object, so can directly jump to next
 				// if tuple.ObjectNamespace != "role" && tuple.ObjectNamespace != "user" {
