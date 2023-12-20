@@ -163,9 +163,9 @@ export function checkAPI(serverUrl, headers){
         object_namespace: "test_file",
         object_name: "1",
         relation: "read",
-        subject_set_namespace: "test_file",
-        subject_set_name: "1",
-        subject_set_relation: "write",
+        subject_namespace: "test_file",
+        subject_name: "1",
+        subject_relation: "write",
     };
     res = http.post(`${relationUrl}/link`, JSON.stringify(payload), {headers:headers});
     check(res, { 'link relation': (r) => r.status == 200 });
@@ -174,9 +174,9 @@ export function checkAPI(serverUrl, headers){
         object_namespace: "test_file",
         object_name: "1",
         relation: "read",
-        subject_set_namespace: "test_file",
-        subject_set_name: "1",
-        subject_set_relation: "write",
+        subject_namespace: "test_file",
+        subject_name: "1",
+        subject_relation: "write",
     };
     res = http.post(`${relationUrl}/check`, JSON.stringify(payload), {headers:headers});
     check(res, { 'relation check': (r) => r.status ==  200 });

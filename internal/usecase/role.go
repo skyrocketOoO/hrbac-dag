@@ -33,8 +33,8 @@ func (u *RoleUsecase) ListRoles() ([]string, error) {
 		if tuple.SubjectNamespace == "role" {
 			roles.Add(tuple.SubjectName)
 		}
-		if tuple.SubjectSetObjectNamespace == "role" {
-			roles.Add(tuple.SubjectSetObjectName)
+		if tuple.SubjectNamespace == "role" {
+			roles.Add(tuple.SubjectName)
 		}
 	}
 

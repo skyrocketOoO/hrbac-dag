@@ -28,19 +28,19 @@ func (h *RelationHandler) GetAllRelations(c *fiber.Ctx) error {
 
 func (h *RelationHandler) Link(c *fiber.Ctx) error {
 	type reqBody struct {
-		ObjectNamespace     string `json:"object_namespace"`
-		ObjectName          string `json:"object_name"`
-		Relation            string `json:"relation"`
-		SubjectSetNamespace string `json:"subject_set_namespace"`
-		SubjectSetName      string `json:"subject_set_name"`
-		SubjectSetRelation  string `json:"subject_set_relation"`
+		ObjectNamespace  string `json:"object_namespace"`
+		ObjectName       string `json:"object_name"`
+		Relation         string `json:"relation"`
+		SubjectNamespace string `json:"subject_namespace"`
+		SubjectName      string `json:"subject_name"`
+		SubjectRelation  string `json:"subject_relation"`
 	}
 	rb := reqBody{}
 	if err := c.BodyParser(&rb); err != nil {
 		return fiber.NewError(400, "body error")
 	}
 
-	err := h.RelationUsecase.Link(rb.ObjectNamespace, rb.ObjectName, rb.Relation, rb.SubjectSetNamespace, rb.SubjectSetName, rb.SubjectSetRelation)
+	err := h.RelationUsecase.Link(rb.ObjectNamespace, rb.ObjectName, rb.Relation, rb.SubjectNamespace, rb.SubjectName, rb.SubjectRelation)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -50,14 +50,12 @@ func (h *RelationHandler) Link(c *fiber.Ctx) error {
 
 func (h *RelationHandler) Check(c *fiber.Ctx) error {
 	type CheckUserRelationReq struct {
-		ObjectNamespace     string `json:"object_namespace"`
-		ObjectName          string `json:"object_name"`
-		Relation            string `json:"relation"`
-		SubjectNamespace    string `json:"subject_namespace"`
-		SubjectName         string `json:"subject_name"`
-		SubjectSetNamespace string `json:"subject_set_namespace"`
-		SubjectSetName      string `json:"subject_set_name"`
-		SubjectSetRelation  string `json:"subject_set_relation"`
+		ObjectNamespace  string `json:"object_namespace"`
+		ObjectName       string `json:"object_name"`
+		Relation         string `json:"relation"`
+		SubjectNamespace string `json:"subject_namespace"`
+		SubjectName      string `json:"subject_name"`
+		SubjectRelation  string `json:"subject_relation"`
 	}
 	reqBody := CheckUserRelationReq{}
 
@@ -66,14 +64,12 @@ func (h *RelationHandler) Check(c *fiber.Ctx) error {
 	}
 
 	ok, err := h.RelationUsecase.Check(domain.RelationTuple{
-		ObjectNamespace:           reqBody.ObjectNamespace,
-		ObjectName:                reqBody.ObjectName,
-		Relation:                  reqBody.Relation,
-		SubjectNamespace:          reqBody.SubjectNamespace,
-		SubjectName:               reqBody.SubjectName,
-		SubjectSetObjectNamespace: reqBody.SubjectSetNamespace,
-		SubjectSetObjectName:      reqBody.SubjectSetName,
-		SubjectSetRelation:        reqBody.SubjectSetRelation,
+		ObjectNamespace:  reqBody.ObjectNamespace,
+		ObjectName:       reqBody.ObjectName,
+		Relation:         reqBody.Relation,
+		SubjectNamespace: reqBody.SubjectNamespace,
+		SubjectName:      reqBody.SubjectName,
+		SubjectRelation:  reqBody.SubjectRelation,
 	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
@@ -86,14 +82,12 @@ func (h *RelationHandler) Check(c *fiber.Ctx) error {
 
 func (h *RelationHandler) Path(c *fiber.Ctx) error {
 	type CheckUserRelationReq struct {
-		ObjectNamespace     string `json:"object_namespace"`
-		ObjectName          string `json:"object_name"`
-		Relation            string `json:"relation"`
-		SubjectNamespace    string `json:"subject_namespace"`
-		SubjectName         string `json:"subject_name"`
-		SubjectSetNamespace string `json:"subject_set_namespace"`
-		SubjectSetName      string `json:"subject_set_name"`
-		SubjectSetRelation  string `json:"subject_set_relation"`
+		ObjectNamespace  string `json:"object_namespace"`
+		ObjectName       string `json:"object_name"`
+		Relation         string `json:"relation"`
+		SubjectNamespace string `json:"subject_namespace"`
+		SubjectName      string `json:"subject_name"`
+		SubjectRelation  string `json:"subject_relation"`
 	}
 	reqBody := CheckUserRelationReq{}
 
@@ -102,14 +96,12 @@ func (h *RelationHandler) Path(c *fiber.Ctx) error {
 	}
 
 	path, err := h.RelationUsecase.GetShortestPath(domain.RelationTuple{
-		ObjectNamespace:           reqBody.ObjectNamespace,
-		ObjectName:                reqBody.ObjectName,
-		Relation:                  reqBody.Relation,
-		SubjectNamespace:          reqBody.SubjectNamespace,
-		SubjectName:               reqBody.SubjectName,
-		SubjectSetObjectNamespace: reqBody.SubjectSetNamespace,
-		SubjectSetObjectName:      reqBody.SubjectSetName,
-		SubjectSetRelation:        reqBody.SubjectSetRelation,
+		ObjectNamespace:  reqBody.ObjectNamespace,
+		ObjectName:       reqBody.ObjectName,
+		Relation:         reqBody.Relation,
+		SubjectNamespace: reqBody.SubjectNamespace,
+		SubjectName:      reqBody.SubjectName,
+		SubjectRelation:  reqBody.SubjectRelation,
 	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())

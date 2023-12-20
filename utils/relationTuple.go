@@ -7,13 +7,9 @@ import (
 
 func RelationTupleToString(tuple domain.RelationTuple) string {
 	res := tuple.ObjectNamespace + ":" + tuple.ObjectName + "#" + tuple.Relation
-	if tuple.SubjectNamespace != "" {
-		res += "@"
-		res += tuple.SubjectNamespace + ":" + tuple.SubjectName
-	} else if tuple.SubjectSetObjectNamespace != "" {
-		res += "@"
-		res += "(" + tuple.SubjectSetObjectNamespace + ":" + tuple.SubjectSetObjectName
-		res += "#" + tuple.SubjectSetRelation + ")"
+	res += "@" + tuple.SubjectNamespace + ":" + tuple.SubjectName
+	if tuple.SubjectRelation != "" {
+		res += "#" + tuple.SubjectRelation
 	}
 
 	return res
@@ -21,13 +17,11 @@ func RelationTupleToString(tuple domain.RelationTuple) string {
 
 func ConvertRelationTuple(in sqldomain.RelationTuple) domain.RelationTuple {
 	return domain.RelationTuple{
-		ObjectNamespace:           in.ObjectNamespace,
-		ObjectName:                in.ObjectName,
-		Relation:                  in.Relation,
-		SubjectNamespace:          in.SubjectNamespace,
-		SubjectName:               in.SubjectName,
-		SubjectSetObjectNamespace: in.SubjectSetObjectNamespace,
-		SubjectSetObjectName:      in.SubjectSetObjectName,
-		SubjectSetRelation:        in.SubjectSetRelation,
+		ObjectNamespace:  in.ObjectNamespace,
+		ObjectName:       in.ObjectName,
+		Relation:         in.Relation,
+		SubjectNamespace: in.SubjectNamespace,
+		SubjectName:      in.SubjectName,
+		SubjectRelation:  in.SubjectRelation,
 	}
 }

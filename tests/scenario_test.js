@@ -100,9 +100,9 @@ export function checkScenario(serverUrl, headers){
     object_namespace: "role",
     object_name: "rd",
     relation: "modify-relation",
-    subject_set_namespace: "role",
-    subject_set_name: "rd",
-    subject_set_relation: "parent",
+    subject_namespace: "role",
+    subject_name: "rd",
+    subject_relation: "parent",
   };
   res = http.post(`${serverUrl}/relation/link`, JSON.stringify(payload), {headers:headers});
   check(res, { '(Add Link Relation) RD-Director can modify permissions of RD': (r) => r.status == 200 });
@@ -111,9 +111,9 @@ export function checkScenario(serverUrl, headers){
     object_namespace: "source-code",
     object_name: "*",
     relation: "read",
-    subject_set_namespace: "source-code",
-    subject_set_name: "*",
-    subject_set_relation: "write",
+    subject_namespace: "source-code",
+    subject_name: "*",
+    subject_relation: "write",
   };
   res = http.post(`${serverUrl}/relation/link`, JSON.stringify(payload), {headers:headers});
   check(res, { '(Add Link Relation) Source Code read access implies write access': (r) => r.status == 200 });

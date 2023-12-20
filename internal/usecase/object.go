@@ -49,9 +49,9 @@ func (ou *ObjectUsecase) ListUserHasRelationOnObject(namespace string, name stri
 
 			for _, tuple := range tuples {
 				nextQuery := domain.RelationTuple{
-					ObjectNamespace: tuple.SubjectSetObjectNamespace,
-					ObjectName:      tuple.SubjectSetObjectName,
-					Relation:        tuple.SubjectSetRelation,
+					ObjectNamespace: tuple.SubjectNamespace,
+					ObjectName:      tuple.SubjectName,
+					Relation:        tuple.SubjectRelation,
 				}
 				q.Push(nextQuery)
 			}
@@ -91,9 +91,9 @@ func (ou *ObjectUsecase) ListRoleHasWhatRelationOnObject(namespace string, name 
 
 			for _, tuple := range tuples {
 				nextQuery := domain.RelationTuple{
-					ObjectNamespace: tuple.SubjectSetObjectNamespace,
-					ObjectName:      tuple.SubjectSetObjectName,
-					Relation:        tuple.SubjectSetRelation,
+					ObjectNamespace: tuple.SubjectNamespace,
+					ObjectName:      tuple.SubjectName,
+					Relation:        tuple.SubjectRelation,
 				}
 				q.Push(nextQuery)
 			}
@@ -137,9 +137,9 @@ func (ou *ObjectUsecase) ListUserOrRoleHasRelationOnObject(namespace string, nam
 
 			for _, tuple := range tuples {
 				nextQuery := domain.RelationTuple{
-					ObjectNamespace: tuple.SubjectSetObjectNamespace,
-					ObjectName:      tuple.SubjectSetObjectName,
-					Relation:        tuple.SubjectSetRelation,
+					ObjectNamespace: tuple.SubjectNamespace,
+					ObjectName:      tuple.SubjectName,
+					Relation:        tuple.SubjectRelation,
 				}
 				q.Push(nextQuery)
 			}

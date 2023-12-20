@@ -70,12 +70,12 @@ func (u *RelationUsecase) Delete(relationTuple domain.RelationTuple) error {
 
 func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace, subjname, subjrelation string) error {
 	tuple := domain.RelationTuple{
-		ObjectNamespace:           objnamespace,
-		ObjectName:                ObjectName,
-		Relation:                  relation,
-		SubjectSetObjectNamespace: subjnamespace,
-		SubjectSetObjectName:      subjname,
-		SubjectSetRelation:        subjrelation,
+		ObjectNamespace:  objnamespace,
+		ObjectName:       ObjectName,
+		Relation:         relation,
+		SubjectNamespace: subjnamespace,
+		SubjectName:      subjname,
+		SubjectRelation:  subjrelation,
 	}
 
 	return u.Create(tuple)
@@ -84,11 +84,9 @@ func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace
 func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
 	return u.searchTemplate(
 		domain.Subject{
-			SubjectNamespace:    relationTuple.SubjectNamespace,
-			SubjectName:         relationTuple.SubjectName,
-			SubjectSetNamespace: relationTuple.SubjectSetObjectNamespace,
-			SubjectSetName:      relationTuple.SubjectSetObjectName,
-			SubjectSetRelation:  relationTuple.SubjectSetRelation,
+			SubjectNamespace: relationTuple.SubjectNamespace,
+			SubjectName:      relationTuple.SubjectName,
+			SubjectRelation:  relationTuple.SubjectRelation,
 		},
 		domain.Object{
 			ObjectNamespace: relationTuple.ObjectNamespace,
@@ -123,17 +121,6 @@ func (u *RelationUsecase) QueryExistedRelationTuples(namespace, name string) ([]
 		}
 
 		query = domain.RelationTuple{
-			SubjectSetObjectNamespace: namespace,
-		}
-		tuples, err = u.RelationTupleRepo.QueryTuples(query)
-		if err != nil {
-			return nil, err
-		}
-		for _, tuple := range tuples {
-			res.Add(tuple)
-		}
-
-		query = domain.RelationTuple{
 			SubjectNamespace: namespace,
 		}
 		tuples, err = u.RelationTupleRepo.QueryTuples(query)
@@ -149,18 +136,6 @@ func (u *RelationUsecase) QueryExistedRelationTuples(namespace, name string) ([]
 			ObjectName:      name,
 		}
 		tuples, err := u.RelationTupleRepo.QueryTuples(query)
-		if err != nil {
-			return nil, err
-		}
-		for _, tuple := range tuples {
-			res.Add(tuple)
-		}
-
-		query = domain.RelationTuple{
-			SubjectSetObjectNamespace: namespace,
-			SubjectSetObjectName:      name,
-		}
-		tuples, err = u.RelationTupleRepo.QueryTuples(query)
 		if err != nil {
 			return nil, err
 		}
@@ -193,18 +168,11 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 		return true, nil
 	}
 
-	var firstQuery domain.RelationTuple
-	if from.SubjectNamespace != "" {
-		firstQuery.SubjectNamespace = from.SubjectNamespace
-		firstQuery.SubjectName = from.SubjectName
-	} else if from.SubjectSetNamespace != "" {
-		firstQuery.SubjectSetObjectNamespace = from.SubjectSetNamespace
-		firstQuery.SubjectSetObjectName = from.SubjectSetName
-		firstQuery.SubjectSetRelation = from.SubjectSetRelation
-	} else {
-		return false, errors.New("subject error")
+	firstQuery := domain.RelationTuple{
+		SubjectNamespace: from.SubjectNamespace,
+		SubjectName:      from.SubjectName,
+		SubjectRelation:  from.SubjectRelation,
 	}
-
 	q := utils.NewQueue[domain.RelationTuple]()
 	q.Push(firstQuery)
 	for !q.IsEmpty() {
@@ -248,40 +216,40 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 				// 		}
 				// 		// add abstract link
 				// 		nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
-				// 			SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				// 			SubjectSetObjectName:      "*",
+				// 			SubjectNamespace: tuple.ObjectNamespace,
+				// 			SubjectName:      "*",
 				// 		})
 				// 		if err != nil {
 				// 			return false, err
 				// 		}
 				// 		set := utils.NewSet[string]()
 				// 		for _, nq := range nextQueries {
-				// 			set.Add(nq.SubjectSetRelation)
+				// 			set.Add(nq.SubjectRelation)
 				// 		}
 				// 		for _, rel := range set.ToSlice() {
 				// 			q.Push(domain.RelationTuple{
-				// 				SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				// 				SubjectSetObjectName:      "*",
-				// 				SubjectSetRelation:        rel,
+				// 				SubjectNamespace: tuple.ObjectNamespace,
+				// 				SubjectName:      "*",
+				// 				SubjectRelation:        rel,
 				// 			})
 				// 		}
 
 				// 		nextQueries, err = u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
-				// 			SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				// 			SubjectSetRelation:        "*",
+				// 			SubjectNamespace: tuple.ObjectNamespace,
+				// 			SubjectRelation:        "*",
 				// 		})
 				// 		if err != nil {
 				// 			return false, err
 				// 		}
 				// 		set = utils.NewSet[string]()
 				// 		for _, nq := range nextQueries {
-				// 			set.Add(nq.SubjectSetObjectName)
+				// 			set.Add(nq.SubjectName)
 				// 		}
 				// 		for _, name := range set.ToSlice() {
 				// 			q.Push(domain.RelationTuple{
-				// 				SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				// 				SubjectSetObjectName:      name,
-				// 				SubjectSetRelation:        "*",
+				// 				SubjectNamespace: tuple.ObjectNamespace,
+				// 				SubjectName:      name,
+				// 				SubjectRelation:        "*",
 				// 			})
 				// 		}
 				// 	} else if tuple.ObjectName == "*" {
@@ -290,8 +258,8 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 				// 		}
 				// 		// abstract link
 				// 		nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
-				// 			SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				// 			SubjectSetRelation:        tuple.Relation,
+				// 			SubjectNamespace: tuple.ObjectNamespace,
+				// 			SubjectRelation:        tuple.Relation,
 				// 		})
 				// 		if err != nil {
 				// 			return false, err
@@ -302,9 +270,9 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 				// 		}
 				// 		for _, name := range set.ToSlice() {
 				// 			q.Push(domain.RelationTuple{
-				// 				SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				// 				SubjectSetObjectName:      name,
-				// 				SubjectSetRelation:        tuple.Relation,
+				// 				SubjectNamespace: tuple.ObjectNamespace,
+				// 				SubjectName:      name,
+				// 				SubjectRelation:        tuple.Relation,
 				// 			})
 				// 		}
 				// 	} else if tuple.Relation == "*" {
@@ -313,8 +281,8 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 				// 		}
 				// 		// abstract link
 				// 		nextQueries, err := u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
-				// 			SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				// 			SubjectSetObjectName:      tuple.ObjectName,
+				// 			SubjectNamespace: tuple.ObjectNamespace,
+				// 			SubjectName:      tuple.ObjectName,
 				// 		})
 				// 		if err != nil {
 				// 			return false, err
@@ -325,9 +293,9 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 				// 		}
 				// 		for _, rel := range set.ToSlice() {
 				// 			q.Push(domain.RelationTuple{
-				// 				SubjectSetObjectNamespace: tuple.ObjectNamespace,
-				// 				SubjectSetObjectName:      tuple.ObjectName,
-				// 				SubjectSetRelation:        rel,
+				// 				SubjectNamespace: tuple.ObjectNamespace,
+				// 				SubjectName:      tuple.ObjectName,
+				// 				SubjectRelation:        rel,
 				// 			})
 				// 		}
 				// 	}
@@ -340,11 +308,10 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 					}
 					q.Push(nextQuery)
 				}
-				// push itself
 				nextQuery := domain.RelationTuple{
-					SubjectSetObjectNamespace: tuple.ObjectNamespace,
-					SubjectSetObjectName:      tuple.ObjectName,
-					SubjectSetRelation:        tuple.Relation,
+					SubjectNamespace: tuple.ObjectNamespace,
+					SubjectName:      tuple.ObjectName,
+					SubjectRelation:  tuple.Relation,
 				}
 				q.Push(nextQuery)
 			}
@@ -362,14 +329,10 @@ func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[dom
 	visited.Add(node)
 	recursionStack.Add(node)
 
-	query := domain.RelationTuple{}
-	if node.Relation != "" {
-		query.SubjectSetObjectNamespace = node.ObjectNamespace
-		query.SubjectSetObjectName = node.ObjectName
-		query.SubjectSetRelation = node.Relation
-	} else {
-		query.SubjectNamespace = node.ObjectNamespace
-		query.SubjectName = node.ObjectName
+	query := domain.RelationTuple{
+		SubjectNamespace: node.ObjectNamespace,
+		SubjectName:      node.ObjectName,
+		SubjectRelation:  node.Relation,
 	}
 	neighbors, err := u.RelationTupleRepo.QueryTuples(query)
 	if err != nil {
@@ -377,14 +340,9 @@ func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[dom
 	}
 	for _, neighbor := range neighbors {
 		var object domain.Object
-		if neighbor.ObjectNamespace != "role" && neighbor.ObjectNamespace != "user" {
-			object.ObjectNamespace = neighbor.ObjectNamespace
-			object.ObjectName = neighbor.ObjectName
-			object.Relation = neighbor.Relation
-		} else {
-			object.ObjectNamespace = neighbor.ObjectNamespace
-			object.ObjectName = neighbor.ObjectName
-		}
+		object.ObjectNamespace = neighbor.ObjectNamespace
+		object.ObjectName = neighbor.ObjectName
+		object.Relation = neighbor.Relation
 		if !visited.Exist(object) {
 			ok, err := u.detectCycle(object, visited, recursionStack)
 			if err != nil {
@@ -413,14 +371,9 @@ func (u *RelationUsecase) hasCycle() (bool, error) {
 
 	for _, tuple := range allTuples {
 		var object domain.Object
-		if tuple.SubjectNamespace != "" {
-			object.ObjectNamespace = tuple.SubjectNamespace
-			object.ObjectName = tuple.SubjectName
-		} else {
-			object.ObjectNamespace = tuple.SubjectSetObjectNamespace
-			object.ObjectName = tuple.SubjectSetObjectName
-			object.Relation = tuple.SubjectSetRelation
-		}
+		object.ObjectNamespace = tuple.SubjectNamespace
+		object.ObjectName = tuple.SubjectName
+		object.Relation = tuple.SubjectRelation
 
 		if !visited.Exist(object) {
 			ok, err := u.detectCycle(object, &visited, &recursionStack)
@@ -441,18 +394,11 @@ func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string,
 	}
 	objectRelations := utils.NewSet[string]()
 
-	var firstQuery domain.RelationTuple
-	if from.SubjectNamespace != "" {
-		firstQuery.SubjectNamespace = from.SubjectNamespace
-		firstQuery.SubjectName = from.SubjectName
-	} else if from.SubjectSetNamespace != "" {
-		firstQuery.SubjectSetObjectNamespace = from.SubjectSetNamespace
-		firstQuery.SubjectSetObjectName = from.SubjectSetName
-		firstQuery.SubjectSetRelation = from.SubjectSetRelation
-	} else {
-		return nil, errors.New("subject error")
+	firstQuery := domain.RelationTuple{
+		SubjectNamespace: from.SubjectNamespace,
+		SubjectName:      from.SubjectName,
+		SubjectRelation:  from.SubjectRelation,
 	}
-
 	q := utils.NewQueue[domain.RelationTuple]()
 	q.Push(firstQuery)
 	for !q.IsEmpty() {
@@ -481,9 +427,9 @@ func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string,
 					q.Push(nextQuery)
 				}
 				nextQuery := domain.RelationTuple{
-					SubjectSetObjectNamespace: tuple.ObjectNamespace,
-					SubjectSetObjectName:      tuple.ObjectName,
-					SubjectSetRelation:        tuple.Relation,
+					SubjectNamespace: tuple.ObjectNamespace,
+					SubjectName:      tuple.ObjectName,
+					SubjectRelation:  tuple.Relation,
 				}
 				q.Push(nextQuery)
 			}

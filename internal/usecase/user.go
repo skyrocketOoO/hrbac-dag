@@ -33,8 +33,8 @@ func (u *UserUsecase) ListUsers() ([]string, error) {
 		if tuple.SubjectNamespace == "user" {
 			users.Add(tuple.SubjectName)
 		}
-		if tuple.SubjectSetObjectNamespace == "user" {
-			users.Add(tuple.SubjectSetObjectName)
+		if tuple.SubjectNamespace == "user" {
+			users.Add(tuple.SubjectName)
 		}
 	}
 
