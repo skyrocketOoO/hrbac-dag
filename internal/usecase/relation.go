@@ -78,7 +78,7 @@ func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace
 		SubjectSetRelation:        subjrelation,
 	}
 
-	return u.RelationTupleRepo.CreateTuple(tuple)
+	return u.Create(tuple)
 }
 
 func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
@@ -377,13 +377,13 @@ func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[dom
 	}
 	for _, neighbor := range neighbors {
 		var object domain.Object
-		if neighbor.SubjectNamespace != "" {
-			object.ObjectNamespace = neighbor.SubjectNamespace
-			object.ObjectName = neighbor.SubjectName
+		if neighbor.ObjectNamespace != "role" && neighbor.ObjectNamespace != "user" {
+			object.ObjectNamespace = neighbor.ObjectNamespace
+			object.ObjectName = neighbor.ObjectName
+			object.Relation = neighbor.Relation
 		} else {
-			object.ObjectNamespace = neighbor.SubjectSetObjectNamespace
-			object.ObjectName = neighbor.SubjectSetObjectName
-			object.Relation = neighbor.SubjectSetRelation
+			object.ObjectNamespace = neighbor.ObjectNamespace
+			object.ObjectName = neighbor.ObjectName
 		}
 		if !visited.Exist(object) {
 			ok, err := u.detectCycle(object, visited, recursionStack)

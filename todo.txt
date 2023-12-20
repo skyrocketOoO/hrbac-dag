@@ -3,4 +3,3 @@
 - each function should do atomic operation
 - Regex permission
 - object usecase not implemented
-- DAG cyclic check on create

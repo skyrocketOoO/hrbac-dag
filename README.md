@@ -13,6 +13,7 @@
 - [x] Fine grained
 - [x] Multiple role
 - [x] Object *(all object | all operations) support (unsupport distinct object namespace link)
+- [ ] List who has access to object
 - [ ] Regex
 
 ## Reserved words
