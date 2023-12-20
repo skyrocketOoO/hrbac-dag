@@ -10,13 +10,13 @@ type RelationTuple struct {
 }
 
 type Object struct {
-	ObjectNamespace string
-	ObjectName      string
-	Relation        string
+	Namespace string
+	Name      string
+	Relation  string
 }
 
 type Subject struct {
-	SubjectNamespace string
-	SubjectName      string
-	SubjectRelation  string
+	Namespace string
+	Name      string
+	Relation  string
 }
