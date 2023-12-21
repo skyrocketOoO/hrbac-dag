@@ -36,34 +36,41 @@ func (h *RoleHandler) GetRole(c *fiber.Ctx) error {
 	params := c.AllParams()
 	roleName, ok := params["name"]
 	if !ok {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "parames fault"})
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: "get pararm failed",
+		})
 	}
+
 	name, err := h.RoleUsecase.GetRole(roleName)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
 	if name == "" {
-		err := fmt.Errorf("user %s not found", roleName)
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusNotFound).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("user %s not found", roleName),
+		})
 	}
 	return nil
 }
 
 func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
-	// Extract data from the request
 	params := c.AllParams()
 	roleName, ok := params["name"]
 	if !ok {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "parames fault"})
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: "get pararm failed",
+		})
 	}
 
-	// Call the usecase method to delete the role
 	err := h.RoleUsecase.DeleteRole(roleName)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
-
-	return c.JSON(fiber.Map{"message": "Role deleted successfully"})
+	return nil
 }
 
 func (h *RoleHandler) AddRelation(c *fiber.Ctx) error {
@@ -75,15 +82,19 @@ func (h *RoleHandler) AddRelation(c *fiber.Ctx) error {
 	}
 	req := request{}
 	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(400, "body error")
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
 	}
 
 	err := h.RoleUsecase.AddRelation(req.ObjectNamespace, req.ObjectName, req.Relation, req.RoleName)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
 
-	return c.JSON(fiber.Map{"message": "Permission added to role successfully"})
+	return nil
 }
 
 func (h *RoleHandler) RemoveRelation(c *fiber.Ctx) error {
@@ -95,15 +106,19 @@ func (h *RoleHandler) RemoveRelation(c *fiber.Ctx) error {
 	}
 	req := request{}
 	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(400, "body error")
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
 	}
 
 	err := h.RoleUsecase.RemoveRelation(req.ObjectNamespace, req.ObjectName, req.Relation, req.RoleName)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
 
-	return c.JSON(fiber.Map{"message": "Permission remove to role successfully"})
+	return nil
 }
 
 func (h *RoleHandler) AddParent(c *fiber.Ctx) error {
@@ -113,15 +128,19 @@ func (h *RoleHandler) AddParent(c *fiber.Ctx) error {
 	}
 	req := request{}
 	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(400, "body error")
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
 	}
 
 	err := h.RoleUsecase.AddParent(req.ChildRoleName, req.ParentRoleName)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
 
-	return c.JSON(fiber.Map{"message": "Role assigned to role successfully"})
+	return nil
 }
 
 func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
@@ -131,15 +150,19 @@ func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
 	}
 	req := request{}
 	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(400, "body error")
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
 	}
 
 	err := h.RoleUsecase.RemoveParent(req.ChildRoleName, req.ParentRoleName)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
 
-	return c.JSON(fiber.Map{"message": "Role remove to role successfully"})
+	return nil
 }
 
 // func (h *RoleHandler) ListChildRoles(c *fiber.Ctx) error {
@@ -157,35 +180,47 @@ func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
 
 func (h *RoleHandler) FindAllObjectRelations(c *fiber.Ctx) error {
 	type request struct {
-		RoleName string `json:"name"`
+		Name string `json:"name"`
 	}
 	req := request{}
 	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(400, "body error")
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
 	}
-	relations, err := h.RoleUsecase.FindAllObjectRelations(req.RoleName)
+	relations, err := h.RoleUsecase.FindAllObjectRelations(req.Name)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
 
-	return c.JSON(fiber.Map{"relations": relations})
+	return c.JSON(domain.DataResponse{
+		Data: relations,
+	})
 }
 
 func (h *RoleHandler) GetMembers(c *fiber.Ctx) error {
 	type request struct {
-		RoleName string `json:"name"`
+		Name string `json:"name"`
 	}
 	req := request{}
 	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(400, "body error")
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
 	}
 
-	members, err := h.RoleUsecase.GetMembers(req.RoleName)
+	members, err := h.RoleUsecase.GetMembers(req.Name)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
 
-	return c.JSON(fiber.Map{"members": members})
+	return c.JSON(domain.DataResponse{
+		Data: members,
+	})
 }
 
 func (h *RoleHandler) Check(c *fiber.Ctx) error {
@@ -197,12 +232,19 @@ func (h *RoleHandler) Check(c *fiber.Ctx) error {
 	}
 	req := request{}
 	if err := c.BodyParser(&req); err != nil {
-		return fiber.NewError(400, "body error")
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
 	}
 
 	ok, err := h.RoleUsecase.Check(req.ObjectNamespace, req.ObjectName, req.Relation, req.RoleName)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"result": ok})
+	if !ok {
+		return c.SendStatus(fiber.StatusForbidden)
+	}
+	return nil
 }
