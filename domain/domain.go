@@ -20,3 +20,11 @@ type Subject struct {
 	Name      string
 	Relation  string
 }
+
+type ErrResponse struct {
+	Error string `json:"error"`
+}
+
+type DataResponse struct {
+	Data []string `json:"data"`
+}

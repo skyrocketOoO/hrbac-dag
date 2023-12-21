@@ -1,5 +1,6 @@
-# HRBAC-zanzibar
-HRBAC implement using Google Zanzibar algorithm
+# HRBAC-DAG
+
+HRBAC implement using DAG
 
 ## Feature
 
