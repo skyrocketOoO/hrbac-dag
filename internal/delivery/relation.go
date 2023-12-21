@@ -19,9 +19,6 @@ func NewRelationHandler(permissionUsecase usecasedomain.RelationUsecase) *Relati
 }
 
 func (h *RelationHandler) GetAllRelations(c *fiber.Ctx) error {
-	type response struct {
-		data []string
-	}
 	relations, err := h.RelationUsecase.GetAllRelations()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
@@ -29,8 +26,8 @@ func (h *RelationHandler) GetAllRelations(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(response{
-		data: relations,
+	return c.JSON(domain.DataResponse{
+		Data: relations,
 	})
 }
 

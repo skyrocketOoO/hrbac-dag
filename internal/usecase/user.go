@@ -19,7 +19,7 @@ func NewUserUsecase(relationTupleRepo sqldomain.RelationTupleRepository, relatio
 	}
 }
 
-func (u *UserUsecase) ListUsers() ([]string, error) {
+func (u *UserUsecase) GetAllUsers() ([]string, error) {
 	tuples, err := u.RelationUsecaseRepo.QueryExistedRelationTuples("user", "")
 	if err != nil {
 		return nil, err

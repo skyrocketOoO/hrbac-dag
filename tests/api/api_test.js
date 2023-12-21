@@ -11,9 +11,9 @@ export function checkAPI(serverUrl, headers){
     check(res, { 'list users': (r) => r.status == 200 });
 
     const userName = "Jimmy"
-    // payload = {};
-    // res = http.get(`${userUrl}/${userName}`, JSON.stringify(payload), {headers:headers});
-    // check(res, { 'get user': (r) => r.status == 200 });
+    payload = {};
+    res = http.get(`${userUrl}/${userName}`, JSON.stringify(payload), {headers:headers});
+    check(res, { 'get user': (r) => r.status == 200 });
 
     payload = {};
     res = http.del(`${userUrl}/${userName}`, JSON.stringify(payload), {headers:headers});

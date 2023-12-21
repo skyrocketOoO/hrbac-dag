@@ -19,8 +19,8 @@ func NewRoleHandler(roleUsecase usecasedomain.RoleUsecase) *RoleHandler {
 	}
 }
 
-func (h *RoleHandler) ListRoles(c *fiber.Ctx) error {
-	roles, err := h.RoleUsecase.ListRoles()
+func (h *RoleHandler) GetAllRoles(c *fiber.Ctx) error {
+	roles, err := h.RoleUsecase.GetAllRoles()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),
@@ -165,12 +165,12 @@ func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
 	return nil
 }
 
-// func (h *RoleHandler) ListChildRoles(c *fiber.Ctx) error {
+// func (h *RoleHandler) GetAllChildRoles(c *fiber.Ctx) error {
 // 	// Extract data from the request
 // 	roleName := c.Query("rolename")
 
 // 	// Call the usecase method to list child roles
-// 	childRoles, err := h.RoleUsecase.ListChildRoles(roleName)
+// 	childRoles, err := h.RoleUsecase.GetAllChildRoles(roleName)
 // 	if err != nil {
 // 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 // 	}

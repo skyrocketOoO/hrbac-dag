@@ -1,7 +1,7 @@
 package usecasedomain
 
 type UserUsecase interface {
-	ListUsers() ([]string, error)
+	GetAllUsers() ([]string, error)
 	GetUser(name string) (string, error)
 	DeleteUser(name string) error
 

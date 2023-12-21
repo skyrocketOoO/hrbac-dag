@@ -19,7 +19,7 @@ func NewRoleUsecase(relationTupleRepo sqldomain.RelationTupleRepository, relatio
 	}
 }
 
-func (u *RoleUsecase) ListRoles() ([]string, error) {
+func (u *RoleUsecase) GetAllRoles() ([]string, error) {
 	tuples, err := u.RelationUsecaseRepo.QueryExistedRelationTuples("role", "")
 	if err != nil {
 		return nil, err

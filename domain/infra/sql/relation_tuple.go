@@ -2,12 +2,10 @@ package sqldomain
 
 import (
 	"rbac/domain"
-
-	"gorm.io/gorm"
 )
 
 type RelationTuple struct {
-	gorm.Model
+	ID               uint   `gorm:"primaryKey"`
 	ObjectNamespace  string `gorm:"uniqueIndex:tuple"`
 	ObjectName       string `gorm:"uniqueIndex:tuple"`
 	Relation         string `gorm:"uniqueIndex:tuple"`
@@ -19,7 +17,7 @@ type RelationTuple struct {
 type RelationTupleRepository interface {
 	CreateTuple(tuple domain.RelationTuple) error
 	DeleteTuple(id uint) error
-	GetTuples() ([]RelationTuple, error)
+	GetAllTuples() ([]RelationTuple, error)
 	QueryExactMatchTuples(tuple domain.RelationTuple) ([]RelationTuple, error)
 	QueryTuples(query domain.RelationTuple) ([]RelationTuple, error)
 	GetNamespaces() ([]string, error)

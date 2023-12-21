@@ -56,7 +56,7 @@ func main() {
 
 	userApp := app.Group("/user")
 	userHandler := handlerRepo.UserHandler
-	userApp.Get("/", userHandler.ListUsers)
+	userApp.Get("/", userHandler.GetAllUsers)
 	userApp.Get("/:name", userHandler.GetUser)
 	userApp.Delete("/:name", userHandler.DeleteUser)
 	userApp.Post("/add-role", userHandler.AddRole)
@@ -68,23 +68,23 @@ func main() {
 
 	roleApp := app.Group("/role")
 	roleHandler := handlerRepo.RoleHandler
-	roleApp.Get("/", roleHandler.ListRoles)
+	roleApp.Get("/", roleHandler.GetAllRoles)
 	roleApp.Get("/:name", roleHandler.GetRole)
 	roleApp.Delete("/:name", roleHandler.DeleteRole)
 	roleApp.Post("/add-relation", roleHandler.AddRelation)
 	roleApp.Post("/remove-relation", roleHandler.RemoveRelation)
 	roleApp.Post("/add-parent", roleHandler.AddParent)
 	roleApp.Post("/remove-parent", roleHandler.RemoveParent)
-	// roleApp.Get("/list-child-roles", roleHandler.ListChildRoles)
+	// roleApp.Get("/list-child-roles", roleHandler.GetAllChildRoles)
 	roleApp.Post("/find-all-object-relations", roleHandler.FindAllObjectRelations)
 	roleApp.Post("/get-members", roleHandler.GetMembers)
 	roleApp.Post("/check", roleHandler.Check)
 
-	objectApp := app.Group("/object")
-	objectApp.Post("/list-user-has-relation", handlerRepo.ObjectHandler.ListUserHasRelationOnObject)
-	objectApp.Post("/list-role-has-relation", handlerRepo.ObjectHandler.ListRoleHasWhatRelationOnObject)
-	objectApp.Post("/list-user-or-role-has-relation", handlerRepo.ObjectHandler.ListUserOrRoleHasRelationOnObject)
-	objectApp.Post("/list-relations", handlerRepo.ObjectHandler.ListRelations)
+	// objectApp := app.Group("/object")
+	// objectApp.Post("/list-user-has-relation", handlerRepo.ObjectHandler.GetAllUserHasRelationOnObject)
+	// objectApp.Post("/list-role-has-relation", handlerRepo.ObjectHandler.GetAllRoleHasWhatRelationOnObject)
+	// objectApp.Post("/list-user-or-role-has-relation", handlerRepo.ObjectHandler.GetAllUserOrRoleHasRelationOnObject)
+	// objectApp.Post("/list-relations", handlerRepo.ObjectHandler.GetAllRelations)
 
 	relationApp := app.Group("/relation")
 	relationHandler := handlerRepo.RelationHandler

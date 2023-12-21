@@ -23,7 +23,7 @@ func (r *RelationTupleRepository) DeleteTuple(id uint) error {
 	return r.DB.Delete(&sqldomain.RelationTuple{}, id).Error
 }
 
-func (r *RelationTupleRepository) GetTuples() ([]sqldomain.RelationTuple, error) {
+func (r *RelationTupleRepository) GetAllTuples() ([]sqldomain.RelationTuple, error) {
 	var tuples []sqldomain.RelationTuple
 	if err := r.DB.Find(&tuples).Error; err != nil {
 		return nil, err

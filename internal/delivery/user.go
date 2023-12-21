@@ -18,8 +18,8 @@ func NewUserHandler(userUsecase usecase.UserUsecase) *UserHandler {
 	}
 }
 
-func (h *UserHandler) ListUsers(c *fiber.Ctx) error {
-	users, err := h.UserUsecase.ListUsers()
+func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
+	users, err := h.UserUsecase.GetAllUsers()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),
@@ -82,7 +82,6 @@ func (h *UserHandler) AddRole(c *fiber.Ctx) error {
 		})
 	}
 
-	// Call the usecase method to add user to role
 	err := h.UserUsecase.AddRole(req.UserName, req.RoleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{

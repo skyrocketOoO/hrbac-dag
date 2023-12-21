@@ -18,7 +18,7 @@ func NewRelationUsecase(relationTupleRepo sqldomain.RelationTupleRepository) *Re
 }
 
 func (u *RelationUsecase) GetAllRelations() ([]string, error) {
-	tuples, err := u.RelationTupleRepo.GetTuples()
+	tuples, err := u.RelationTupleRepo.GetAllTuples()
 	if err != nil {
 		return nil, err
 	}
@@ -32,13 +32,13 @@ func (u *RelationUsecase) GetAllRelations() ([]string, error) {
 }
 
 func (u *RelationUsecase) Create(relationTuple domain.RelationTuple) error {
-	// if tuple exist, return
+	// fmt.Printf("%+v\n", relationTuple)
 	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(relationTuple)
 	if err != nil {
 		return err
 	}
 	if len(tuples) > 0 {
-		return nil
+		return errors.New("tuple exist")
 	}
 
 	if err := u.RelationTupleRepo.CreateTuple(relationTuple); err != nil {
@@ -64,6 +64,8 @@ func (u *RelationUsecase) Delete(relationTuple domain.RelationTuple) error {
 	}
 	if len(matchTuples) > 1 {
 		return errors.New("match tuples > 1")
+	} else if len(matchTuples) == 0 {
+		return errors.New("relation not found")
 	}
 	return u.RelationTupleRepo.DeleteTuple(matchTuples[0].ID)
 }
@@ -364,7 +366,7 @@ func (u *RelationUsecase) hasCycle() (bool, error) {
 	visited := utils.NewSet[domain.Object]()
 	recursionStack := utils.NewSet[domain.Object]()
 
-	allTuples, err := u.RelationTupleRepo.GetTuples()
+	allTuples, err := u.RelationTupleRepo.GetAllTuples()
 	if err != nil {
 		return false, err
 	}

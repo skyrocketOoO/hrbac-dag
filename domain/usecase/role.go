@@ -1,7 +1,7 @@
 package usecasedomain
 
 type RoleUsecase interface {
-	ListRoles() ([]string, error)
+	GetAllRoles() ([]string, error)
 	GetRole(name string) (string, error)
 	DeleteRole(name string) error
 
