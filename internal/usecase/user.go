@@ -94,8 +94,8 @@ func (u *UserUsecase) RemoveRole(username, rolename string) error {
 func (u *UserUsecase) FindAllObjectRelations(name string) ([]string, error) {
 	return u.RelationUsecaseRepo.FindAllObjectRelations(
 		domain.Subject{
-			SubjectNamespace: "user",
-			SubjectName:      name,
+			Namespace: "user",
+			Name:      name,
 		},
 	)
 }

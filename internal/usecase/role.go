@@ -119,8 +119,8 @@ func (u *RoleUsecase) RemoveParent(childRolename, parentRolename string) error {
 func (u *RoleUsecase) FindAllObjectRelations(name string) ([]string, error) {
 	return u.RelationUsecaseRepo.FindAllObjectRelations(
 		domain.Subject{
-			SubjectNamespace: "role",
-			SubjectName:      name,
+			Namespace: "role",
+			Name:      name,
 		},
 	)
 }

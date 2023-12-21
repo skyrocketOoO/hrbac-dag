@@ -84,14 +84,14 @@ func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace
 func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
 	return u.searchTemplate(
 		domain.Subject{
-			SubjectNamespace: relationTuple.SubjectNamespace,
-			SubjectName:      relationTuple.SubjectName,
-			SubjectRelation:  relationTuple.SubjectRelation,
+			Namespace: relationTuple.SubjectNamespace,
+			Name:      relationTuple.SubjectName,
+			Relation:  relationTuple.SubjectRelation,
 		},
 		domain.Object{
-			ObjectNamespace: relationTuple.ObjectNamespace,
-			ObjectName:      relationTuple.ObjectName,
-			Relation:        relationTuple.Relation,
+			Namespace: relationTuple.ObjectNamespace,
+			Name:      relationTuple.ObjectName,
+			Relation:  relationTuple.Relation,
 		},
 	)
 }
@@ -164,14 +164,14 @@ func (u *RelationUsecase) ClearAllRelations() error {
 }
 
 func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) (ok bool, err error) {
-	if from.SubjectNamespace == "role" && from.SubjectName == "admin" {
+	if from.Namespace == "role" && from.Name == "admin" {
 		return true, nil
 	}
 
 	firstQuery := domain.RelationTuple{
-		SubjectNamespace: from.SubjectNamespace,
-		SubjectName:      from.SubjectName,
-		SubjectRelation:  from.SubjectRelation,
+		SubjectNamespace: from.Namespace,
+		SubjectName:      from.Name,
+		SubjectRelation:  from.Relation,
 	}
 	q := utils.NewQueue[domain.RelationTuple]()
 	q.Push(firstQuery)
@@ -190,7 +190,7 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 			for _, tuple := range tuples {
 				// fmt.Printf("%+v\n", tuple)
 				// fmt.Printf("%s : %s # %s\n", tuple.ObjectNamespace, tuple.ObjectName, tuple.Relation)
-				if tuple.ObjectNamespace == to.ObjectNamespace {
+				if tuple.ObjectNamespace == to.Namespace {
 					if tuple.ObjectName == "*" && tuple.Relation == "*" {
 						return true, nil
 					} else if tuple.ObjectName == "*" && tuple.Relation != "*" {
@@ -198,12 +198,12 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 							return true, nil
 						}
 					} else if tuple.ObjectName != "*" && tuple.Relation == "*" {
-						if tuple.ObjectName == to.ObjectName {
+						if tuple.ObjectName == to.Name {
 							return true, nil
 						}
 					}
 				}
-				if tuple.ObjectNamespace == to.ObjectNamespace && tuple.ObjectName == to.ObjectName && tuple.Relation == to.Relation {
+				if tuple.ObjectNamespace == to.Namespace && tuple.ObjectName == to.Name && tuple.Relation == to.Relation {
 					return true, nil
 				}
 				// WARNING: This method is used for distinct namespace link scenario
@@ -330,8 +330,8 @@ func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[dom
 	recursionStack.Add(node)
 
 	query := domain.RelationTuple{
-		SubjectNamespace: node.ObjectNamespace,
-		SubjectName:      node.ObjectName,
+		SubjectNamespace: node.Namespace,
+		SubjectName:      node.Name,
 		SubjectRelation:  node.Relation,
 	}
 	neighbors, err := u.RelationTupleRepo.QueryTuples(query)
@@ -340,8 +340,8 @@ func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[dom
 	}
 	for _, neighbor := range neighbors {
 		var object domain.Object
-		object.ObjectNamespace = neighbor.ObjectNamespace
-		object.ObjectName = neighbor.ObjectName
+		object.Namespace = neighbor.ObjectNamespace
+		object.Name = neighbor.ObjectName
 		object.Relation = neighbor.Relation
 		if !visited.Exist(object) {
 			ok, err := u.detectCycle(object, visited, recursionStack)
@@ -371,8 +371,8 @@ func (u *RelationUsecase) hasCycle() (bool, error) {
 
 	for _, tuple := range allTuples {
 		var object domain.Object
-		object.ObjectNamespace = tuple.SubjectNamespace
-		object.ObjectName = tuple.SubjectName
+		object.Namespace = tuple.SubjectNamespace
+		object.Name = tuple.SubjectName
 		object.Relation = tuple.SubjectRelation
 
 		if !visited.Exist(object) {
@@ -389,15 +389,15 @@ func (u *RelationUsecase) hasCycle() (bool, error) {
 }
 
 func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string, error) {
-	if from.SubjectNamespace == "role" && from.SubjectName == "admin" {
+	if from.Namespace == "role" && from.Name == "admin" {
 		return nil, nil
 	}
 	objectRelations := utils.NewSet[string]()
 
 	firstQuery := domain.RelationTuple{
-		SubjectNamespace: from.SubjectNamespace,
-		SubjectName:      from.SubjectName,
-		SubjectRelation:  from.SubjectRelation,
+		SubjectNamespace: from.Namespace,
+		SubjectName:      from.Name,
+		SubjectRelation:  from.Relation,
 	}
 	q := utils.NewQueue[domain.RelationTuple]()
 	q.Push(firstQuery)
