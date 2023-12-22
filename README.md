@@ -17,6 +17,7 @@ HRBAC implement using DAG
 - [x] Object *(all object | all operations) support (unsupport distinct object namespace link)
 - [ ] List who has access to object
 - [ ] Regex
+- [ ] Temporal Constraints
 
 ## Restriction
 

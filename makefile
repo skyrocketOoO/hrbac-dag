@@ -10,3 +10,6 @@ run:
 	go run cmd/main.go
 
 test-run: clear-db run
+
+gen-apidoc:
+	swag init -g internal/delivery/*

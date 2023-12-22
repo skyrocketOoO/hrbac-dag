@@ -18,6 +18,13 @@ func NewUserHandler(userUsecase usecase.UserUsecase) *UserHandler {
 	}
 }
 
+// @Summary Get all users
+// @Description Get a list of all users
+// @Tags User
+// @Produce json
+// @Success 200 {object} domain.DataResponse
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/ [get]
 func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.UserUsecase.GetAllUsers()
 	if err != nil {
@@ -31,6 +38,16 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Get a user by name
+// @Description Get user details by name
+// @Tags User
+// @Produce json
+// @Param name path string true "User name"
+// @Success 200 {object} domain.DataResponse
+// @Failure 400 {object} domain.ErrResponse
+// @Failure 404 {object} domain.ErrResponse
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/{name} [get]
 func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 	params := c.AllParams()
 	name, ok := params["name"]
@@ -53,6 +70,15 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 	return nil
 }
 
+// @Summary Delete a user by name
+// @Description Delete a user by name
+// @Tags User
+// @Produce json
+// @Param name path string true "User name"
+// @Success 200 {string} string "User deleted successfully"
+// @Failure 400 {object} domain.ErrResponse
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/{name} [delete]
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	params := c.AllParams()
 	roleName, ok := params["name"]
@@ -70,6 +96,16 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	return nil
 }
 
+// @Summary Add a role to a user
+// @Description Add a role to a user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param request body delivery.AddRole.request true "Request body to add a role to a user"
+// @Success 200 {string} string "Role added successfully"
+// @Failure 400 {object} domain.ErrResponse
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/add-role [post]
 func (h *UserHandler) AddRole(c *fiber.Ctx) error {
 	type request struct {
 		UserName string `json:"user_name"`
@@ -92,6 +128,16 @@ func (h *UserHandler) AddRole(c *fiber.Ctx) error {
 	return nil
 }
 
+// @Summary Remove a role from a user
+// @Description Remove a role from a user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param request body delivery.RemoveRole.request true "Request body to remove a role from a user"
+// @Success 200 {string} string "Role removed successfully"
+// @Failure 400 {object} domain.ErrResponse
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/remove-role [post]
 func (h *UserHandler) RemoveRole(c *fiber.Ctx) error {
 	type request struct {
 		UserName string `json:"user_name"`
@@ -115,6 +161,16 @@ func (h *UserHandler) RemoveRole(c *fiber.Ctx) error {
 	return nil
 }
 
+// @Summary Find all object relations for a user
+// @Description Find all object relations for a user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param request body delivery.FindAllObjectRelations.request true "Request body to find all object relations for a user"
+// @Success 200 {object} domain.DataResponse
+// @Failure 400 {object} domain.ErrResponse
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/find-all-object-relations [post]
 func (h *UserHandler) FindAllObjectRelations(c *fiber.Ctx) error {
 	type request struct {
 		Name string `json:"name"`
@@ -138,6 +194,15 @@ func (h *UserHandler) FindAllObjectRelations(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Add a relation for a user
+// @Description Add a relation for a user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 400 {object} domain.ErrResponse
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/add-relation [post]
 func (h *UserHandler) AddRelation(c *fiber.Ctx) error {
 	type request struct {
 		ObjectNamespace string `json:"object_namespace"`
@@ -163,6 +228,16 @@ func (h *UserHandler) AddRelation(c *fiber.Ctx) error {
 	return nil
 }
 
+// @Summary Remove a relation for a user
+// @Description Remove a relation for a user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param request body delivery.RemoveRelation.request true "Request body to remove a relation for a user"
+// @Success 200 {string} string "Relation removed successfully"
+// @Failure 400 {object} domain.ErrResponse
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/remove-relation [post]
 func (h *UserHandler) RemoveRelation(c *fiber.Ctx) error {
 	type request struct {
 		ObjectNamespace string `json:"object_namespace"`
@@ -188,6 +263,17 @@ func (h *UserHandler) RemoveRelation(c *fiber.Ctx) error {
 	return nil
 }
 
+// @Summary Check if a user has a specific relation for an object
+// @Description Check if a user has a specific relation for an object
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param request body delivery.Check.request true "Request body to check a relation for a user"
+// @Success 200 {string} string "User has the specified relation for the object"
+// @Failure 400 {object} domain.ErrResponse
+// @Failure 403 {string} string "Forbidden: User does not have the specified relation for the object"
+// @Failure 500 {object} domain.ErrResponse
+// @Router /user/check [post]
 func (h *UserHandler) Check(c *fiber.Ctx) error {
 	type request struct {
 		ObjectNamespace string `json:"object_namespace"`

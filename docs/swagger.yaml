@@ -1,0 +1,770 @@
+definitions:
+  delivery.AddParent.request:
+    properties:
+      child_role_name:
+        type: string
+      parent_role_name:
+        type: string
+    type: object
+  delivery.AddRelation.request:
+    properties:
+      object_name:
+        type: string
+      object_namespace:
+        type: string
+      relation:
+        type: string
+      user_name:
+        type: string
+    type: object
+  delivery.AddRole.request:
+    properties:
+      role_name:
+        type: string
+      user_name:
+        type: string
+    type: object
+  delivery.Check.request:
+    properties:
+      object_name:
+        type: string
+      object_namespace:
+        type: string
+      relation:
+        type: string
+      user_name:
+        type: string
+    type: object
+  delivery.FindAllObjectRelations.request:
+    properties:
+      name:
+        type: string
+    type: object
+  delivery.GetMembers.request:
+    properties:
+      name:
+        type: string
+    type: object
+  delivery.RemoveParent.request:
+    properties:
+      child_role_name:
+        type: string
+      parent_role_name:
+        type: string
+    type: object
+  delivery.RemoveRelation.request:
+    properties:
+      object_name:
+        type: string
+      object_namespace:
+        type: string
+      relation:
+        type: string
+      user_name:
+        type: string
+    type: object
+  delivery.RemoveRole.request:
+    properties:
+      role_name:
+        type: string
+      user_name:
+        type: string
+    type: object
+  domain.DataResponse:
+    properties:
+      data:
+        items:
+          type: string
+        type: array
+    type: object
+  domain.ErrResponse:
+    properties:
+      error:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /relation/add-link:
+    post:
+      consumes:
+      - application/json
+      description: Add a relation link between two entities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Relation link added successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Add a relation link
+      tags:
+      - Relation
+  /relation/check:
+    post:
+      consumes:
+      - application/json
+      description: Check if a relation link exists between two entities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Relation link exists
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "403":
+          description: Relation link does not exist
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Check if a relation link exists
+      tags:
+      - Relation
+  /relation/clear-all-relations:
+    post:
+      consumes:
+      - application/json
+      description: Clear all relations in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: All relations cleared
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Clear all relations
+      tags:
+      - Relation
+  /relation/get-all-relations:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all relations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Get all relations
+      tags:
+      - Relation
+  /relation/path:
+    post:
+      consumes:
+      - application/json
+      description: Get the shortest path between two entities in a relation graph
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Shortest path between entities
+          schema:
+            $ref: '#/definitions/domain.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "403":
+          description: No path found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Get the shortest path between two entities in a relation graph
+      tags:
+      - Relation
+  /relation/remove-link:
+    post:
+      consumes:
+      - application/json
+      description: Remove a relation link between two entities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Relation link removed successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Remove a relation link
+      tags:
+      - Relation
+  /role:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Get all roles
+      tags:
+      - Role
+  /role/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a role by name
+      parameters:
+      - description: Role name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Delete a role by name
+      tags:
+      - Role
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific role by name
+      parameters:
+      - description: Role name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role found successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Get a role by name
+      tags:
+      - Role
+  /role/add-parent:
+    post:
+      consumes:
+      - application/json
+      description: Add a parent role for a role
+      parameters:
+      - description: Request body to add a parent role for a role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.AddParent.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Parent role added successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Add a parent role for a role
+      tags:
+      - Role
+  /role/add-relation:
+    post:
+      consumes:
+      - application/json
+      description: Add a relation for a role
+      parameters:
+      - description: Add Relation Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.AddRelation.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Relation added successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Add a relation for a role
+      tags:
+      - Role
+  /role/check:
+    post:
+      consumes:
+      - application/json
+      description: Check if a role has access to an object
+      parameters:
+      - description: Request body to check access for a role to an object
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.Check.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role has access to object
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "403":
+          description: Role does not have access to object
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Check if a role has access to an object
+      tags:
+      - Role
+  /role/find-all-object-relations:
+    post:
+      consumes:
+      - application/json
+      description: Find all object relations for a role
+      parameters:
+      - description: Request body to find all object relations for a role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.FindAllObjectRelations.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Find all object relations for a role
+      tags:
+      - Role
+  /role/get-members:
+    post:
+      consumes:
+      - application/json
+      description: Get members of a role
+      parameters:
+      - description: Request body to get members of a role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.GetMembers.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Get members of a role
+      tags:
+      - Role
+  /role/remove-parent:
+    post:
+      consumes:
+      - application/json
+      description: Remove a parent role for a role
+      parameters:
+      - description: Request body to remove a parent role for a role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.RemoveParent.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Parent role removed successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Remove a parent role for a role
+      tags:
+      - Role
+  /role/remove-relation:
+    post:
+      consumes:
+      - application/json
+      description: Remove a relation for a role
+      parameters:
+      - description: Request body to remove a relation for a role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.RemoveRelation.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Relation removed successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Remove a relation for a role
+      tags:
+      - Role
+  /user/:
+    get:
+      description: Get a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Get all users
+      tags:
+      - User
+  /user/{name}:
+    delete:
+      description: Delete a user by name
+      parameters:
+      - description: User name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Delete a user by name
+      tags:
+      - User
+    get:
+      description: Get user details by name
+      parameters:
+      - description: User name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Get a user by name
+      tags:
+      - User
+  /user/add-relation:
+    post:
+      consumes:
+      - application/json
+      description: Add a relation for a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Add a relation for a user
+      tags:
+      - User
+  /user/add-role:
+    post:
+      consumes:
+      - application/json
+      description: Add a role to a user
+      parameters:
+      - description: Request body to add a role to a user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.AddRole.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role added successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Add a role to a user
+      tags:
+      - User
+  /user/check:
+    post:
+      consumes:
+      - application/json
+      description: Check if a user has a specific relation for an object
+      parameters:
+      - description: Request body to check a relation for a user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.Check.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User has the specified relation for the object
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "403":
+          description: 'Forbidden: User does not have the specified relation for the
+            object'
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Check if a user has a specific relation for an object
+      tags:
+      - User
+  /user/find-all-object-relations:
+    post:
+      consumes:
+      - application/json
+      description: Find all object relations for a user
+      parameters:
+      - description: Request body to find all object relations for a user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.FindAllObjectRelations.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Find all object relations for a user
+      tags:
+      - User
+  /user/remove-relation:
+    post:
+      consumes:
+      - application/json
+      description: Remove a relation for a user
+      parameters:
+      - description: Request body to remove a relation for a user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.RemoveRelation.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Relation removed successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Remove a relation for a user
+      tags:
+      - User
+  /user/remove-role:
+    post:
+      consumes:
+      - application/json
+      description: Remove a role from a user
+      parameters:
+      - description: Request body to remove a role from a user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.RemoveRole.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role removed successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrResponse'
+      summary: Remove a role from a user
+      tags:
+      - User
+swagger: "2.0"

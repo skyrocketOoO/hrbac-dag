@@ -7,12 +7,17 @@ import (
 	"rbac/internal/usecase"
 	"strconv"
 
+	_ "rbac/docs"
+
 	"github.com/fatih/color"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 func main() {
 	app := fiber.New()
+
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	app.Use(func(c *fiber.Ctx) error {
 		// Continue processing the request
