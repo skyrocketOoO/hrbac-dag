@@ -89,9 +89,10 @@ func main() {
 	relationApp := app.Group("/relation")
 	relationHandler := handlerRepo.RelationHandler
 	relationApp.Get("/", relationHandler.GetAllRelations)
-	relationApp.Post("/link", relationHandler.Link)
+	relationApp.Post("/add-link", relationHandler.AddLink)
+	relationApp.Post("/remove-link", relationHandler.RemoveLink)
 	relationApp.Post("/check", relationHandler.Check)
-	relationApp.Post("/path", relationHandler.Path) // to check how the subject obtain the relation on subject
+	// relationApp.Post("/path", relationHandler.Path) // to check how the subject obtain the relation on subject
 	relationApp.Delete("/", relationHandler.ClearAllRelations)
 
 	app.Listen(":3000")

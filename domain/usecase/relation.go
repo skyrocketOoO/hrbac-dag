@@ -7,7 +7,8 @@ import (
 
 type RelationUsecase interface {
 	GetAllRelations() ([]string, error)
-	Link(objnamespace, objname, relation, subjnamespace, subjname, subjrelation string) error
+	AddLink(tuple domain.RelationTuple) error
+	RemoveLink(tuple domain.RelationTuple) error
 	Check(relationTuple domain.RelationTuple) (bool, error)
 	QueryExistedRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error)
 	Create(relationTuple domain.RelationTuple) error

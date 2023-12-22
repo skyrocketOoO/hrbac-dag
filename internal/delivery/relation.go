@@ -31,7 +31,7 @@ func (h *RelationHandler) GetAllRelations(c *fiber.Ctx) error {
 	})
 }
 
-func (h *RelationHandler) Link(c *fiber.Ctx) error {
+func (h *RelationHandler) AddLink(c *fiber.Ctx) error {
 	type request struct {
 		ObjectNamespace  string `json:"object_namespace"`
 		ObjectName       string `json:"object_name"`
@@ -48,7 +48,51 @@ func (h *RelationHandler) Link(c *fiber.Ctx) error {
 		})
 	}
 
-	err := h.RelationUsecase.Link(req.ObjectNamespace, req.ObjectName, req.Relation, req.SubjectNamespace, req.SubjectName, req.SubjectRelation)
+	err := h.RelationUsecase.AddLink(
+		domain.RelationTuple{
+			ObjectNamespace:  req.ObjectNamespace,
+			ObjectName:       req.ObjectName,
+			Relation:         req.Relation,
+			SubjectNamespace: req.SubjectNamespace,
+			SubjectName:      req.SubjectName,
+			SubjectRelation:  req.SubjectRelation,
+		},
+	)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
+	}
+	return nil
+}
+
+func (h *RelationHandler) RemoveLink(c *fiber.Ctx) error {
+	type request struct {
+		ObjectNamespace  string `json:"object_namespace"`
+		ObjectName       string `json:"object_name"`
+		Relation         string `json:"relation"`
+		SubjectNamespace string `json:"subject_namespace"`
+		SubjectName      string `json:"subject_name"`
+		SubjectRelation  string `json:"subject_relation"`
+	}
+
+	req := request{}
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
+	}
+
+	err := h.RelationUsecase.RemoveLink(
+		domain.RelationTuple{
+			ObjectNamespace:  req.ObjectNamespace,
+			ObjectName:       req.ObjectName,
+			Relation:         req.Relation,
+			SubjectNamespace: req.SubjectNamespace,
+			SubjectName:      req.SubjectName,
+			SubjectRelation:  req.SubjectRelation,
+		},
+	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),

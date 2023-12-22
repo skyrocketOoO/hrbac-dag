@@ -5,6 +5,7 @@ import { checkScenario } from './scenario/scenario_test.js';
 import { TestUserAPI } from './api/user.js';
 import { TestRepeatTuple } from './feature/repetition_test.js';
 import { TestRoleAPI } from './api/role.js';
+import { TestRelationAPI } from './api/relation.js';
 
 
 export const options = {
@@ -28,7 +29,10 @@ export default function() {
     });
     group("role", () => {
       TestRoleAPI(SERVER_URL, Headers);
-    })
+    });
+    group("relation", () => {
+      TestRelationAPI(SERVER_URL, Headers);
+    });
     // checkAPI(SERVER_URL, Headers)
   });
 

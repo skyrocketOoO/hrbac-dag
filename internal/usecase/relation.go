@@ -70,17 +70,12 @@ func (u *RelationUsecase) Delete(relationTuple domain.RelationTuple) error {
 	return u.RelationTupleRepo.DeleteTuple(matchTuples[0].ID)
 }
 
-func (u *RelationUsecase) Link(objnamespace, ObjectName, relation, subjnamespace, subjname, subjrelation string) error {
-	tuple := domain.RelationTuple{
-		ObjectNamespace:  objnamespace,
-		ObjectName:       ObjectName,
-		Relation:         relation,
-		SubjectNamespace: subjnamespace,
-		SubjectName:      subjname,
-		SubjectRelation:  subjrelation,
-	}
-
+func (u *RelationUsecase) AddLink(tuple domain.RelationTuple) error {
 	return u.Create(tuple)
+}
+
+func (u *RelationUsecase) RemoveLink(tuple domain.RelationTuple) error {
+	return u.Delete(tuple)
 }
 
 func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
