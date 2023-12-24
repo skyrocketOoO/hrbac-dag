@@ -57,7 +57,8 @@ func (r *RelationTupleRepository) QueryExactMatchTuples(tuple domain.RelationTup
 }
 
 func (r *RelationTupleRepository) DeleteAllTuples() error {
-	if err := r.DB.Delete(&sqldomain.RelationTuple{}).Error; err != nil {
+	query := "DELETE FROM relation_tuples"
+	if err := r.DB.Exec(query).Error; err != nil {
 		return err
 	}
 	return nil

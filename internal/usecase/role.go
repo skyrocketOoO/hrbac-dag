@@ -100,8 +100,26 @@ func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 		SubjectNamespace: "role",
 		SubjectName:      parentRolename,
 	}
+	if err := u.RelationUsecaseRepo.Create(tuple); err != nil {
+		return err
+	}
 
-	return u.RelationUsecaseRepo.Create(tuple)
+	tuple = domain.RelationTuple{
+		ObjectNamespace:  "role",
+		ObjectName:       childRolename,
+		Relation:         "modify-permission",
+		SubjectNamespace: "role",
+		SubjectName:      childRolename,
+		SubjectRelation:  "parent",
+	}
+	queryTuple, err := u.RelationTupleRepo.QueryExactMatchTuples(tuple)
+	if err != nil {
+		return err
+	}
+	if len(queryTuple) == 0 {
+		return u.RelationUsecaseRepo.Create(tuple)
+	}
+	return nil
 }
 
 func (u *RoleUsecase) RemoveParent(childRolename, parentRolename string) error {

@@ -1,11 +1,12 @@
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
-import { checkAPI } from './api/api_test.js';
-import { checkScenario } from './scenario/scenario_test.js';
 import { TestUserAPI } from './api/user.js';
 import { TestRepeatTuple } from './feature/repetition_test.js';
 import { TestRoleAPI } from './api/role.js';
 import { TestRelationAPI } from './api/relation.js';
+import { TestAccessInheritance } from './feature/access_inheritance.js';
+import { TestHRBAC } from './feature/hrbac.js';
+import { TestUniversalSyntax } from './feature/regex_*_test.js';
 
 
 export const options = {
@@ -33,11 +34,26 @@ export default function() {
     group("relation", () => {
       TestRelationAPI(SERVER_URL, Headers);
     });
-    // checkAPI(SERVER_URL, Headers)
+  });
+
+  group("clear", () => {
+    res = http.del(`${SERVER_URL}/relation/`, null, {headers:Headers});
+    check(res, { 'ClearAllRelations: status == 200': (r) => r.status == 200 });
   });
 
   group("feature", () => {
-    // TestRepeatTuple(SERVER_URL, Headers);
+    group("Repeat tuple", () => {
+      TestRepeatTuple(SERVER_URL, Headers);
+    })
+    group("Access inheritance", () => {
+      TestAccessInheritance(SERVER_URL, Headers);
+    });
+    group("HRBAC", () => {
+      TestHRBAC(SERVER_URL, Headers);
+    });
+    group("* syntax", () => {
+      TestUniversalSyntax(SERVER_URL, Headers);
+    });
   });
 
   // group("scenario", () => {

@@ -7,14 +7,14 @@ import (
 
 func HasReserveWord(word string, sort string) bool {
 	switch sort {
-	case "relation":
-		if word == "member" || word == "parent" {
-			return true
-		}
-	case "namespace":
-		if word == "role" || word == "user" {
-			return true
-		}
+	// case "relation":
+	// 	if word == "member" || word == "parent" || word == "modify-permission" {
+	// 		return true
+	// 	}
+	// case "namespace":
+	// 	if word == "role" || word == "user" {
+	// 		return true
+	// 	}
 	case "name":
 		if word == "admin" {
 			return true

@@ -96,16 +96,16 @@ export function checkScenario(serverUrl, headers){
     check(res, { '(Add Relation) RD has write access to sales-data:1': (r) => r.status == 200 });
 
     // Link relation
-    payload = {
-      object_namespace: "role",
-      object_name: "rd",
-      relation: "modify-relation",
-      subject_namespace: "role",
-      subject_name: "rd",
-      subject_relation: "parent",
-    };
-    res = http.post(`${serverUrl}/relation/link`, JSON.stringify(payload), {headers:headers});
-    check(res, { '(Add Link Relation) RD-Director can modify permissions of RD': (r) => r.status == 200 });
+    // payload = {
+    //   object_namespace: "role",
+    //   object_name: "rd",
+    //   relation: "modify-relation",
+    //   subject_namespace: "role",
+    //   subject_name: "rd",
+    //   subject_relation: "parent",
+    // };
+    // res = http.post(`${serverUrl}/relation/link`, JSON.stringify(payload), {headers:headers});
+    // check(res, { '(Add Link Relation) RD-Director can modify permissions of RD': (r) => r.status == 200 });
 
     payload = {
       object_namespace: "source-code",

@@ -24,7 +24,7 @@ HRBAC implement using DAG
 ### Reserved words
 
 - All: @ # ( ) :
-- Relatoion: "member" "parent"
+- Relatoion: "member" "parent" "modify-permission"
 - Namespace: "role", "user"
 - Name: "admin"
   
