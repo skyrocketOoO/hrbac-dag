@@ -32,7 +32,10 @@ func (u *RelationUsecase) GetAllRelations() ([]string, error) {
 }
 
 func (u *RelationUsecase) Create(relationTuple domain.RelationTuple) error {
-	// fmt.Printf("%+v\n", relationTuple)
+	if err := utils.CheckReserveWordInTuple(relationTuple); err != nil {
+		return err
+	}
+
 	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(relationTuple)
 	if err != nil {
 		return err
@@ -58,6 +61,10 @@ func (u *RelationUsecase) Create(relationTuple domain.RelationTuple) error {
 }
 
 func (u *RelationUsecase) Delete(relationTuple domain.RelationTuple) error {
+	if err := utils.CheckReserveWordInTuple(relationTuple); err != nil {
+		return err
+	}
+
 	matchTuples, err := u.RelationTupleRepo.QueryExactMatchTuples(relationTuple)
 	if err != nil {
 		return err
@@ -79,88 +86,16 @@ func (u *RelationUsecase) RemoveLink(tuple domain.RelationTuple) error {
 }
 
 func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
-	return u.searchTemplate(
-		domain.Subject{
-			Namespace: relationTuple.SubjectNamespace,
-			Name:      relationTuple.SubjectName,
-			Relation:  relationTuple.SubjectRelation,
-		},
-		domain.Object{
-			Namespace: relationTuple.ObjectNamespace,
-			Name:      relationTuple.ObjectName,
-			Relation:  relationTuple.Relation,
-		},
-	)
-}
-
-func (u *RelationUsecase) GetAllPaths(relationTuple domain.RelationTuple) ([]string, error) {
-	return nil, errors.New("not implemented")
-}
-
-func (u *RelationUsecase) GetShortestPath(relationTuple domain.RelationTuple) ([]string, error) {
-	return nil, errors.New("not implemented")
-}
-
-// use to get all relations based on given attr
-func (u *RelationUsecase) QueryExistedRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error) {
-	res := utils.NewSet[sqldomain.RelationTuple]()
-
-	if name == "" {
-		query := domain.RelationTuple{
-			ObjectNamespace: namespace,
-		}
-		tuples, err := u.RelationTupleRepo.QueryTuples(query)
-		if err != nil {
-			return nil, err
-		}
-		for _, tuple := range tuples {
-			res.Add(tuple)
-		}
-
-		query = domain.RelationTuple{
-			SubjectNamespace: namespace,
-		}
-		tuples, err = u.RelationTupleRepo.QueryTuples(query)
-		if err != nil {
-			return nil, err
-		}
-		for _, tuple := range tuples {
-			res.Add(tuple)
-		}
-	} else {
-		query := domain.RelationTuple{
-			ObjectNamespace: namespace,
-			ObjectName:      name,
-		}
-		tuples, err := u.RelationTupleRepo.QueryTuples(query)
-		if err != nil {
-			return nil, err
-		}
-		for _, tuple := range tuples {
-			res.Add(tuple)
-		}
-
-		query = domain.RelationTuple{
-			SubjectNamespace: namespace,
-			SubjectName:      name,
-		}
-		tuples, err = u.RelationTupleRepo.QueryTuples(query)
-		if err != nil {
-			return nil, err
-		}
-		for _, tuple := range tuples {
-			res.Add(tuple)
-		}
+	from := domain.Subject{
+		Namespace: relationTuple.SubjectNamespace,
+		Name:      relationTuple.SubjectName,
+		Relation:  relationTuple.SubjectRelation,
 	}
-
-	return res.ToSlice(), nil
-}
-
-func (u *RelationUsecase) ClearAllRelations() error {
-	return u.RelationTupleRepo.DeleteAllTuples()
-}
-
-func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) (ok bool, err error) {
+	to := domain.Object{
+		Namespace: relationTuple.ObjectNamespace,
+		Name:      relationTuple.ObjectName,
+		Relation:  relationTuple.Relation,
+	}
 	if from.Namespace == "role" && from.Name == "admin" {
 		return true, nil
 	}
@@ -318,6 +253,79 @@ func (u *RelationUsecase) searchTemplate(from domain.Subject, to domain.Object) 
 	return false, nil
 }
 
+func (u *RelationUsecase) GetAllPaths(relationTuple domain.RelationTuple) ([]string, error) {
+	if err := utils.CheckReserveWordInTuple(relationTuple); err != nil {
+		return nil, err
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (u *RelationUsecase) GetShortestPath(relationTuple domain.RelationTuple) ([]string, error) {
+	if err := utils.CheckReserveWordInTuple(relationTuple); err != nil {
+		return nil, err
+	}
+	return nil, errors.New("not implemented")
+}
+
+// use to get all relations based on given attr
+func (u *RelationUsecase) QueryExistedRelationTuples(namespace, name string) ([]sqldomain.RelationTuple, error) {
+	res := utils.NewSet[sqldomain.RelationTuple]()
+
+	if name == "" {
+		query := domain.RelationTuple{
+			ObjectNamespace: namespace,
+		}
+		tuples, err := u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+
+		query = domain.RelationTuple{
+			SubjectNamespace: namespace,
+		}
+		tuples, err = u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+	} else {
+		query := domain.RelationTuple{
+			ObjectNamespace: namespace,
+			ObjectName:      name,
+		}
+		tuples, err := u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+
+		query = domain.RelationTuple{
+			SubjectNamespace: namespace,
+			SubjectName:      name,
+		}
+		tuples, err = u.RelationTupleRepo.QueryTuples(query)
+		if err != nil {
+			return nil, err
+		}
+		for _, tuple := range tuples {
+			res.Add(tuple)
+		}
+	}
+
+	return res.ToSlice(), nil
+}
+
+func (u *RelationUsecase) ClearAllRelations() error {
+	return u.RelationTupleRepo.DeleteAllTuples()
+}
+
 func (u *RelationUsecase) ReversedSearch() error {
 	return errors.New("not implemented")
 }
@@ -357,6 +365,7 @@ func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[dom
 	return false, nil
 }
 
+// TODO: hasCycle only need to search added edge
 func (u *RelationUsecase) hasCycle() (bool, error) {
 	visited := utils.NewSet[domain.Object]()
 	recursionStack := utils.NewSet[domain.Object]()
@@ -386,6 +395,13 @@ func (u *RelationUsecase) hasCycle() (bool, error) {
 }
 
 func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string, error) {
+	if err := utils.CheckReserveWordInTuple(domain.RelationTuple{
+		SubjectNamespace: from.Namespace,
+		SubjectName:      from.Name,
+		SubjectRelation:  from.Relation,
+	}); err != nil {
+		return nil, err
+	}
 	if from.Namespace == "role" && from.Name == "admin" {
 		return nil, nil
 	}
