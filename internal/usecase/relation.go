@@ -345,69 +345,69 @@ func (u *RelationUsecase) ReversedSearch() error {
 	return errors.New("not implemented")
 }
 
-func (u *RelationUsecase) detectCycle(from domain.Object, visited *utils.Set[domain.Object], recursionStack *utils.Set[domain.Object]) (bool, error) {
-	visited.Add(from)
-	recursionStack.Add(from)
+// func (u *RelationUsecase) detectCycle(from domain.Object, visited *utils.Set[domain.Object], recursionStack *utils.Set[domain.Object]) (bool, error) {
+// 	visited.Add(from)
+// 	recursionStack.Add(from)
 
-	query := domain.RelationTuple{
-		SubjectNamespace: from.Namespace,
-		SubjectName:      from.Name,
-		SubjectRelation:  from.Relation,
-	}
-	neighbors, err := u.RelationTupleRepo.QueryTuples(query)
-	if err != nil {
-		return false, err
-	}
-	for _, neighbor := range neighbors {
-		var object domain.Object
-		object.Namespace = neighbor.ObjectNamespace
-		object.Name = neighbor.ObjectName
-		object.Relation = neighbor.Relation
-		if !visited.Exist(object) {
-			ok, err := u.detectCycle(object, visited, recursionStack)
-			if err != nil {
-				return false, err
-			}
-			if ok {
-				return true, nil
-			}
-		} else if recursionStack.Exist(object) {
-			return true, nil
-		}
-	}
+// 	query := domain.RelationTuple{
+// 		SubjectNamespace: from.Namespace,
+// 		SubjectName:      from.Name,
+// 		SubjectRelation:  from.Relation,
+// 	}
+// 	neighbors, err := u.RelationTupleRepo.QueryTuples(query)
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	for _, neighbor := range neighbors {
+// 		var object domain.Object
+// 		object.Namespace = neighbor.ObjectNamespace
+// 		object.Name = neighbor.ObjectName
+// 		object.Relation = neighbor.Relation
+// 		if !visited.Exist(object) {
+// 			ok, err := u.detectCycle(object, visited, recursionStack)
+// 			if err != nil {
+// 				return false, err
+// 			}
+// 			if ok {
+// 				return true, nil
+// 			}
+// 		} else if recursionStack.Exist(object) {
+// 			return true, nil
+// 		}
+// 	}
 
-	recursionStack.Remove(from)
-	return false, nil
-}
+// 	recursionStack.Remove(from)
+// 	return false, nil
+// }
 
-// we only need to start from new edge, if A -> B, search from B
-func (u *RelationUsecase) hasCycle() (bool, error) {
-	visited := utils.NewSet[domain.Object]()
-	recursionStack := utils.NewSet[domain.Object]()
+// // we only need to start from new edge, if A -> B, search from B
+// func (u *RelationUsecase) hasCycle() (bool, error) {
+// 	visited := utils.NewSet[domain.Object]()
+// 	recursionStack := utils.NewSet[domain.Object]()
 
-	allTuples, err := u.RelationTupleRepo.GetAllTuples()
-	if err != nil {
-		return false, err
-	}
+// 	allTuples, err := u.RelationTupleRepo.GetAllTuples()
+// 	if err != nil {
+// 		return false, err
+// 	}
 
-	for _, tuple := range allTuples {
-		var object domain.Object
-		object.Namespace = tuple.SubjectNamespace
-		object.Name = tuple.SubjectName
-		object.Relation = tuple.SubjectRelation
+// 	for _, tuple := range allTuples {
+// 		var object domain.Object
+// 		object.Namespace = tuple.SubjectNamespace
+// 		object.Name = tuple.SubjectName
+// 		object.Relation = tuple.SubjectRelation
 
-		if !visited.Exist(object) {
-			ok, err := u.detectCycle(object, &visited, &recursionStack)
-			if err != nil {
-				return false, err
-			}
-			if ok {
-				return true, nil
-			}
-		}
-	}
-	return false, nil
-}
+// 		if !visited.Exist(object) {
+// 			ok, err := u.detectCycle(object, &visited, &recursionStack)
+// 			if err != nil {
+// 				return false, err
+// 			}
+// 			if ok {
+// 				return true, nil
+// 			}
+// 		}
+// 	}
+// 	return false, nil
+// }
 
 func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string, error) {
 	if err := utils.CheckReserveWordInTuple(domain.RelationTuple{
@@ -421,6 +421,7 @@ func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string,
 		return nil, nil
 	}
 	objectRelations := utils.NewSet[string]()
+	visited := utils.NewSet[domain.RelationTuple]()
 
 	firstQuery := domain.RelationTuple{
 		SubjectNamespace: from.Namespace,
@@ -428,7 +429,13 @@ func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string,
 		SubjectRelation:  from.Relation,
 	}
 	q := utils.NewQueue[domain.RelationTuple]()
+	visited.Add(firstQuery)
 	q.Push(firstQuery)
+	if firstQuery.SubjectNamespace == "role" {
+		firstQuery.SubjectRelation = ""
+		q.Push(firstQuery)
+		visited.Add(firstQuery)
+	}
 	for !q.IsEmpty() {
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
@@ -452,14 +459,20 @@ func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string,
 						SubjectNamespace: "role",
 						SubjectName:      tuple.ObjectName,
 					}
-					q.Push(nextQuery)
+					if !visited.Exist(nextQuery) {
+						visited.Add(nextQuery)
+						q.Push(nextQuery)
+					}
 				}
 				nextQuery := domain.RelationTuple{
 					SubjectNamespace: tuple.ObjectNamespace,
 					SubjectName:      tuple.ObjectName,
 					SubjectRelation:  tuple.Relation,
 				}
-				q.Push(nextQuery)
+				if !visited.Exist(nextQuery) {
+					visited.Add(nextQuery)
+					q.Push(nextQuery)
+				}
 			}
 		}
 	}

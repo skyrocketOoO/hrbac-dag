@@ -164,4 +164,7 @@ export function checkScenario(serverUrl, headers){
     };
     res = http.post(`${serverUrl}/user/check`, JSON.stringify(payload), {headers:headers});
     check(res, { 'Jimmy has write to sales-data:1': (r) => r.status == 200 && JSON.parse(r.body).result === true});
+
+    res = http.del(`${serverUrl}/relation/`, null, {headers:headers});
+    check(res, { 'ClearAllRelations: status == 200': (r) => r.status == 200 });
 }
