@@ -26,4 +26,7 @@ export function TestRepeatTuple(serverUrl, headers) {
             return r.json().error = "tuple exist";
         },
     });
+
+    res = http.del(`${serverUrl}/relation/`, null, {headers:headers});
+    check(res, { 'ClearAllRelations: status == 200': (r) => r.status == 200 });
 };

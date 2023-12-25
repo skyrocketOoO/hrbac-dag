@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	"rbac/utils"
@@ -45,20 +44,21 @@ func (u *RelationUsecase) Create(relationTuple domain.RelationTuple) error {
 		return errors.New("tuple exist")
 	}
 
-	if err := u.RelationTupleRepo.CreateTuple(relationTuple); err != nil {
-		return err
-	}
-	ok, err := u.hasCycle()
+	ok, err := u.Check(domain.RelationTuple{
+		ObjectNamespace:  relationTuple.SubjectNamespace,
+		ObjectName:       relationTuple.SubjectName,
+		Relation:         relationTuple.SubjectRelation,
+		SubjectNamespace: relationTuple.ObjectNamespace,
+		SubjectName:      relationTuple.ObjectName,
+		SubjectRelation:  relationTuple.Relation,
+	})
 	if err != nil {
 		return err
 	}
 	if ok {
-		if err := u.Delete(relationTuple); err != nil {
-			return err
-		}
 		return errors.New("create cycle detected")
 	}
-	return nil
+	return u.RelationTupleRepo.CreateTuple(relationTuple)
 }
 
 func (u *RelationUsecase) Delete(relationTuple domain.RelationTuple) error {
@@ -101,27 +101,35 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 		return true, nil
 	}
 
+	visited := utils.NewSet[domain.RelationTuple]()
+
 	firstQuery := domain.RelationTuple{
 		SubjectNamespace: from.Namespace,
 		SubjectName:      from.Name,
 		SubjectRelation:  from.Relation,
 	}
 	q := utils.NewQueue[domain.RelationTuple]()
+	visited.Add(firstQuery)
 	q.Push(firstQuery)
+	if firstQuery.SubjectNamespace == "role" {
+		firstQuery.SubjectRelation = ""
+		q.Push(firstQuery)
+		visited.Add(firstQuery)
+	}
 	for !q.IsEmpty() {
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
 			query, _ := q.Pop()
-			fmt.Println("========================query============================")
-			fmt.Printf("%+v\n", query)
+			// fmt.Println("========================query============================")
+			// fmt.Printf("%+v\n", query)
 			tuples, err := u.RelationTupleRepo.QueryTuples(query)
 			if err != nil {
 				return false, err
 			}
 
 			for _, tuple := range tuples {
-				fmt.Println("===========================tuple=========================")
-				fmt.Printf("%+v\n", tuple)
+				// fmt.Println("===========================tuple=========================")
+				// fmt.Printf("%+v\n", tuple)
 				// fmt.Printf("%s : %s # %s\n", tuple.ObjectNamespace, tuple.ObjectName, tuple.Relation)
 				if tuple.ObjectNamespace == to.Namespace {
 					if tuple.ObjectName == "*" && tuple.Relation == "*" {
@@ -239,14 +247,20 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 						SubjectNamespace: "role",
 						SubjectName:      tuple.ObjectName,
 					}
-					q.Push(nextQuery)
+					if !visited.Exist(nextQuery) {
+						visited.Add(nextQuery)
+						q.Push(nextQuery)
+					}
 				}
 				nextQuery := domain.RelationTuple{
 					SubjectNamespace: tuple.ObjectNamespace,
 					SubjectName:      tuple.ObjectName,
 					SubjectRelation:  tuple.Relation,
 				}
-				q.Push(nextQuery)
+				if !visited.Exist(nextQuery) {
+					visited.Add(nextQuery)
+					q.Push(nextQuery)
+				}
 			}
 		}
 	}
@@ -331,14 +345,14 @@ func (u *RelationUsecase) ReversedSearch() error {
 	return errors.New("not implemented")
 }
 
-func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[domain.Object], recursionStack *utils.Set[domain.Object]) (bool, error) {
-	visited.Add(node)
-	recursionStack.Add(node)
+func (u *RelationUsecase) detectCycle(from domain.Object, visited *utils.Set[domain.Object], recursionStack *utils.Set[domain.Object]) (bool, error) {
+	visited.Add(from)
+	recursionStack.Add(from)
 
 	query := domain.RelationTuple{
-		SubjectNamespace: node.Namespace,
-		SubjectName:      node.Name,
-		SubjectRelation:  node.Relation,
+		SubjectNamespace: from.Namespace,
+		SubjectName:      from.Name,
+		SubjectRelation:  from.Relation,
 	}
 	neighbors, err := u.RelationTupleRepo.QueryTuples(query)
 	if err != nil {
@@ -362,7 +376,7 @@ func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[dom
 		}
 	}
 
-	recursionStack.Remove(node)
+	recursionStack.Remove(from)
 	return false, nil
 }
 

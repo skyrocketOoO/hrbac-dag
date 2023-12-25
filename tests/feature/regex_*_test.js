@@ -6,7 +6,7 @@ export function TestUniversalSyntax(serverUrl, headers) {
     const objNs = "test_obj";
     const objName = "1";
     const relation = "write";
-    const userName = "JImmy";
+    const userName = "Jimmy";
     let payload;
     let res;
 
@@ -92,4 +92,7 @@ export function TestUniversalSyntax(serverUrl, headers) {
     };
     res = http.post(`${userUrl}/remove-relation`, JSON.stringify(payload), {headers:headers});
     check(res, { 'remove-relation: status == 200': (r) => r.status == 200 });
+
+    res = http.del(`${serverUrl}/relation/`, null, {headers:headers});
+    check(res, { 'ClearAllRelations: status == 200': (r) => r.status == 200 });
 };
