@@ -45,7 +45,7 @@ export function TestRoleAPI(serverUrl, headers) {
     check(res, { 
         'GetAllRoles: status == 200': (r) => r.status == 200,
         'GetAllRoles: rd-director exists in response': (r) => {
-            return r.json().data[0] == "rd-director";
+            return r.json().data.includes(roleName);
         }
     });
 

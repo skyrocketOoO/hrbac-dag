@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	"rbac/utils"
@@ -111,16 +112,16 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
 			query, _ := q.Pop()
-			// fmt.Println("========================query============================")
-			// fmt.Printf("%+v\n", query)
-			// fmt.Println("=========================================================")
+			fmt.Println("========================query============================")
+			fmt.Printf("%+v\n", query)
 			tuples, err := u.RelationTupleRepo.QueryTuples(query)
 			if err != nil {
 				return false, err
 			}
 
 			for _, tuple := range tuples {
-				// fmt.Printf("%+v\n", tuple)
+				fmt.Println("===========================tuple=========================")
+				fmt.Printf("%+v\n", tuple)
 				// fmt.Printf("%s : %s # %s\n", tuple.ObjectNamespace, tuple.ObjectName, tuple.Relation)
 				if tuple.ObjectNamespace == to.Namespace {
 					if tuple.ObjectName == "*" && tuple.Relation == "*" {

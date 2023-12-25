@@ -50,5 +50,5 @@ export function TestAccessInheritance(serverUrl, headers) {
         parent_role_name: parentRoleName,
     };
     res = http.post(`${roleUrl}/remove-parent`, JSON.stringify(payload), {headers:headers});
-    check(res, { 'AddParent: status == 200': (r) => r.status == 200 });
+    check(res, { 'RemoveParent: status == 200': (r) => r.status == 200 });
 };

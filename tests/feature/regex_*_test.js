@@ -12,7 +12,7 @@ export function TestUniversalSyntax(serverUrl, headers) {
 
     payload = {
         object_namespace: objNs,
-        obj_name: "*",
+        object_name: "*",
         relation: "*",
         user_name: userName,
     };
@@ -23,14 +23,14 @@ export function TestUniversalSyntax(serverUrl, headers) {
         object_namespace: objNs,
         object_name: objName,
         relation: relation,
-        userName: userName,
+        user_name: userName,
     };
     res = http.post(`${userUrl}/check`, JSON.stringify(payload), {headers:headers});
-    check(res, { 'Check: status == 200': (r) => r.status == 200 });
+    check(res, { 'Check **: status == 200': (r) => r.status == 200 });
 
     payload = {
         object_namespace: objNs,
-        obj_name: "*",
+        object_name: "*",
         relation: "*",
         user_name: userName,
     };
@@ -40,7 +40,7 @@ export function TestUniversalSyntax(serverUrl, headers) {
 
     payload = {
         object_namespace: objNs,
-        obj_name: "*",
+        object_name: "*",
         relation: "write",
         user_name: userName,
     };
@@ -51,14 +51,14 @@ export function TestUniversalSyntax(serverUrl, headers) {
         object_namespace: objNs,
         object_name: objName,
         relation: relation,
-        userName: userName,
+        user_name: userName,
     };
     res = http.post(`${userUrl}/check`, JSON.stringify(payload), {headers:headers});
-    check(res, { 'Check: status == 200': (r) => r.status == 200 });
+    check(res, { 'Check *_: status == 200': (r) => r.status == 200 });
 
     payload = {
         object_namespace: objNs,
-        obj_name: "*",
+        object_name: "*",
         relation: "write",
         user_name: userName,
     };
@@ -68,7 +68,7 @@ export function TestUniversalSyntax(serverUrl, headers) {
 
     payload = {
         object_namespace: objNs,
-        obj_name: "1",
+        object_name: "1",
         relation: "*",
         user_name: userName,
     };
@@ -79,14 +79,14 @@ export function TestUniversalSyntax(serverUrl, headers) {
         object_namespace: objNs,
         object_name: objName,
         relation: relation,
-        userName: userName,
+        user_ame: userName,
     };
     res = http.post(`${userUrl}/check`, JSON.stringify(payload), {headers:headers});
-    check(res, { 'Check: status == 200': (r) => r.status == 200 });
+    check(res, { 'Check _*: status == 200': (r) => r.status == 200 });
 
     payload = {
         object_namespace: objNs,
-        obj_name: "1",
+        object_name: "1",
         relation: "*",
         user_name: userName,
     };

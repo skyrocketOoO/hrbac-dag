@@ -13,7 +13,6 @@ export const options = {
   vus: 1,
 }
 
-
 export default function() {
   const SERVER_URL = "http://localhost:3000"
   const Headers = {
@@ -54,6 +53,11 @@ export default function() {
     group("* syntax", () => {
       TestUniversalSyntax(SERVER_URL, Headers);
     });
+  });
+
+  group("clear2", () => {
+    res = http.del(`${SERVER_URL}/relation/`, null, {headers:Headers});
+    check(res, { 'ClearAllRelations: status == 200': (r) => r.status == 200 });
   });
 
   group("scenario", () => {
