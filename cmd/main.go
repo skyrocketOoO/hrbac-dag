@@ -100,5 +100,7 @@ func main() {
 	// relationApp.Post("/path", relationHandler.Path) // to check how the subject obtain the relation on subject
 	relationApp.Delete("/", relationHandler.ClearAllRelations)
 
+	
+
 	app.Listen(":3000")
 }

@@ -2,20 +2,23 @@ import http from 'k6/http';
 import { check } from 'k6';
 
 export function BuildGraph(serverUrl, headers){
+    const roleUrl = `${serverUrl}/role`
     let payload, res;
-    const layer = 10;
-    const exp_base = 4;
-
-    payload = {
-        object_namespace: "",
-        object_name: "",
-        relation: "",
-        subject_namespace: "",
-        subject_name: "",
-        subject_relation: "",
-    }
-
+    const roleLayer = 6, roleExpBase = 5;
     
-    res = http.post(`${serverUrl}/user/add-role`, JSON.stringify(payload), {headers:headers});
-    check(res, { '(Add Relation) Jimmy is a member of RD-Director': (r) => r.status == 200 } );
-}
+    let curLayer = 1;
+    while (curLayer <= roleLayer){
+        const count = Math.pow(roleExpBase, curLayer);
+
+        for (let i = 0; i < count; i++){
+            payload = {
+                child_role_name: (curLayer-1).toString() + "_" + (i / roleExpBase).toString(),
+                parent_role_name: curLayer.toString() + "_" + i.toString(),
+            };
+            res = http.post(`${roleUrl}/add-parent`, JSON.stringify(payload), {headers: headers});
+            check(res, { 'AddParent: status == 200': (r) => r.status == 200 });
+        };
+
+        curLayer += 1;
+    };
+};
