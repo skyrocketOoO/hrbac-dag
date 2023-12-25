@@ -365,7 +365,7 @@ func (u *RelationUsecase) detectCycle(node domain.Object, visited *utils.Set[dom
 	return false, nil
 }
 
-// TODO: hasCycle only need to search added edge
+// we only need to start from new edge, if A -> B, search from B
 func (u *RelationUsecase) hasCycle() (bool, error) {
 	visited := utils.NewSet[domain.Object]()
 	recursionStack := utils.NewSet[domain.Object]()

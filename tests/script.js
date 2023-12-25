@@ -7,7 +7,7 @@ import { TestRelationAPI } from './api/relation.js';
 import { TestAccessInheritance } from './feature/access_inheritance.js';
 import { TestHRBAC } from './feature/hrbac.js';
 import { TestUniversalSyntax } from './feature/regex_*_test.js';
-
+import { TestCycle } from './scenario/cycle_test.js';
 
 export const options = {
   vus: 1,
@@ -56,7 +56,8 @@ export default function() {
     });
   });
 
-  // group("scenario", () => {
-  //   checkScenario(SERVER_URL, Headers)
-  // })
+  group("scenario", () => {
+    // checkScenario(SERVER_URL, Headers)
+    TestCycle(SERVER_URL, Headers);
+  })
 }
