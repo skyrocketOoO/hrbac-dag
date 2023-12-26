@@ -1,6 +1,5 @@
 import { group } from "k6"
 import { BuildGraph } from "./benchmark/build_graph.js"
-import { Check } from "./benchmark/check.js"
 
 
 export const options = {
@@ -14,7 +13,8 @@ export default function() {
   }
   const layer = 6, base = 5;
 
-  group("check", () => {
-    Check(SERVER_URL, Headers, layer, base);
+  group("build graph", () => {
+    BuildGraph(SERVER_URL, Headers, layer, base);
   })
+
 }

@@ -130,7 +130,6 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 			for _, tuple := range tuples {
 				// fmt.Println("===========================tuple=========================")
 				// fmt.Printf("%+v\n", tuple)
-				// fmt.Printf("%s : %s # %s\n", tuple.ObjectNamespace, tuple.ObjectName, tuple.Relation)
 				if tuple.ObjectNamespace == to.Namespace {
 					if tuple.ObjectName == "*" && tuple.Relation == "*" {
 						return true, nil

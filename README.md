@@ -27,4 +27,8 @@ HRBAC implement using DAG
 - Relatoion: "member" "parent" "modify-permission"
 - Namespace: "role", "user"
 - Name: "admin"
+
+## Development benchmark
+
+[Link](https://docs.google.com/spreadsheets/d/1RLyWh62_trEEWyLYD34sX4jUrBSGOLbnxi7ZRWubi5s/edit?usp=sharing)
   
