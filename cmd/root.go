@@ -9,7 +9,7 @@ var (
 	cfgFile string
 
 	rootCmd = &cobra.Command{
-		Use:   "tagpyrenees",
+		Use:   "hrbac",
 		Short: "The command-line tool for hrbac system",
 	}
 
@@ -44,10 +44,10 @@ func Execute() error {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	// cobra.OnInitialize(initConfig)
 
-	queryCmd.PersistentFlags().BoolP("expression", "e", false, "use expression to search for tags")
+	// queryCmd.PersistentFlags().BoolP("expression", "e", false, "use expression to search for tags")
 
-	rootCmd.AddCommand(queryCmd)
-	rootCmd.AddCommand(listTagsCmd)
+	// rootCmd.AddCommand(queryCmd)
+	// rootCmd.AddCommand(listTagsCmd)
 }

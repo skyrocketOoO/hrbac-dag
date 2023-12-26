@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"rbac/config"
 	"rbac/internal/delivery"
 	"rbac/internal/infra/sql"
 	"rbac/internal/usecase"
@@ -15,6 +16,10 @@ import (
 )
 
 func main() {
+	if err := config.ReadConfig(); err != nil {
+		panic(err.Error())
+	}
+
 	app := fiber.New()
 
 	app.Get("/swagger/*", swagger.HandlerDefault)
@@ -99,8 +104,6 @@ func main() {
 	relationApp.Post("/check", relationHandler.Check)
 	// relationApp.Post("/path", relationHandler.Path) // to check how the subject obtain the relation on subject
 	relationApp.Delete("/", relationHandler.ClearAllRelations)
-
-	
 
 	app.Listen(":3000")
 }
