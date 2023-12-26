@@ -7,7 +7,7 @@ clear-db:
 	fi
 
 run:
-	go run cmd/main.go
+	go run .
 
 test-run: clear-db run
 
