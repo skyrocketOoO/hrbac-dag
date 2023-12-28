@@ -13,3 +13,9 @@ test-run: clear-db run
 
 gen-apidoc:
 	swag init -g internal/delivery/*
+
+build-image:
+	docker build -t hrbac .
+
+run-container:
+	docker run -p 3000:3000 hrbac
