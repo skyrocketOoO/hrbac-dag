@@ -12,7 +12,7 @@ type RelationTuple struct {
 	SubjectNamespace string `gorm:"index:idx_subject"`
 	SubjectName      string `gorm:"index:idx_subject"`
 	SubjectRelation  string `gorm:"index:idx_subject"`
-	AllColumns       string `gorm:"uniqueIndex:idx_all_columns"`
+	AllColumns       string `gorm:"unique"`
 }
 
 type RelationTupleRepository interface {
