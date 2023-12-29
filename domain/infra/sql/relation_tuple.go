@@ -6,12 +6,13 @@ import (
 
 type RelationTuple struct {
 	ID               uint   `gorm:"primaryKey"`
-	ObjectNamespace  string `gorm:"uniqueIndex:tuple"`
-	ObjectName       string `gorm:"uniqueIndex:tuple"`
-	Relation         string `gorm:"uniqueIndex:tuple"`
-	SubjectNamespace string `gorm:"uniqueIndex:tuple"`
-	SubjectName      string `gorm:"uniqueIndex:tuple"`
-	SubjectRelation  string `gorm:"uniqueIndex:tuple"`
+	ObjectNamespace  string `gorm:"index:idx_object"`
+	ObjectName       string `gorm:"index:idx_object"`
+	Relation         string `gorm:"index:idx_object"`
+	SubjectNamespace string `gorm:"index:idx_subject"`
+	SubjectName      string `gorm:"index:idx_subject"`
+	SubjectRelation  string `gorm:"index:idx_subject"`
+	AllColumns       string `gorm:"uniqueIndex:idx_all_columns"`
 }
 
 type RelationTupleRepository interface {
