@@ -12,7 +12,7 @@ export default function() {
   const Headers = {
     'Content-Type': 'application/json',
   }
-  const layer = 6, base = 5;
+  const layer = 7, base = 6;
 
   group("check", () => {
     Check(SERVER_URL, Headers, layer, base);

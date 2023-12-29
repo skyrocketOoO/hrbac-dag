@@ -7,3 +7,8 @@
 - Add logging mechanism
 - use cmd to start server, test flag to use sqlite, other postgres
 - periodically check if the parent -> modify-permission link is not been used to delete
+
+- test struct with only object subject and all column
+- test batch query on each bfs (and profile the process time on check)
+- the method to branch role to search is slow
+- test 
