@@ -16,6 +16,7 @@ func NewRelationTupleRepository(db *gorm.DB) *RelationTupleRepository {
 }
 
 func (r *RelationTupleRepository) CreateTuple(tuple domain.RelationTuple) error {
+	tuple.AllColumns = tuple.ObjectNamespace + tuple.ObjectName + tuple.Relation + tuple.SubjectNamespace + tuple.SubjectName + tuple.SubjectRelation
 	return r.DB.Create(&tuple).Error
 }
 
@@ -48,6 +49,7 @@ func (r *RelationTupleRepository) GetNamespaces() ([]string, error) {
 }
 
 func (r *RelationTupleRepository) QueryExactMatchTuples(tuple domain.RelationTuple) ([]sqldomain.RelationTuple, error) {
+	tuple.AllColumns = tuple.ObjectNamespace + tuple.ObjectName + tuple.Relation + tuple.SubjectNamespace + tuple.SubjectName + tuple.SubjectRelation
 	var matchingTuples []sqldomain.RelationTuple
 	if err := r.DB.Where(&tuple).Find(&matchingTuples).Error; err != nil {
 		return nil, err

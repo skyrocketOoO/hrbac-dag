@@ -7,6 +7,7 @@ type RelationTuple struct {
 	SubjectNamespace string
 	SubjectName      string
 	SubjectRelation  string
+	AllColumns       string
 }
 
 type Object struct {
