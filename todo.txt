@@ -10,5 +10,12 @@
 
 - test struct with only object subject and all column
 - test batch query on each bfs (and profile the process time on check)
+
+
 - the method to branch role to search is slow
-- test 
+    - for current method, 
+        store: 3
+        search: 5
+    - non-weighted method,
+        store: 4
+        search: 3
