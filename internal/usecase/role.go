@@ -5,6 +5,8 @@ import (
 	sqldomain "rbac/domain/infra/sql"
 	ucdomain "rbac/domain/usecase"
 	"rbac/utils"
+
+	"gorm.io/gorm"
 )
 
 type RoleUsecase struct {
@@ -112,12 +114,21 @@ func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 		SubjectName:      childRolename,
 		SubjectRelation:  "parent",
 	}
-	queryTuple, err := u.RelationTupleRepo.QueryExactMatchTuples(tuple)
+	// queryTuple, err := u.RelationTupleRepo.QueryExactMatchTuples(tuple)
+	// if err != nil {
+	// 	return err
+	// }
+	// if len(queryTuple) == 0 {
+	// 	return u.RelationUsecaseRepo.Create(tuple)
+	// }
+	// return nil
+
+	err := u.RelationUsecaseRepo.Create(tuple)
 	if err != nil {
+		if err == gorm.ErrDuplicatedKey {
+			return nil
+		}
 		return err
-	}
-	if len(queryTuple) == 0 {
-		return u.RelationUsecaseRepo.Create(tuple)
 	}
 	return nil
 }

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	"rbac/utils"
@@ -34,14 +35,6 @@ func (u *RelationUsecase) GetAllRelations() ([]string, error) {
 func (u *RelationUsecase) Create(relationTuple domain.RelationTuple) error {
 	if err := utils.CheckReserveWordInTuple(relationTuple); err != nil {
 		return err
-	}
-
-	tuples, err := u.RelationTupleRepo.QueryExactMatchTuples(relationTuple)
-	if err != nil {
-		return err
-	}
-	if len(tuples) > 0 {
-		return errors.New("tuple exist")
 	}
 
 	ok, err := u.Check(domain.RelationTuple{
@@ -87,6 +80,11 @@ func (u *RelationUsecase) RemoveLink(tuple domain.RelationTuple) error {
 }
 
 func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error) {
+	queryTimes := 0
+	defer func() {
+		fmt.Println(queryTimes)
+	}()
+
 	from := domain.Subject{
 		Namespace: relationTuple.SubjectNamespace,
 		Name:      relationTuple.SubjectName,
@@ -123,11 +121,13 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 			// fmt.Println("========================query============================")
 			// fmt.Printf("%+v\n", query)
 			tuples, err := u.RelationTupleRepo.QueryTuples(query)
+			queryTimes += 1
 			if err != nil {
 				return false, err
 			}
 
 			for _, tuple := range tuples {
+
 				// fmt.Println("===========================tuple=========================")
 				// fmt.Printf("%+v\n", tuple)
 				if tuple.ObjectNamespace == to.Namespace {
@@ -146,6 +146,7 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 				if tuple.ObjectNamespace == to.Namespace && tuple.ObjectName == to.Name && tuple.Relation == to.Relation {
 					return true, nil
 				}
+				// temp
 				// WARNING: This method is used for distinct namespace link scenario
 				// object case
 				// TODO: the <ns> <*> <*> query will direct find the next layer object, so can directly jump to next
@@ -173,7 +174,6 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 				// 				SubjectRelation:        rel,
 				// 			})
 				// 		}
-
 				// 		nextQueries, err = u.RelationTupleRepo.QueryTuples(domain.RelationTuple{
 				// 			SubjectNamespace: tuple.ObjectNamespace,
 				// 			SubjectRelation:        "*",
