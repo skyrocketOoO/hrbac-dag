@@ -109,11 +109,7 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 	q := utils.NewQueue[domain.RelationTuple]()
 	visited.Add(firstQuery)
 	q.Push(firstQuery)
-	if firstQuery.SubjectNamespace == "role" {
-		firstQuery.SubjectRelation = ""
-		q.Push(firstQuery)
-		visited.Add(firstQuery)
-	}
+
 	for !q.IsEmpty() {
 		qLen := q.Len()
 		for i := 0; i < qLen; i++ {
@@ -240,16 +236,6 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 				// 	}
 				// }
 
-				if tuple.ObjectNamespace == "role" {
-					nextQuery := domain.RelationTuple{
-						SubjectNamespace: "role",
-						SubjectName:      tuple.ObjectName,
-					}
-					if !visited.Exist(nextQuery) {
-						visited.Add(nextQuery)
-						q.Push(nextQuery)
-					}
-				}
 				nextQuery := domain.RelationTuple{
 					SubjectNamespace: tuple.ObjectNamespace,
 					SubjectName:      tuple.ObjectName,

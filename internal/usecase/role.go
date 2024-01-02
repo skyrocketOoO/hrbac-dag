@@ -101,6 +101,19 @@ func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 		Relation:         "parent",
 		SubjectNamespace: "role",
 		SubjectName:      parentRolename,
+		SubjectRelation:  "member",
+	}
+	if err := u.RelationUsecaseRepo.Create(tuple); err != nil {
+		return err
+	}
+
+	tuple = domain.RelationTuple{
+		ObjectNamespace:  "role",
+		ObjectName:       childRolename,
+		Relation:         "parent",
+		SubjectNamespace: "role",
+		SubjectName:      parentRolename,
+		SubjectRelation:  "parent",
 	}
 	if err := u.RelationUsecaseRepo.Create(tuple); err != nil {
 		return err
