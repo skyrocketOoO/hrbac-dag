@@ -6,6 +6,7 @@ import (
 	"rbac/domain"
 	sqldomain "rbac/domain/infra/sql"
 	"rbac/utils"
+	"rbac/utils/queue"
 )
 
 type RelationUsecase struct {
@@ -106,7 +107,8 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 		SubjectName:      from.Name,
 		SubjectRelation:  from.Relation,
 	}
-	q := utils.NewQueue[domain.RelationTuple]()
+	// q := utils.NewQueue[domain.RelationTuple]()
+	q := queue.NewQueue[domain.RelationTuple]()
 	visited.Add(firstQuery)
 	q.Push(firstQuery)
 
@@ -412,7 +414,7 @@ func (u *RelationUsecase) FindAllObjectRelations(from domain.Subject) ([]string,
 		SubjectName:      from.Name,
 		SubjectRelation:  from.Relation,
 	}
-	q := utils.NewQueue[domain.RelationTuple]()
+	q := queue.NewQueue[domain.RelationTuple]()
 	visited.Add(firstQuery)
 	q.Push(firstQuery)
 	if firstQuery.SubjectNamespace == "role" {

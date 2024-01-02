@@ -5,6 +5,7 @@ import (
 	sqldomain "rbac/domain/infra/sql"
 	usecasedomain "rbac/domain/usecase"
 	"rbac/utils"
+	"rbac/utils/queue"
 )
 
 type ObjectUsecase struct {
@@ -28,7 +29,7 @@ func (ou *ObjectUsecase) ListUserHasRelationOnObject(namespace string, name stri
 		Relation:        relation,
 	}
 
-	q := utils.NewQueue[domain.RelationTuple]()
+	q := queue.NewQueue[domain.RelationTuple]()
 	q.Push(initquery)
 	for !q.IsEmpty() {
 		qLen := q.Len()
@@ -70,7 +71,7 @@ func (ou *ObjectUsecase) ListRoleHasWhatRelationOnObject(namespace string, name 
 		Relation:        relation,
 	}
 
-	q := utils.NewQueue[domain.RelationTuple]()
+	q := queue.NewQueue[domain.RelationTuple]()
 	q.Push(initquery)
 	for !q.IsEmpty() {
 		qLen := q.Len()
@@ -113,7 +114,7 @@ func (ou *ObjectUsecase) ListUserOrRoleHasRelationOnObject(namespace string, nam
 		Relation:        relation,
 	}
 
-	q := utils.NewQueue[domain.RelationTuple]()
+	q := queue.NewQueue[domain.RelationTuple]()
 	q.Push(initquery)
 	for !q.IsEmpty() {
 		qLen := q.Len()
