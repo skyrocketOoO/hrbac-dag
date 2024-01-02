@@ -127,14 +127,6 @@ func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 		SubjectName:      childRolename,
 		SubjectRelation:  "parent",
 	}
-	// queryTuple, err := u.RelationTupleRepo.QueryExactMatchTuples(tuple)
-	// if err != nil {
-	// 	return err
-	// }
-	// if len(queryTuple) == 0 {
-	// 	return u.RelationUsecaseRepo.Create(tuple)
-	// }
-	// return nil
 
 	err := u.RelationUsecaseRepo.Create(tuple)
 	if err != nil {

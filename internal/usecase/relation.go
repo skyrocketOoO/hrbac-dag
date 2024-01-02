@@ -60,7 +60,7 @@ func (u *RelationUsecase) Delete(relationTuple domain.RelationTuple) error {
 		return err
 	}
 
-	matchTuples, err := u.RelationTupleRepo.QueryExactMatchTuples(relationTuple)
+	matchTuples, err := u.RelationTupleRepo.QueryTuples(relationTuple)
 	if err != nil {
 		return err
 	}

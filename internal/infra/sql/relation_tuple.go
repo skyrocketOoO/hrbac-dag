@@ -48,16 +48,6 @@ func (r *RelationTupleRepository) GetNamespaces() ([]string, error) {
 	return namespaces, nil
 }
 
-func (r *RelationTupleRepository) QueryExactMatchTuples(tuple domain.RelationTuple) ([]sqldomain.RelationTuple, error) {
-	tuple.AllColumns = tuple.ObjectNamespace + tuple.ObjectName + tuple.Relation + tuple.SubjectNamespace + tuple.SubjectName + tuple.SubjectRelation
-	var matchingTuples []sqldomain.RelationTuple
-	if err := r.DB.Where(&tuple).Find(&matchingTuples).Error; err != nil {
-		return nil, err
-	}
-
-	return matchingTuples, nil
-}
-
 func (r *RelationTupleRepository) DeleteAllTuples() error {
 	query := "DELETE FROM relation_tuples"
 	if err := r.DB.Exec(query).Error; err != nil {

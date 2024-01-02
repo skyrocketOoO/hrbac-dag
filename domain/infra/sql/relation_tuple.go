@@ -19,7 +19,6 @@ type RelationTupleRepository interface {
 	CreateTuple(tuple domain.RelationTuple) error
 	DeleteTuple(id uint) error
 	GetAllTuples() ([]RelationTuple, error)
-	QueryExactMatchTuples(tuple domain.RelationTuple) ([]RelationTuple, error)
 	QueryTuples(query domain.RelationTuple) ([]RelationTuple, error)
 	GetNamespaces() ([]string, error)
 	DeleteAllTuples() error
