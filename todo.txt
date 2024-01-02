@@ -15,7 +15,7 @@
 - the method to branch role to search is slow
     - for current method, 
         store: 3
-        search: 5
+        query: 111111111
     - non-weighted method,
         store: 4
-        search: 3
+        query: 1111111
