@@ -7,6 +7,9 @@ import (
 	sqldomain "rbac/domain/infra/sql"
 	"rbac/utils"
 	"rbac/utils/queue"
+	"strconv"
+
+	"github.com/spf13/viper"
 )
 
 type RelationUsecase struct {
@@ -85,6 +88,11 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 	defer func() {
 		fmt.Println(queryTimes)
 	}()
+	depth := 0
+	maxDepth, err := strconv.Atoi(viper.GetString("main.max-search-depth"))
+	if err != nil {
+		return false, err
+	}
 
 	from := domain.Subject{
 		Namespace: relationTuple.SubjectNamespace,
@@ -248,6 +256,10 @@ func (u *RelationUsecase) Check(relationTuple domain.RelationTuple) (bool, error
 					q.Push(nextQuery)
 				}
 			}
+		}
+		depth++
+		if depth >= maxDepth {
+			break
 		}
 	}
 
