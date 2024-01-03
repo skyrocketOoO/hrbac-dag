@@ -5,5 +5,4 @@
 - Add logging mechanism
 - use cmd to start server, test flag to use sqlite, other postgres
 
-- test struct with only object subject and all column
 - test batch query on each bfs (and profile the process time on check)
