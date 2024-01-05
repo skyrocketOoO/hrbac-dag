@@ -10,7 +10,7 @@ type RoleUsecase interface {
 	RemoveRelation(objnamespace, objname, relation, rolename string) error
 	AddParent(childRolename, parentRolename string) error
 	RemoveParent(childRolename, parentRolename string) error
-	GetChildRoles(rolename string) ([]string, error)
+	GetChildRoles(name string) ([]string, error)
 	GetAllObjectRelations(name string) ([]zanzibardagdom.Relation, error)
 	GetMembers(name string) ([]string, error)
 	Check(objnamespace, objname, relation, rolename string) (bool, error)

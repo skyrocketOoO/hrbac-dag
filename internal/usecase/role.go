@@ -65,18 +65,44 @@ func (u *RoleUsecase) AddRelation(objNamespace, objName, relation, rolename stri
 		Relation:         relation,
 		SubjectNamespace: "role",
 		SubjectName:      rolename,
+		SubjectRelation:  "member",
+	}
+	if err := u.RelationUsecaseRepo.Create(rel); err != nil {
+		return err
+	}
+
+	rel = zanzibardagdom.Relation{
+		ObjectNamespace:  objNamespace,
+		ObjectName:       objName,
+		Relation:         relation,
+		SubjectNamespace: "role",
+		SubjectName:      rolename,
+		SubjectRelation:  "parent",
 	}
 
 	return u.RelationUsecaseRepo.Create(rel)
 }
 
-func (u *RoleUsecase) RemoveRelation(objnamespace, objectName, relation, rolename string) error {
+func (u *RoleUsecase) RemoveRelation(objNamespace, objName, relation, rolename string) error {
 	rel := zanzibardagdom.Relation{
-		ObjectNamespace:  objnamespace,
-		ObjectName:       objectName,
+		ObjectNamespace:  objNamespace,
+		ObjectName:       objName,
 		Relation:         relation,
 		SubjectNamespace: "role",
 		SubjectName:      rolename,
+		SubjectRelation:  "member",
+	}
+	if err := u.RelationUsecaseRepo.Delete(rel); err != nil {
+		return err
+	}
+
+	rel = zanzibardagdom.Relation{
+		ObjectNamespace:  objNamespace,
+		ObjectName:       objName,
+		Relation:         relation,
+		SubjectNamespace: "role",
+		SubjectName:      rolename,
+		SubjectRelation:  "parent",
 	}
 
 	return u.RelationUsecaseRepo.Delete(rel)
@@ -133,9 +159,26 @@ func (u *RoleUsecase) RemoveParent(childRolename, parentRolename string) error {
 		Relation:         "parent",
 		SubjectNamespace: "role",
 		SubjectName:      parentRolename,
+		SubjectRelation:  "member",
 	}
 
 	return u.RelationUsecaseRepo.Delete(query)
+}
+
+// TODO: only search for role ns to optimize
+func (u *RoleUsecase) GetChildRoles(name string) ([]string, error) {
+	relations, err := u.GetAllObjectRelations(name)
+	if err != nil {
+		return nil, err
+	}
+	roles := utils.NewSet[string]()
+	for _, relation := range relations {
+		if relation.ObjectNamespace == "role" {
+			roles.Add(relation.ObjectName)
+		}
+	}
+
+	return roles.ToSlice(), nil
 }
 
 func (u *RoleUsecase) GetAllObjectRelations(name string) ([]zanzibardagdom.Relation, error) {
@@ -143,6 +186,7 @@ func (u *RoleUsecase) GetAllObjectRelations(name string) ([]zanzibardagdom.Relat
 		zanzibardagdom.Node{
 			Namespace: "role",
 			Name:      name,
+			Relation:  "member",
 		},
 	)
 }
@@ -156,7 +200,7 @@ func (u *RoleUsecase) GetMembers(name string) ([]string, error) {
 
 	users := utils.NewSet[string]()
 
-	relations, err := u.RelationTupleRepo.QueryTuples(query)
+	relations, err := u.RelationUsecaseRepo.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -175,5 +219,6 @@ func (u *RoleUsecase) Check(objectNamespace, objectName, relation, roleName stri
 		Relation:         relation,
 		SubjectNamespace: "role",
 		SubjectName:      roleName,
+		SubjectRelation:  "member",
 	})
 }

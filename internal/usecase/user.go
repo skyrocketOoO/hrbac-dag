@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"rbac/domain"
 	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
 	ucdomain "rbac/domain/usecase"
 	"rbac/utils"
@@ -19,8 +18,8 @@ func NewUserUsecase(zanzibarDagClient zanzibardagdom.ZanzibarDagRepository, rela
 	}
 }
 
-func (u *UserUsecase) GetAllUsers() ([]string, error) {
-	tuples, err := u.RelationUsecaseRepo.QueryExistedRelationTuples("user", "")
+func (u *UserUsecase) GetAll() ([]string, error) {
+	tuples, err := u.RelationUsecaseRepo.QueryExistedRelations("user", "")
 	if err != nil {
 		return nil, err
 	}
@@ -41,31 +40,37 @@ func (u *UserUsecase) GetAllUsers() ([]string, error) {
 	return users.ToSlice(), nil
 }
 
-// TODO: this method will check existence after list all relation tuples, but we can optimize to first find
-func (u *UserUsecase) GetUser(name string) (string, error) {
-	tuples, err := u.RelationUsecaseRepo.QueryExistedRelationTuples("user", name)
-	if err != nil {
-		return "", err
-	}
-
-	if len(tuples) > 0 {
-		return name, nil
-	}
-	return "", nil
-}
-
-func (u *UserUsecase) DeleteUser(name string) error {
-	tuples, err := u.RelationUsecaseRepo.QueryExistedRelationTuples("user", name)
+func (u *UserUsecase) Delete(name string) error {
+	tuples, err := u.RelationUsecaseRepo.QueryExistedRelations("user", name)
 	if err != nil {
 		return err
 	}
 
 	for _, tuple := range tuples {
-		if err := u.RelationTupleRepo.DeleteTuple(tuple.ID); err != nil {
+		if err := u.ZanzibarDagClient.Delete(tuple); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (u *UserUsecase) GetRoles(name string) ([]string, error) {
+	query := zanzibardagdom.Relation{
+		ObjectNamespace:  "role",
+		Relation:         "member",
+		SubjectNamespace: "user",
+		SubjectName:      name,
+	}
+
+	relations, err := u.RelationUsecaseRepo.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	roles := utils.NewSet[string]()
+	for _, relation := range relations {
+		roles.Add(relation.ObjectName)
+	}
+	return roles.ToSlice(), nil
 }
 
 func (u *UserUsecase) AddRole(username, rolename string) error {
@@ -91,9 +96,9 @@ func (u *UserUsecase) RemoveRole(username, rolename string) error {
 	return u.RelationUsecaseRepo.Delete(tuple)
 }
 
-func (u *UserUsecase) FindAllObjectRelations(name string) ([]string, error) {
-	return u.RelationUsecaseRepo.FindAllObjectRelations(
-		domain.Subject{
+func (u *UserUsecase) GetAllObjectRelations(name string) ([]zanzibardagdom.Relation, error) {
+	return u.RelationUsecaseRepo.GetAllObjectRelations(
+		zanzibardagdom.Node{
 			Namespace: "user",
 			Name:      name,
 		},
