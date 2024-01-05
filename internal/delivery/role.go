@@ -27,51 +27,17 @@ func NewRoleHandler(roleUsecase usecasedomain.RoleUsecase) *RoleHandler {
 // @Success 200 {object} domain.DataResponse
 // @Failure 500 {object} domain.ErrResponse
 // @Router /role [get]
-func (h *RoleHandler) GetAllRoles(c *fiber.Ctx) error {
-	roles, err := h.RoleUsecase.GetAllRoles()
+func (h *RoleHandler) GetAll(c *fiber.Ctx) error {
+	roles, err := h.RoleUsecase.GetAll()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),
 		})
 	}
 
-	return c.JSON(domain.DataResponse{
+	return c.JSON(domain.StringsResponse{
 		Data: roles,
 	})
-}
-
-// @Summary Get a role by name
-// @Description Get details of a specific role by name
-// @Tags Role
-// @Accept json
-// @Produce json
-// @Param name path string true "Role name"
-// @Success 200 {string} string "Role found successfully"
-// @Failure 400 {object} domain.ErrResponse
-// @Failure 404 {object} domain.ErrResponse
-// @Failure 500 {object} domain.ErrResponse
-// @Router /role/{name} [get]
-func (h *RoleHandler) GetRole(c *fiber.Ctx) error {
-	params := c.AllParams()
-	roleName, ok := params["name"]
-	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
-			Error: "get pararm failed",
-		})
-	}
-
-	name, err := h.RoleUsecase.GetRole(roleName)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
-			Error: err.Error(),
-		})
-	}
-	if name == "" {
-		return c.Status(fiber.StatusNotFound).JSON(domain.ErrResponse{
-			Error: fmt.Sprintf("user %s not found", roleName),
-		})
-	}
-	return nil
 }
 
 // @Summary Delete a role by name
@@ -84,7 +50,7 @@ func (h *RoleHandler) GetRole(c *fiber.Ctx) error {
 // @Failure 400 {object} domain.ErrResponse
 // @Failure 500 {object} domain.ErrResponse
 // @Router /role/{name} [delete]
-func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
+func (h *RoleHandler) Delete(c *fiber.Ctx) error {
 	params := c.AllParams()
 	roleName, ok := params["name"]
 	if !ok {
@@ -93,7 +59,7 @@ func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
 		})
 	}
 
-	err := h.RoleUsecase.DeleteRole(roleName)
+	err := h.RoleUsecase.Delete(roleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),
@@ -234,18 +200,28 @@ func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
 	return nil
 }
 
-// func (h *RoleHandler) GetAllChildRoles(c *fiber.Ctx) error {
-// 	// Extract data from the request
-// 	roleName := c.Query("rolename")
+func (h *RoleHandler) GetChildRoles(c *fiber.Ctx) error {
+	type request struct {
+		Name string `json:"name"`
+	}
+	req := request{}
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
+	}
 
-// 	// Call the usecase method to list child roles
-// 	childRoles, err := h.RoleUsecase.GetAllChildRoles(roleName)
-// 	if err != nil {
-// 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-// 	}
+	roles, err := h.RoleUsecase.GetChildRoles(req.Name)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
+	}
 
-// 	return c.JSON(fiber.Map{"child_roles": childRoles})
-// }
+	return c.JSON(domain.StringsResponse{
+		Data: roles,
+	})
+}
 
 // @Summary Find all object relations for a role
 // @Description Find all object relations for a role
@@ -257,7 +233,7 @@ func (h *RoleHandler) RemoveParent(c *fiber.Ctx) error {
 // @Failure 400 {object} domain.ErrResponse
 // @Failure 500 {object} domain.ErrResponse
 // @Router /role/find-all-object-relations [post]
-func (h *RoleHandler) FindAllObjectRelations(c *fiber.Ctx) error {
+func (h *RoleHandler) GetAllObjectRelations(c *fiber.Ctx) error {
 	type request struct {
 		Name string `json:"name"`
 	}
@@ -267,14 +243,14 @@ func (h *RoleHandler) FindAllObjectRelations(c *fiber.Ctx) error {
 			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
 		})
 	}
-	relations, err := h.RoleUsecase.FindAllObjectRelations(req.Name)
+	relations, err := h.RoleUsecase.GetAllObjectRelations(req.Name)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),
 		})
 	}
 
-	return c.JSON(domain.DataResponse{
+	return c.JSON(domain.RelationsResponse{
 		Data: relations,
 	})
 }
@@ -307,7 +283,7 @@ func (h *RoleHandler) GetMembers(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(domain.DataResponse{
+	return c.JSON(domain.StringsResponse{
 		Data: members,
 	})
 }

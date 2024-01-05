@@ -16,61 +16,6 @@ func NewObjectHandler(objectUsecase usecase.ObjectUsecase) *ObjectHandler {
 	}
 }
 
-func (oh *ObjectHandler) ListUserHasRelationOnObject(c *fiber.Ctx) error {
-	// Extract data from the request
-	objNamespace := c.Query("objnamespace")
-	objName := c.Query("objname")
-	relation := c.Query("relation")
+func (h *ObjectHandler) GetUserRelations(c *fiber.Ctx) error
 
-	// Call the usecase method to list users with permission
-	users, err := oh.ObjectUsecase.ListUserHasRelationOnObject(objNamespace, objName, relation)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"users": users})
-}
-
-func (oh *ObjectHandler) ListRoleHasWhatRelationOnObject(c *fiber.Ctx) error {
-	// Extract data from the request
-	objNamespace := c.Query("objnamespace")
-	objName := c.Query("objname")
-	relation := c.Query("relation")
-
-	// Call the usecase method to list roles with permission
-	roles, err := oh.ObjectUsecase.ListRoleHasWhatRelationOnObject(objNamespace, objName, relation)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"roles": roles})
-}
-
-func (oh *ObjectHandler) ListUserOrRoleHasRelationOnObject(c *fiber.Ctx) error {
-	// Extract data from the request
-	objNamespace := c.Query("objnamespace")
-	objName := c.Query("objname")
-	relation := c.Query("relation")
-
-	// Call the usecase method to list both roles and users with permission
-	roles, users, err := oh.ObjectUsecase.ListUserOrRoleHasRelationOnObject(objNamespace, objName, relation)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"roles": roles, "users": users})
-}
-
-func (oh *ObjectHandler) ListRelations(c *fiber.Ctx) error {
-	// Extract data from the request
-	objNamespace := c.Query("objnamespace")
-	objName := c.Query("objname")
-
-	// Call the usecase method to list all permissions
-	permissions, err := oh.ObjectUsecase.ListRelations(objNamespace, objName)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"permissions": permissions})
-}
+func (h *ObjectHandler) GetRoleRelations(c *fiber.Ctx) error

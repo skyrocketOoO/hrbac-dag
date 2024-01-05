@@ -1,6 +1,6 @@
 # HRBAC-DAG
 
-HRBAC implement using DAG
+HRBAC implement using [Zanzibar-Dag](https://github.com/skyrocketOoO/zanazibar-dag) architecture
 
 ## Feature
 

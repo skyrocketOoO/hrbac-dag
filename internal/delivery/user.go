@@ -25,49 +25,17 @@ func NewUserHandler(userUsecase usecase.UserUsecase) *UserHandler {
 // @Success 200 {object} domain.DataResponse
 // @Failure 500 {object} domain.ErrResponse
 // @Router /user/ [get]
-func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
-	users, err := h.UserUsecase.GetAllUsers()
+func (h *UserHandler) GetAll(c *fiber.Ctx) error {
+	users, err := h.UserUsecase.GetAll()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),
 		})
 	}
 
-	return c.JSON(domain.DataResponse{
+	return c.JSON(domain.StringsResponse{
 		Data: users,
 	})
-}
-
-// @Summary Get a user by name
-// @Description Get user details by name
-// @Tags User
-// @Produce json
-// @Param name path string true "User name"
-// @Success 200 {object} domain.DataResponse
-// @Failure 400 {object} domain.ErrResponse
-// @Failure 404 {object} domain.ErrResponse
-// @Failure 500 {object} domain.ErrResponse
-// @Router /user/{name} [get]
-func (h *UserHandler) GetUser(c *fiber.Ctx) error {
-	params := c.AllParams()
-	name, ok := params["name"]
-	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
-			Error: "get pararm failed",
-		})
-	}
-	name, err := h.UserUsecase.GetUser(name)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
-			Error: err.Error(),
-		})
-	}
-	if name == "" {
-		return c.Status(fiber.StatusNotFound).JSON(domain.ErrResponse{
-			Error: fmt.Sprintf("user %s not found", name),
-		})
-	}
-	return nil
 }
 
 // @Summary Delete a user by name
@@ -79,7 +47,7 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 // @Failure 400 {object} domain.ErrResponse
 // @Failure 500 {object} domain.ErrResponse
 // @Router /user/{name} [delete]
-func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
+func (h *UserHandler) Delete(c *fiber.Ctx) error {
 	params := c.AllParams()
 	roleName, ok := params["name"]
 	if !ok {
@@ -87,7 +55,7 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 			Error: "get pararm failed",
 		})
 	}
-	err := h.UserUsecase.DeleteUser(roleName)
+	err := h.UserUsecase.Delete(roleName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),
@@ -171,7 +139,7 @@ func (h *UserHandler) RemoveRole(c *fiber.Ctx) error {
 // @Failure 400 {object} domain.ErrResponse
 // @Failure 500 {object} domain.ErrResponse
 // @Router /user/find-all-object-relations [post]
-func (h *UserHandler) FindAllObjectRelations(c *fiber.Ctx) error {
+func (h *UserHandler) GetAllObjectRelations(c *fiber.Ctx) error {
 	type request struct {
 		Name string `json:"name"`
 	}
@@ -182,14 +150,14 @@ func (h *UserHandler) FindAllObjectRelations(c *fiber.Ctx) error {
 		})
 	}
 
-	relations, err := h.UserUsecase.FindAllObjectRelations(req.Name)
+	relations, err := h.UserUsecase.GetAllObjectRelations(req.Name)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
 			Error: err.Error(),
 		})
 	}
 
-	return c.JSON(domain.DataResponse{
+	return c.JSON(domain.RelationsResponse{
 		Data: relations,
 	})
 }
