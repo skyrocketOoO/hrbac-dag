@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"rbac/config"
 	"rbac/internal/delivery"
-	"rbac/internal/infra/sql"
+	"rbac/internal/infra"
 	"rbac/internal/usecase"
 	"strconv"
 
@@ -53,17 +53,9 @@ var (
 				return nil
 			})
 
-			db, err := sql.InitDb()
-			if err != nil {
-				panic(err)
-			}
+			infraRepo := infra.NewInfraRepository()
 
-			sqlRepo, err := sql.NewOrmRepository(db)
-			if err != nil {
-				panic(err)
-			}
-
-			usecaseRepo := usecase.NewUsecaseRepository(sqlRepo)
+			usecaseRepo := usecase.NewUsecaseRepository(infraRepo)
 
 			handlerRepo := delivery.NewHandlerRepository(usecaseRepo)
 

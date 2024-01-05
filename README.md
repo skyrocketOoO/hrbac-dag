@@ -14,7 +14,7 @@ HRBAC implement using DAG
 - [x] Zero trust
 - [x] Fine grained
 - [x] Multiple role
-- [x] Object *(all object | all operations) support (unsupport distinct object namespace link)
+- [ ] Object *(all object | all operations) support (unsupport distinct object namespace link)
 - [ ] List who has access to object
 - [ ] Regex
 - [ ] Temporal Constraints
@@ -23,7 +23,7 @@ HRBAC implement using DAG
 
 ### Reserved words
 
-- All: @ # ( ) :
+- All: @ # ( ) : %
 - Relatoion: "member" "parent" "modify-permission"
 - Namespace: "role", "user"
 - Name: "admin"

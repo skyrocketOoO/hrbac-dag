@@ -2,7 +2,7 @@ package usecase
 
 import (
 	ucdomain "rbac/domain/usecase"
-	"rbac/internal/infra/sql"
+	"rbac/internal/infra"
 )
 
 type UsecaseRepository struct {
@@ -12,14 +12,14 @@ type UsecaseRepository struct {
 	UserUsecase     ucdomain.UserUsecase
 }
 
-func NewUsecaseRepository(sqlRepo *sql.OrmRepository) *UsecaseRepository {
-	relationUsecase := NewRelationUsecase(&sqlRepo.RelationshipRepo)
-	roleUsecase := NewRoleUsecase(&sqlRepo.RelationshipRepo, relationUsecase)
+func NewUsecaseRepository(infraRepo *infra.InfraRepository) *UsecaseRepository {
+	relationUsecase := NewRelationUsecase(infraRepo.ZanzibarDagRepo)
+	roleUsecase := NewRoleUsecase(infraRepo.ZanzibarDagRepo, relationUsecase)
 
 	return &UsecaseRepository{
-		ObjectUsecase:   NewObjectUsecase(&sqlRepo.RelationshipRepo, roleUsecase),
+		ObjectUsecase:   NewObjectUsecase(infraRepo.ZanzibarDagRepo, roleUsecase),
 		RelationUsecase: relationUsecase,
 		RoleUsecase:     roleUsecase,
-		UserUsecase:     NewUserUsecase(&sqlRepo.RelationshipRepo, relationUsecase),
+		UserUsecase:     NewUserUsecase(infraRepo.ZanzibarDagRepo, relationUsecase),
 	}
 }

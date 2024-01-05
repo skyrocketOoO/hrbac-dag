@@ -2,19 +2,19 @@ package usecase
 
 import (
 	"rbac/domain"
-	sqldomain "rbac/domain/infra/sql"
+	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
 	ucdomain "rbac/domain/usecase"
 	"rbac/utils"
 )
 
 type UserUsecase struct {
-	RelationTupleRepo   sqldomain.RelationTupleRepository
+	ZanzibarDagClient   zanzibardagdom.ZanzibarDagRepository
 	RelationUsecaseRepo ucdomain.RelationUsecase
 }
 
-func NewUserUsecase(relationTupleRepo sqldomain.RelationTupleRepository, relationUsecaseRepo ucdomain.RelationUsecase) *UserUsecase {
+func NewUserUsecase(zanzibarDagClient zanzibardagdom.ZanzibarDagRepository, relationUsecaseRepo ucdomain.RelationUsecase) *UserUsecase {
 	return &UserUsecase{
-		RelationTupleRepo:   relationTupleRepo,
+		ZanzibarDagClient:   zanzibarDagClient,
 		RelationUsecaseRepo: relationUsecaseRepo,
 	}
 }
@@ -69,7 +69,7 @@ func (u *UserUsecase) DeleteUser(name string) error {
 }
 
 func (u *UserUsecase) AddRole(username, rolename string) error {
-	tuple := domain.RelationTuple{
+	tuple := zanzibardagdom.Relation{
 		ObjectNamespace:  "role",
 		ObjectName:       rolename,
 		Relation:         "member",
@@ -81,7 +81,7 @@ func (u *UserUsecase) AddRole(username, rolename string) error {
 }
 
 func (u *UserUsecase) RemoveRole(username, rolename string) error {
-	tuple := domain.RelationTuple{
+	tuple := zanzibardagdom.Relation{
 		ObjectNamespace:  "role",
 		ObjectName:       rolename,
 		Relation:         "member",
@@ -101,7 +101,7 @@ func (u *UserUsecase) FindAllObjectRelations(name string) ([]string, error) {
 }
 
 func (u *UserUsecase) AddRelation(username, relation, objectnamespace, objectname string) error {
-	tuple := domain.RelationTuple{
+	tuple := zanzibardagdom.Relation{
 		ObjectNamespace:  objectnamespace,
 		ObjectName:       objectname,
 		Relation:         relation,
@@ -113,7 +113,7 @@ func (u *UserUsecase) AddRelation(username, relation, objectnamespace, objectnam
 }
 
 func (u *UserUsecase) RemoveRelation(username, relation, objectnamespace, objectname string) error {
-	tuple := domain.RelationTuple{
+	tuple := zanzibardagdom.Relation{
 		ObjectNamespace:  objectnamespace,
 		ObjectName:       objectname,
 		Relation:         relation,
@@ -125,7 +125,7 @@ func (u *UserUsecase) RemoveRelation(username, relation, objectnamespace, object
 }
 
 func (u *UserUsecase) Check(userName, relation, objectNamespace, objectName string) (ok bool, err error) {
-	return u.RelationUsecaseRepo.Check(domain.RelationTuple{
+	return u.RelationUsecaseRepo.Check(zanzibardagdom.Relation{
 		ObjectNamespace:  objectNamespace,
 		ObjectName:       objectName,
 		Relation:         relation,

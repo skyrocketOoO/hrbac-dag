@@ -3,13 +3,36 @@ services:
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: hrbac
-      POSTGRES_PASSWORD: hrbac
-      POSTGRES_DB: hrbac
+      POSTGRES_USER: zanzibar-dag
+      POSTGRES_PASSWORD: zanzibar-dag
+      POSTGRES_DB: zanzibar-dag
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  zanzibar-dag:
+    image: zanzibar-dag:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: zanzibar-dag
+      POSTGRES_PASSWORD: zanzibar-dag
+      POSTGRES_DB: zanzibar-dag
+
+  hrbac:
+    image: hrbac:latest
+    ports: 
+      - "3000:3000"
+    depends_on:
+      - zanzibar-dag
+    environment:
+      ZANZIBAR_DAG_HOST: zanzibar-dag
+      ZANZIBAR_DAG_PORT: 8080
 
 volumes:
   postgres_data:

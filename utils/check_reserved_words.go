@@ -2,7 +2,7 @@ package utils
 
 import (
 	"errors"
-	"rbac/domain"
+	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
 )
 
 func HasReserveWord(word string, sort string) bool {
@@ -25,13 +25,13 @@ func HasReserveWord(word string, sort string) bool {
 	return false
 }
 
-func CheckReserveWordInTuple(tuple domain.RelationTuple) error {
-	if HasReserveWord(tuple.ObjectNamespace, "namespace") ||
-		HasReserveWord(tuple.ObjectName, "name") ||
-		HasReserveWord(tuple.Relation, "relation") ||
-		HasReserveWord(tuple.SubjectNamespace, "namespace") ||
-		HasReserveWord(tuple.SubjectName, "name") ||
-		HasReserveWord(tuple.SubjectRelation, "relation") {
+func ValidateReserveWord(relation zanzibardagdom.Relation) error {
+	if HasReserveWord(relation.ObjectNamespace, "namespace") ||
+		HasReserveWord(relation.ObjectName, "name") ||
+		HasReserveWord(relation.Relation, "relation") ||
+		HasReserveWord(relation.SubjectNamespace, "namespace") ||
+		HasReserveWord(relation.SubjectName, "name") ||
+		HasReserveWord(relation.SubjectRelation, "relation") {
 		return errors.New("has reserved word")
 	}
 	return nil
