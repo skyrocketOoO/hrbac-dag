@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
 	usecasedomain "rbac/domain/usecase"
 )
@@ -17,5 +18,9 @@ func NewObjectUsecase(zanzibarDagClient zanzibardagdom.ZanzibarDagRepository, ro
 	}
 }
 
-func (u *ObjectUsecase) GetUserRelations(namespace string, name string, relation string) ([]string, error)
-func (u *ObjectUsecase) GetRoleRelations(namespace string, name string, relation string) ([]string, error)
+func (u *ObjectUsecase) GetUserRelations(namespace string, name string, relation string) ([]string, error) {
+	return nil, errors.New("not implemented")
+}
+func (u *ObjectUsecase) GetRoleRelations(namespace string, name string, relation string) ([]string, error) {
+	return nil, errors.New("not implemented")
+}
