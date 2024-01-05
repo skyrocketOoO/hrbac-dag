@@ -19,9 +19,7 @@ HRBAC implement using [Zanzibar-Dag](https://github.com/skyrocketOoO/zanazibar-d
 - [ ] Regex
 - [ ] Temporal Constraints
 
-## Restriction
-
-### Reserved words
+## Reserved words
 
 - All: @ # ( ) : %
 - Relatoion: "member" "parent" "modify-permission"
