@@ -1,8 +1,1 @@
 - each function should do atomic operation
-- Regex
-- object usecase not implemented
-- Add batch processing to reduce detect cycle performance
-- Add logging mechanism
-- use cmd to start server, test flag to use sqlite, other postgres
-
-- test batch query on each bfs (and profile the process time on check)
