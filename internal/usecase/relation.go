@@ -58,7 +58,7 @@ func (u *RelationUsecase) Check(relation zanzibardagdom.Relation) (bool, error) 
 		return true, nil
 	}
 
-	return u.ZanzibarDagClient.Check(from, to)
+	return u.ZanzibarDagClient.Check(from, to, zanzibardagdom.SearchCondition{})
 }
 
 // use to get all relations based on given attr
@@ -121,5 +121,5 @@ func (u *RelationUsecase) ClearAllRelations() error {
 }
 
 func (u *RelationUsecase) GetAllObjectRelations(subject zanzibardagdom.Node) ([]zanzibardagdom.Relation, error) {
-	return u.ZanzibarDagClient.GetAllObjectRelations(subject)
+	return u.ZanzibarDagClient.GetAllObjectRelations(subject, zanzibardagdom.SearchCondition{}, zanzibardagdom.CollectCondition{})
 }

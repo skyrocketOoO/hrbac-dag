@@ -15,6 +15,20 @@ type Node struct {
 	Relation  string `json:"relation"`
 }
 
+type SearchCondition struct {
+	In Compare `json:"in"`
+}
+
+type Compare struct {
+	Namespaces []string `json:"namespaces"`
+	Names      []string `json:"names"`
+	Relations  []string `json:"relations"`
+}
+
+type CollectCondition struct {
+	In Compare `json:"in"`
+}
+
 type ZanzibarDagRepository interface {
 	GetAll() ([]Relation, error)
 	Query(relation Relation) ([]Relation, error)
@@ -22,11 +36,11 @@ type ZanzibarDagRepository interface {
 	Delete(relation Relation) error
 
 	GetAllNamespaces() ([]string, error)
-	Check(from Node, to Node) (bool, error)
-	GetShortestPath(from Node, to Node) ([]Relation, error)
-	GetAllPaths(from Node, to Node) ([][]Relation, error)
-	GetAllObjectRelations(subject Node) ([]Relation, error)
-	GetAllSubjectRelations(object Node) ([]Relation, error)
+	Check(from Node, to Node, searchCond SearchCondition) (bool, error)
+	GetShortestPath(from Node, to Node, searchCond SearchCondition) ([]Relation, error)
+	GetAllPaths(from Node, to Node, searchCond SearchCondition) ([][]Relation, error)
+	GetAllObjectRelations(subject Node, searchCond SearchCondition, collectCond CollectCondition) ([]Relation, error)
+	GetAllSubjectRelations(object Node, searchCond SearchCondition, collectCond CollectCondition) ([]Relation, error)
 
 	ClearAllRelations() error
 }

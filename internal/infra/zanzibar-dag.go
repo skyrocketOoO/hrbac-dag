@@ -137,17 +137,17 @@ func (r *ZanzibarDagRepository) GetAllNamespaces() ([]string, error) {
 	return namespacesResponse.Data, nil
 }
 
-func (r *ZanzibarDagRepository) Check(from zanzibardagdom.Node, to zanzibardagdom.Node) (bool, error) {
-
-	payload := map[string]interface{}{
-		"subject_namespace": from.Namespace,
-		"subject_name":      from.Name,
-		"subject_relation":  from.Relation,
-		"object_namespace":  to.Namespace,
-		"object_name":       to.Name,
-		"relation":          to.Relation,
+func (r *ZanzibarDagRepository) Check(from zanzibardagdom.Node, to zanzibardagdom.Node, searchCond zanzibardagdom.SearchCondition) (bool, error) {
+	type requestBody struct {
+		Subject         zanzibardagdom.Node            `json:"subject"`
+		Object          zanzibardagdom.Node            `json:"object"`
+		SearchCondition zanzibardagdom.SearchCondition `json:"search_condition"`
 	}
-
+	payload := requestBody{
+		Subject:         from,
+		Object:          to,
+		SearchCondition: searchCond,
+	}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return false, err
@@ -174,17 +174,17 @@ func (r *ZanzibarDagRepository) Check(from zanzibardagdom.Node, to zanzibardagdo
 	return true, nil
 }
 
-func (r *ZanzibarDagRepository) GetShortestPath(from zanzibardagdom.Node, to zanzibardagdom.Node) ([]zanzibardagdom.Relation, error) {
-
-	payload := map[string]interface{}{
-		"subject_namespace": from.Namespace,
-		"subject_name":      from.Name,
-		"subject_relation":  from.Relation,
-		"object_namespace":  to.Namespace,
-		"object_name":       to.Name,
-		"relation":          to.Relation,
+func (r *ZanzibarDagRepository) GetShortestPath(from zanzibardagdom.Node, to zanzibardagdom.Node, searchCond zanzibardagdom.SearchCondition) ([]zanzibardagdom.Relation, error) {
+	type requestBody struct {
+		Subject         zanzibardagdom.Node            `json:"subject"`
+		Object          zanzibardagdom.Node            `json:"object"`
+		SearchCondition zanzibardagdom.SearchCondition `json:"search_condition"`
 	}
-
+	payload := requestBody{
+		Subject:         from,
+		Object:          to,
+		SearchCondition: searchCond,
+	}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
@@ -216,17 +216,17 @@ func (r *ZanzibarDagRepository) GetShortestPath(from zanzibardagdom.Node, to zan
 	return relations, nil
 }
 
-func (r *ZanzibarDagRepository) GetAllPaths(from zanzibardagdom.Node, to zanzibardagdom.Node) ([][]zanzibardagdom.Relation, error) {
-
-	payload := map[string]interface{}{
-		"subject_namespace": from.Namespace,
-		"subject_name":      from.Name,
-		"subject_relation":  from.Relation,
-		"object_namespace":  to.Namespace,
-		"object_name":       to.Name,
-		"relation":          to.Relation,
+func (r *ZanzibarDagRepository) GetAllPaths(from zanzibardagdom.Node, to zanzibardagdom.Node, searchCond zanzibardagdom.SearchCondition) ([][]zanzibardagdom.Relation, error) {
+	type requestBody struct {
+		Subject         zanzibardagdom.Node            `json:"subject"`
+		Object          zanzibardagdom.Node            `json:"object"`
+		SearchCondition zanzibardagdom.SearchCondition `json:"search_condition"`
 	}
-
+	payload := requestBody{
+		Subject:         from,
+		Object:          to,
+		SearchCondition: searchCond,
+	}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
@@ -258,14 +258,17 @@ func (r *ZanzibarDagRepository) GetAllPaths(from zanzibardagdom.Node, to zanziba
 	return paths, nil
 }
 
-func (r *ZanzibarDagRepository) GetAllObjectRelations(subject zanzibardagdom.Node) ([]zanzibardagdom.Relation, error) {
-
-	payload := map[string]interface{}{
-		"namespace": subject.Namespace,
-		"name":      subject.Name,
-		"relation":  subject.Relation,
+func (r *ZanzibarDagRepository) GetAllObjectRelations(subject zanzibardagdom.Node, searchCond zanzibardagdom.SearchCondition, collectCond zanzibardagdom.CollectCondition) ([]zanzibardagdom.Relation, error) {
+	type requestBody struct {
+		Subject          zanzibardagdom.Node             `json:"subject"`
+		SearchCondition  zanzibardagdom.SearchCondition  `json:"search_condition"`
+		CollectCondition zanzibardagdom.CollectCondition `json:"collect_condition"`
 	}
-
+	payload := requestBody{
+		Subject:          subject,
+		SearchCondition:  searchCond,
+		CollectCondition: collectCond,
+	}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
@@ -297,14 +300,17 @@ func (r *ZanzibarDagRepository) GetAllObjectRelations(subject zanzibardagdom.Nod
 	return relations, nil
 }
 
-func (r *ZanzibarDagRepository) GetAllSubjectRelations(object zanzibardagdom.Node) ([]zanzibardagdom.Relation, error) {
-
-	payload := map[string]interface{}{
-		"namespace": object.Namespace,
-		"name":      object.Name,
-		"relation":  object.Relation,
+func (r *ZanzibarDagRepository) GetAllSubjectRelations(object zanzibardagdom.Node, searchCond zanzibardagdom.SearchCondition, collectCond zanzibardagdom.CollectCondition) ([]zanzibardagdom.Relation, error) {
+	type requestBody struct {
+		Object           zanzibardagdom.Node             `json:"object"`
+		SearchCondition  zanzibardagdom.SearchCondition  `json:"search_condition"`
+		CollectCondition zanzibardagdom.CollectCondition `json:"collect_condition"`
 	}
-
+	payload := requestBody{
+		Object:           object,
+		SearchCondition:  searchCond,
+		CollectCondition: collectCond,
+	}
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
