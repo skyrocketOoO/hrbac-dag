@@ -62,7 +62,7 @@ var (
 			userApp := app.Group("/user")
 			userHandler := handlerRepo.UserHandler
 			userApp.Get("/", userHandler.GetAll)
-			userApp.Delete("/", userHandler.Delete)
+			userApp.Delete("/:name", userHandler.Delete)
 			userApp.Post("/add-role", userHandler.AddRole)
 			userApp.Post("/remove-role", userHandler.RemoveRole)
 			userApp.Post("/get-all-object-relations", userHandler.GetAllObjectRelations)
@@ -73,7 +73,7 @@ var (
 			roleApp := app.Group("/role")
 			roleHandler := handlerRepo.RoleHandler
 			roleApp.Get("/", roleHandler.GetAll)
-			roleApp.Delete("/", roleHandler.Delete)
+			roleApp.Delete("/:name", roleHandler.Delete)
 			roleApp.Post("/add-relation", roleHandler.AddRelation)
 			roleApp.Post("/remove-relation", roleHandler.RemoveRelation)
 			roleApp.Post("/add-parent", roleHandler.AddParent)

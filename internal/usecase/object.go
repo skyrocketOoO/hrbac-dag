@@ -1,9 +1,9 @@
 package usecase
 
 import (
-	"errors"
 	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
 	usecasedomain "rbac/domain/usecase"
+	"rbac/utils"
 )
 
 type ObjectUsecase struct {
@@ -18,9 +18,40 @@ func NewObjectUsecase(zanzibarDagClient zanzibardagdom.ZanzibarDagRepository, ro
 	}
 }
 
-func (u *ObjectUsecase) GetUserRelations(namespace string, name string, relation string) ([]string, error) {
-	return nil, errors.New("not implemented")
+func (u *ObjectUsecase) GetUserRelations(object zanzibardagdom.Node) ([]zanzibardagdom.Relation, error) {
+	relations, err := u.ZanzibarDagClient.GetAllSubjectRelations(
+		object,
+		zanzibardagdom.SearchCondition{},
+		zanzibardagdom.CollectCondition{},
+	)
+	if err != nil {
+		return nil, err
+	}
+	userRelations := utils.NewSet[zanzibardagdom.Relation]()
+	for _, r := range relations {
+		if r.SubjectNamespace == "user" {
+			userRelations.Add(r)
+		}
+	}
+
+	return userRelations.ToSlice(), nil
 }
-func (u *ObjectUsecase) GetRoleRelations(namespace string, name string, relation string) ([]string, error) {
-	return nil, errors.New("not implemented")
+
+func (u *ObjectUsecase) GetRoleRelations(object zanzibardagdom.Node) ([]zanzibardagdom.Relation, error) {
+	relations, err := u.ZanzibarDagClient.GetAllSubjectRelations(
+		object,
+		zanzibardagdom.SearchCondition{},
+		zanzibardagdom.CollectCondition{},
+	)
+	if err != nil {
+		return nil, err
+	}
+	userRelations := utils.NewSet[zanzibardagdom.Relation]()
+	for _, r := range relations {
+		if r.SubjectNamespace == "role" {
+			userRelations.Add(r)
+		}
+	}
+
+	return userRelations.ToSlice(), nil
 }

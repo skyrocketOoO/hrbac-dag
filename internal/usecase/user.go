@@ -32,9 +32,6 @@ func (u *UserUsecase) GetAll() ([]string, error) {
 		if tuple.SubjectNamespace == "user" {
 			users.Add(tuple.SubjectName)
 		}
-		if tuple.SubjectNamespace == "user" {
-			users.Add(tuple.SubjectName)
-		}
 	}
 
 	return users.ToSlice(), nil

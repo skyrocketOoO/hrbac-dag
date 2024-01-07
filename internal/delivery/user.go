@@ -22,7 +22,7 @@ func NewUserHandler(userUsecase usecase.UserUsecase) *UserHandler {
 // @Description Get a list of all users
 // @Tags User
 // @Produce json
-// @Success 200 {object} domain.DataResponse
+// @Success 200 {object} domain.StringsResponse
 // @Failure 500 {object} domain.ErrResponse
 // @Router /user/ [get]
 func (h *UserHandler) GetAll(c *fiber.Ctx) error {

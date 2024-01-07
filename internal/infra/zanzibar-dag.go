@@ -32,16 +32,18 @@ func (r *ZanzibarDagRepository) GetAll() ([]zanzibardagdom.Relation, error) {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var relations []zanzibardagdom.Relation
-	if err := json.NewDecoder(resp.Body).Decode(&relations); err != nil {
+	type respBody struct {
+		Data []zanzibardagdom.Relation `json:"data"`
+	}
+	body := respBody{}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		return nil, err
 	}
 
-	return relations, nil
+	return body.Data, nil
 }
 
 func (r *ZanzibarDagRepository) Query(relation zanzibardagdom.Relation) ([]zanzibardagdom.Relation, error) {
-
 	resp, err := http.Get(r.Url)
 	if err != nil {
 		return nil, err
@@ -52,12 +54,15 @@ func (r *ZanzibarDagRepository) Query(relation zanzibardagdom.Relation) ([]zanzi
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var relations []zanzibardagdom.Relation
-	if err := json.NewDecoder(resp.Body).Decode(&relations); err != nil {
+	type respBody struct {
+		Data []zanzibardagdom.Relation `json:"data"`
+	}
+	body := respBody{}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		return nil, err
 	}
 
-	return relations, nil
+	return body.Data, nil
 }
 
 func (r *ZanzibarDagRepository) Create(relation zanzibardagdom.Relation) error {
@@ -153,7 +158,7 @@ func (r *ZanzibarDagRepository) Check(from zanzibardagdom.Node, to zanzibardagdo
 		return false, err
 	}
 
-	req, err := http.NewRequest("POST", r.Url+"/relation/check", bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest("POST", r.Url+"/check", bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return false, err
 	}
@@ -190,7 +195,7 @@ func (r *ZanzibarDagRepository) GetShortestPath(from zanzibardagdom.Node, to zan
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", r.Url+"/relation/get-shortest-path", bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest("POST", r.Url+"/get-shortest-path", bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -208,12 +213,15 @@ func (r *ZanzibarDagRepository) GetShortestPath(from zanzibardagdom.Node, to zan
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var relations []zanzibardagdom.Relation
-	if err := json.NewDecoder(resp.Body).Decode(&relations); err != nil {
+	type respBody struct {
+		Data []zanzibardagdom.Relation `json:"data"`
+	}
+	body := respBody{}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		return nil, err
 	}
 
-	return relations, nil
+	return body.Data, nil
 }
 
 func (r *ZanzibarDagRepository) GetAllPaths(from zanzibardagdom.Node, to zanzibardagdom.Node, searchCond zanzibardagdom.SearchCondition) ([][]zanzibardagdom.Relation, error) {
@@ -232,7 +240,7 @@ func (r *ZanzibarDagRepository) GetAllPaths(from zanzibardagdom.Node, to zanziba
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", r.Url+"/relation/get-all-paths", bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest("POST", r.Url+"/get-all-paths", bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -250,12 +258,15 @@ func (r *ZanzibarDagRepository) GetAllPaths(from zanzibardagdom.Node, to zanziba
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var paths [][]zanzibardagdom.Relation
-	if err := json.NewDecoder(resp.Body).Decode(&paths); err != nil {
+	type respBody struct {
+		Data [][]zanzibardagdom.Relation `json:"data"`
+	}
+	body := respBody{}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		return nil, err
 	}
 
-	return paths, nil
+	return body.Data, nil
 }
 
 func (r *ZanzibarDagRepository) GetAllObjectRelations(subject zanzibardagdom.Node, searchCond zanzibardagdom.SearchCondition, collectCond zanzibardagdom.CollectCondition) ([]zanzibardagdom.Relation, error) {
@@ -274,7 +285,7 @@ func (r *ZanzibarDagRepository) GetAllObjectRelations(subject zanzibardagdom.Nod
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", r.Url+"/relation/get-all-object-relations", bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest("POST", r.Url+"/get-all-object-relations", bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -292,12 +303,15 @@ func (r *ZanzibarDagRepository) GetAllObjectRelations(subject zanzibardagdom.Nod
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var relations []zanzibardagdom.Relation
-	if err := json.NewDecoder(resp.Body).Decode(&relations); err != nil {
+	type respBody struct {
+		Data []zanzibardagdom.Relation `json:"data"`
+	}
+	body := respBody{}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		return nil, err
 	}
 
-	return relations, nil
+	return body.Data, nil
 }
 
 func (r *ZanzibarDagRepository) GetAllSubjectRelations(object zanzibardagdom.Node, searchCond zanzibardagdom.SearchCondition, collectCond zanzibardagdom.CollectCondition) ([]zanzibardagdom.Relation, error) {
@@ -316,7 +330,7 @@ func (r *ZanzibarDagRepository) GetAllSubjectRelations(object zanzibardagdom.Nod
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", r.Url+"/relation/get-all-subject-relations", bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest("POST", r.Url+"/get-all-subject-relations", bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -334,17 +348,20 @@ func (r *ZanzibarDagRepository) GetAllSubjectRelations(object zanzibardagdom.Nod
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var relations []zanzibardagdom.Relation
-	if err := json.NewDecoder(resp.Body).Decode(&relations); err != nil {
+	type respBody struct {
+		Data []zanzibardagdom.Relation `json:"data"`
+	}
+	body := respBody{}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 		return nil, err
 	}
 
-	return relations, nil
+	return body.Data, nil
 }
 
 func (r *ZanzibarDagRepository) ClearAllRelations() error {
 
-	req, err := http.NewRequest("POST", r.Url+"/relation/clear-all-relations", nil)
+	req, err := http.NewRequest("POST", r.Url+"/clear-all-relations", nil)
 	if err != nil {
 		return err
 	}
