@@ -93,6 +93,7 @@ var (
 			relationApp.Post("/query", relationHandler.Query)
 			relationApp.Post("/", relationHandler.Create)
 			relationApp.Delete("/", relationHandler.Delete)
+			relationApp.Post("/check", relationHandler.Check)
 			relationApp.Post("/clear-all-relations", relationHandler.ClearAllRelations)
 
 			app.Listen(":3000")

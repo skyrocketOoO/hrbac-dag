@@ -14,7 +14,7 @@ export default function() {
   }
   const layer = 6, base = 6;
 
-  let res = http.del(`${SERVER_URL}/relation/`, null, {headers:Headers});
+  let res = http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
   check(res, { 'ClearAllRelations: status == 200': (r) => r.status == 200 });
 
   group("build graph", () => {

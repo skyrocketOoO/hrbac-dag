@@ -95,6 +95,27 @@ func (h *RelationHandler) Delete(c *fiber.Ctx) error {
 	return nil
 }
 
+func (h *RelationHandler) Check(c *fiber.Ctx) error {
+	req := zanzibardagdom.Relation{}
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(domain.ErrResponse{
+			Error: fmt.Sprintf("Parse body error: %s", err.Error()),
+		})
+	}
+
+	ok, err := h.RelationUsecase.Check(req)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(domain.ErrResponse{
+			Error: err.Error(),
+		})
+	}
+
+	if !ok {
+		return c.SendStatus(fiber.StatusForbidden)
+	}
+	return nil
+}
+
 // @Summary Clear all relations
 // @Description Clear all relations in the system
 // @Tags Relation
