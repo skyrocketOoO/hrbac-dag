@@ -19,3 +19,8 @@ build-image:
 
 run-container:
 	docker run -p 3000:3000 hrbac
+
+backup:
+	git add .
+	git commit -m "backup"
+	git push
