@@ -110,6 +110,64 @@ func (r *ZanzibarDagRepository) Delete(relation zanzibardagdom.Relation) error {
 	return nil
 }
 
+func (r *ZanzibarDagRepository) DeleteByQueries(queries []zanzibardagdom.Relation) error {
+	type requestBody struct {
+		Queries []zanzibardagdom.Relation `json:"queries"`
+	}
+	payload, err := json.Marshal(requestBody{Queries: queries})
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", r.Url+"/delete-by-queries", bytes.NewBuffer(payload))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
+func (r *ZanzibarDagRepository) BatchOperation(operations []zanzibardagdom.Operation) error {
+	type requestBody struct {
+		Operations []zanzibardagdom.Operation `json:"operations"`
+	}
+	payload, err := json.Marshal(requestBody{Operations: operations})
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", r.Url+"/batch-operation", bytes.NewBuffer(payload))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
 func (r *ZanzibarDagRepository) GetAllNamespaces() ([]string, error) {
 	req, err := http.NewRequest("GET", r.Url, nil)
 	if err != nil {

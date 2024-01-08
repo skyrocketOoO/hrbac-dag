@@ -7,8 +7,7 @@ import { TestRelationAPI } from './api/relation.js';
 import { TestObjectAPI } from './api/object.js';
 import { TestAccessInheritance } from './feature/access_inheritance.js';
 import { TestHRBAC } from './feature/hrbac.js';
-import { TestUniversalSyntax } from './feature/regex_*_test.js';
-import { TestCycle } from './scenario/cycle_test.js';
+
 
 export const options = {
   vus: 1,
@@ -20,7 +19,7 @@ export default function() {
     'Content-Type': 'application/json',
   }
 
-  http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+  ClearAllRelations(SERVER_URL)
   // healthy
   let res = http.get(`${SERVER_URL}/healthy`);
   check(res, { 'Server is healthy': (r) => r.status == 200 });
@@ -29,41 +28,45 @@ export default function() {
     group("user", () => {
       TestUserAPI(SERVER_URL, Headers);
     });
-    http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+    ClearAllRelations(SERVER_URL)
     group("role", () => {
       TestRoleAPI(SERVER_URL, Headers);
     });
-    http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+    ClearAllRelations(SERVER_URL)
     group("relation", () => {
       TestRelationAPI(SERVER_URL, Headers);
     });
-    http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+    ClearAllRelations(SERVER_URL)
     group("object", () => {
       TestObjectAPI(SERVER_URL, Headers);
     });
-    http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+    ClearAllRelations(SERVER_URL)
   });
 
   group("feature", () => {
     group("Repeat tuple", () => {
       TestRepeatTuple(SERVER_URL, Headers);
     })
-    http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+    ClearAllRelations(SERVER_URL)
     group("Access inheritance", () => {
       TestAccessInheritance(SERVER_URL, Headers);
     });
-    http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+    ClearAllRelations(SERVER_URL)
     group("HRBAC", () => {
       TestHRBAC(SERVER_URL, Headers);
     });
-    http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+    ClearAllRelations(SERVER_URL)
     // group("* syntax", () => {
     //   TestUniversalSyntax(SERVER_URL, Headers);
     // });
-    // http.post(`${SERVER_URL}/relation/clear-all-relations`, null, {headers:Headers});
+    // ClearAllRelations(SERVER_URL)
   });
 
   group("scenario", () => {
     // checkScenario(SERVER_URL, Headers)
   })
+}
+
+function ClearAllRelations(serverUrl){
+  http.post(`${serverUrl}/relation/clear-all-relations`, null, null);
 }
