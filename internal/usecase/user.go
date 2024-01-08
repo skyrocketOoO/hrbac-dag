@@ -40,17 +40,18 @@ func (u *UserUsecase) GetAll() ([]string, error) {
 }
 
 func (u *UserUsecase) Delete(name string) error {
-	tuples, err := u.RelationUsecaseRepo.QueryExistedRelations("user", name)
-	if err != nil {
-		return err
+	queries := []zanzibardagdom.Relation{
+		{
+			SubjectNamespace: "user",
+			SubjectName:      name,
+		},
+		{
+			ObjectNamespace: "user",
+			ObjectName:      name,
+		},
 	}
 
-	for _, tuple := range tuples {
-		if err := u.ZanzibarDagClient.Delete(tuple); err != nil {
-			return err
-		}
-	}
-	return nil
+	return u.ZanzibarDagClient.DeleteByQueries(queries)
 }
 
 func (u *UserUsecase) GetRoles(name string) ([]string, error) {
