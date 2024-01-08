@@ -44,96 +44,104 @@ func (u *RoleUsecase) GetAll() ([]string, error) {
 }
 
 func (u *RoleUsecase) Delete(name string) error {
-	relations, err := u.RelationUsecaseRepo.QueryExistedRelations("role", name)
-	if err != nil {
-		return err
+	queries := []zanzibardagdom.Relation{
+		{
+			SubjectNamespace: "role",
+			SubjectName:      name,
+		},
+		{
+			ObjectNamespace: "role",
+			ObjectName:      name,
+		},
 	}
 
-	for _, relation := range relations {
-		if err := u.ZanzibarDagClient.Delete(relation); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return u.ZanzibarDagClient.DeleteByQueries(queries)
 }
 
 func (u *RoleUsecase) AddRelation(objNamespace, objName, relation, rolename string) error {
-	rel := zanzibardagdom.Relation{
-		ObjectNamespace:  objNamespace,
-		ObjectName:       objName,
-		Relation:         relation,
-		SubjectNamespace: "role",
-		SubjectName:      rolename,
-		SubjectRelation:  "member",
-	}
-	if err := u.RelationUsecaseRepo.Create(rel); err != nil {
-		return err
-	}
-
-	rel = zanzibardagdom.Relation{
-		ObjectNamespace:  objNamespace,
-		ObjectName:       objName,
-		Relation:         relation,
-		SubjectNamespace: "role",
-		SubjectName:      rolename,
-		SubjectRelation:  "parent",
-	}
-
-	return u.RelationUsecaseRepo.Create(rel)
+	return u.ZanzibarDagClient.BatchOperation([]zanzibardagdom.Operation{
+		{
+			Type: zanzibardagdom.CreateOperation,
+			Relation: zanzibardagdom.Relation{
+				ObjectNamespace:  objNamespace,
+				ObjectName:       objName,
+				Relation:         relation,
+				SubjectNamespace: "role",
+				SubjectName:      rolename,
+				SubjectRelation:  "member",
+			},
+		},
+		{
+			Type: zanzibardagdom.CreateOperation,
+			Relation: zanzibardagdom.Relation{
+				ObjectNamespace:  objNamespace,
+				ObjectName:       objName,
+				Relation:         relation,
+				SubjectNamespace: "role",
+				SubjectName:      rolename,
+				SubjectRelation:  "parent",
+			},
+		},
+	})
 }
 
 func (u *RoleUsecase) RemoveRelation(objNamespace, objName, relation, rolename string) error {
-	rel := zanzibardagdom.Relation{
-		ObjectNamespace:  objNamespace,
-		ObjectName:       objName,
-		Relation:         relation,
-		SubjectNamespace: "role",
-		SubjectName:      rolename,
-		SubjectRelation:  "member",
-	}
-	if err := u.RelationUsecaseRepo.Delete(rel); err != nil {
-		return err
-	}
-
-	rel = zanzibardagdom.Relation{
-		ObjectNamespace:  objNamespace,
-		ObjectName:       objName,
-		Relation:         relation,
-		SubjectNamespace: "role",
-		SubjectName:      rolename,
-		SubjectRelation:  "parent",
-	}
-
-	return u.RelationUsecaseRepo.Delete(rel)
+	return u.ZanzibarDagClient.BatchOperation([]zanzibardagdom.Operation{
+		{
+			Type: zanzibardagdom.DeleteOperation,
+			Relation: zanzibardagdom.Relation{
+				ObjectNamespace:  objNamespace,
+				ObjectName:       objName,
+				Relation:         relation,
+				SubjectNamespace: "role",
+				SubjectName:      rolename,
+				SubjectRelation:  "member",
+			},
+		},
+		{
+			Type: zanzibardagdom.DeleteOperation,
+			Relation: zanzibardagdom.Relation{
+				ObjectNamespace:  objNamespace,
+				ObjectName:       objName,
+				Relation:         relation,
+				SubjectNamespace: "role",
+				SubjectName:      rolename,
+				SubjectRelation:  "parent",
+			},
+		},
+	})
 }
 
+// TODO: should batch three operations
 func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
+	if err := u.ZanzibarDagClient.BatchOperation([]zanzibardagdom.Operation{
+		{
+			Type: zanzibardagdom.CreateOperation,
+			Relation: zanzibardagdom.Relation{
+				ObjectNamespace:  "role",
+				ObjectName:       childRolename,
+				Relation:         "parent",
+				SubjectNamespace: "role",
+				SubjectName:      parentRolename,
+				SubjectRelation:  "member",
+			},
+		},
+		{
+			Type: zanzibardagdom.CreateOperation,
+			Relation: zanzibardagdom.Relation{
+				ObjectNamespace:  "role",
+				ObjectName:       childRolename,
+				Relation:         "parent",
+				SubjectNamespace: "role",
+				SubjectName:      parentRolename,
+				SubjectRelation:  "parent",
+			},
+		},
+	}); err != nil {
+		return err
+	}
+
 	relation := zanzibardagdom.Relation{
-		ObjectNamespace:  "role",
-		ObjectName:       childRolename,
-		Relation:         "parent",
-		SubjectNamespace: "role",
-		SubjectName:      parentRolename,
-		SubjectRelation:  "member",
-	}
-	if err := u.RelationUsecaseRepo.Create(relation); err != nil {
-		return err
-	}
-
-	relation = zanzibardagdom.Relation{
-		ObjectNamespace:  "role",
-		ObjectName:       childRolename,
-		Relation:         "parent",
-		SubjectNamespace: "role",
-		SubjectName:      parentRolename,
-		SubjectRelation:  "parent",
-	}
-	if err := u.RelationUsecaseRepo.Create(relation); err != nil {
-		return err
-	}
-
-	relation = zanzibardagdom.Relation{
 		ObjectNamespace:  "role",
 		ObjectName:       childRolename,
 		Relation:         "modify-permission",
@@ -152,6 +160,7 @@ func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 	return nil
 }
 
+// TODO: if role has no parent, we can delete the modify-permission relation
 func (u *RoleUsecase) RemoveParent(childRolename, parentRolename string) error {
 	query := zanzibardagdom.Relation{
 		ObjectNamespace:  "role",
