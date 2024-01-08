@@ -33,7 +33,7 @@ func (u *RelationUsecase) Create(relation zanzibardagdom.Relation) error {
 	if err := utils.ValidateReserveWord(relation); err != nil {
 		return err
 	}
-	return u.ZanzibarDagClient.Create(relation)
+	return u.ZanzibarDagClient.Create(relation, false)
 }
 
 func (u *RelationUsecase) Delete(relation zanzibardagdom.Relation) error {
