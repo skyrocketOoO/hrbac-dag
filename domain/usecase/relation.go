@@ -1,7 +1,7 @@
 package usecasedomain
 
 import (
-	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
+	zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
 )
 
 type RelationUsecase interface {

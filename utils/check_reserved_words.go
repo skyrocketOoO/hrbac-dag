@@ -2,7 +2,8 @@ package utils
 
 import (
 	"errors"
-	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
+
+	zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
 )
 
 func HasReserveWord(word string, sort string) bool {

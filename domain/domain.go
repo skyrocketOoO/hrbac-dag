@@ -1,6 +1,6 @@
 package domain
 
-import zanzibardagdom "rbac/domain/infra/zanzibar-dag"
+import zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
 
 type ErrResponse struct {
 	Error string `json:"error"`

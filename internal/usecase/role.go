@@ -1,19 +1,21 @@
 package usecase
 
 import (
-	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
 	ucdomain "rbac/domain/usecase"
 	"rbac/utils"
+
+	zclient "github.com/skyrocketOoO/zanazibar-dag/client"
+	zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
 
 	"gorm.io/gorm"
 )
 
 type RoleUsecase struct {
-	ZanzibarDagClient   zanzibardagdom.ZanzibarDagRepository
+	ZanzibarDagClient   *zclient.ZanzibarDagClient
 	RelationUsecaseRepo ucdomain.RelationUsecase
 }
 
-func NewRoleUsecase(zanzibarDagClient zanzibardagdom.ZanzibarDagRepository, relationUsecaseRepo ucdomain.RelationUsecase) *RoleUsecase {
+func NewRoleUsecase(zanzibarDagClient *zclient.ZanzibarDagClient, relationUsecaseRepo ucdomain.RelationUsecase) *RoleUsecase {
 	return &RoleUsecase{
 		ZanzibarDagClient:   zanzibarDagClient,
 		RelationUsecaseRepo: relationUsecaseRepo,

@@ -53,7 +53,10 @@ var (
 				return nil
 			})
 
-			infraRepo := infra.NewInfraRepository()
+			infraRepo, err := infra.NewInfraRepository()
+			if err != nil {
+				panic(err.Error())
+			}
 
 			usecaseRepo := usecase.NewUsecaseRepository(infraRepo)
 

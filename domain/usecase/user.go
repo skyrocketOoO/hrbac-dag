@@ -1,6 +1,6 @@
 package usecasedomain
 
-import zanzibardagdom "rbac/domain/infra/zanzibar-dag"
+import zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
 
 type UserUsecase interface {
 	GetAll() ([]string, error)

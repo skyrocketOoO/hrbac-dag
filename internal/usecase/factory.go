@@ -13,13 +13,13 @@ type UsecaseRepository struct {
 }
 
 func NewUsecaseRepository(infraRepo *infra.InfraRepository) *UsecaseRepository {
-	relationUsecase := NewRelationUsecase(infraRepo.ZanzibarDagRepo)
-	roleUsecase := NewRoleUsecase(infraRepo.ZanzibarDagRepo, relationUsecase)
+	relationUsecase := NewRelationUsecase(infraRepo.ZanzibarDagClient)
+	roleUsecase := NewRoleUsecase(infraRepo.ZanzibarDagClient, relationUsecase)
 
 	return &UsecaseRepository{
-		ObjectUsecase:   NewObjectUsecase(infraRepo.ZanzibarDagRepo, roleUsecase),
+		ObjectUsecase:   NewObjectUsecase(infraRepo.ZanzibarDagClient, roleUsecase),
 		RelationUsecase: relationUsecase,
 		RoleUsecase:     roleUsecase,
-		UserUsecase:     NewUserUsecase(infraRepo.ZanzibarDagRepo, relationUsecase),
+		UserUsecase:     NewUserUsecase(infraRepo.ZanzibarDagClient, relationUsecase),
 	}
 }

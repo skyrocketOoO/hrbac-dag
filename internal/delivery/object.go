@@ -3,8 +3,9 @@ package delivery
 import (
 	"fmt"
 	"rbac/domain"
-	zanzibardagdom "rbac/domain/infra/zanzibar-dag"
 	usecase "rbac/domain/usecase"
+
+	zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
 
 	"github.com/gofiber/fiber/v2"
 )
