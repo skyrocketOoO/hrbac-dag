@@ -2,8 +2,8 @@ package usecase
 
 import (
 	ucdomain "rbac/domain/usecase"
-	"rbac/utils"
 
+	"github.com/skyrocketOoO/go-utility/set"
 	zclient "github.com/skyrocketOoO/zanazibar-dag/client"
 	zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
 )
@@ -26,7 +26,7 @@ func (u *UserUsecase) GetAll() ([]string, error) {
 		return nil, err
 	}
 
-	users := utils.NewSet[string]()
+	users := set.NewSet[string]()
 	for _, tuple := range tuples {
 		if tuple.ObjectNamespace == "user" {
 			users.Add(tuple.ObjectName)
@@ -66,7 +66,7 @@ func (u *UserUsecase) GetRoles(name string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	roles := utils.NewSet[string]()
+	roles := set.NewSet[string]()
 	for _, relation := range relations {
 		roles.Add(relation.ObjectName)
 	}

@@ -6,6 +6,7 @@ require (
 	github.com/fatih/color v1.16.0
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/gofiber/swagger v0.1.14
+	github.com/skyrocketOoO/go-utility v0.0.0-20240108174337-0589825208ea
 	github.com/skyrocketOoO/zanazibar-dag v0.0.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2

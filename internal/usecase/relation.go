@@ -3,6 +3,7 @@ package usecase
 import (
 	"rbac/utils"
 
+	"github.com/skyrocketOoO/go-utility/set"
 	zclient "github.com/skyrocketOoO/zanazibar-dag/client"
 	zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
 )
@@ -65,7 +66,7 @@ func (u *RelationUsecase) Check(relation zanzibardagdom.Relation) (bool, error) 
 
 // use to get all relations based on given attr
 func (u *RelationUsecase) QueryExistedRelations(namespace, name string) ([]zanzibardagdom.Relation, error) {
-	res := utils.NewSet[zanzibardagdom.Relation]()
+	res := set.NewSet[zanzibardagdom.Relation]()
 
 	if name == "" {
 		query := zanzibardagdom.Relation{
