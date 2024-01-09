@@ -102,8 +102,8 @@ github.com/sagikazarmark/slog-shim v0.1.0/go.mod h1:SrcSrq8aKtyuqEI1uvTDTK1arOWR
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
 github.com/skyrocketOoO/go-utility v0.0.0-20240108174337-0589825208ea h1:I0p3bKj27RTEGS5ubk7ElIWcoa6ZZ0I0kQWmQnlcP5U=
 github.com/skyrocketOoO/go-utility v0.0.0-20240108174337-0589825208ea/go.mod h1:KtbMiCcDoEaWFLHr4N/cVpsUij2O8CWh1Sk8xsiGXRw=
-github.com/skyrocketOoO/zanazibar-dag v0.0.2 h1:VIQnk9CPIKVdVgOVrcwvIarxALuxhOPTsb8Vr7qEAtg=
-github.com/skyrocketOoO/zanazibar-dag v0.0.2/go.mod h1:211Dv6NhSgmbSaRUN8pQuk/+fhb/4/WBUs/TssRGgBU=
+github.com/skyrocketOoO/zanazibar-dag v0.0.3 h1:TdyZBRhQhPwY1mkKAL63c9v+HPH/Z/RFHt/I5GnaU7E=
+github.com/skyrocketOoO/zanazibar-dag v0.0.3/go.mod h1:211Dv6NhSgmbSaRUN8pQuk/+fhb/4/WBUs/TssRGgBU=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/spf13/afero v1.11.0 h1:WJQKhtpdm3v2IzqG8VMqrr6Rf3UYpEF239Jy9wNepM8=

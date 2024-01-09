@@ -6,8 +6,6 @@ import (
 	"github.com/skyrocketOoO/go-utility/set"
 	zclient "github.com/skyrocketOoO/zanazibar-dag/client"
 	zanzibardagdom "github.com/skyrocketOoO/zanazibar-dag/domain"
-
-	"gorm.io/gorm"
 )
 
 type RoleUsecase struct {
@@ -139,24 +137,18 @@ func (u *RoleUsecase) AddParent(childRolename, parentRolename string) error {
 				SubjectRelation:  "parent",
 			},
 		},
+		{
+			Type: zanzibardagdom.CreateIfNotExistOperation,
+			Relation: zanzibardagdom.Relation{
+				ObjectNamespace:  "role",
+				ObjectName:       childRolename,
+				Relation:         "modify-permission",
+				SubjectNamespace: "role",
+				SubjectName:      childRolename,
+				SubjectRelation:  "parent",
+			},
+		},
 	}); err != nil {
-		return err
-	}
-
-	relation := zanzibardagdom.Relation{
-		ObjectNamespace:  "role",
-		ObjectName:       childRolename,
-		Relation:         "modify-permission",
-		SubjectNamespace: "role",
-		SubjectName:      childRolename,
-		SubjectRelation:  "parent",
-	}
-
-	err := u.RelationUsecaseRepo.Create(relation)
-	if err != nil {
-		if err == gorm.ErrDuplicatedKey {
-			return nil
-		}
 		return err
 	}
 	return nil
